@@ -5,11 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Tao.DevIl;
-using Tao.OpenGl;           // для работы с библиотекой OpenGL 
-//using Tao.FreeGlut;         // для работы с библиотекой FreeGLUT 
-using Tao.Platform.Windows; // для работы с элементом управления SimpleOpenGLControl 
-
 namespace Second
 {
     
