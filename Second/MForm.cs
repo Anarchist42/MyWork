@@ -22,14 +22,17 @@ namespace Second
         Paint Draw;
         /*Исходный размер окна*/
         Point SizeForm;
+        /*Исходный размер GlControl*/
+        Point SizeGlControl;
+        /*Флаг находился ли мышка на GlControl*/
+        bool FlagMouseGlControl;
         /*Шаг для прокрутки*/
         double Wheel = 0.01;
         #endregion
 
         #region Константы
         /*Размер бардюра у GlControl*/
-        const int Difference = 5;
-        
+        const int Difference = 5;      
         #endregion
 
         public MainForm()
@@ -40,6 +43,17 @@ namespace Second
             /*Создаем объект класса отрисовки*/
             Draw = new Paint(MainPaint);
             SizeForm = new Point(this.Width, this.Height);
+            SizeGlControl = new Point(MainPaint.Width, MainPaint.Height);
+            FlagMouseGlControl = false;
+
+            Draw.EARTHSIZE = 100;
+            Draw.XAREASIZE = 582;
+            FirstStartButton.Visible = false;
+            TextBoxWidthArea.Visible = false;
+            TextBoxHeightEarth.Visible = false;
+            LabelHeightEarth.Visible = false;
+            LabelWidthArea.Visible = false;
+            FirstLabelMain.Visible = false;
         }
 
         private void MainPaint_Load(object sender, EventArgs e)
@@ -65,6 +79,9 @@ namespace Second
             /*очищаем экран*/
             Gl.glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
             Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);
+
+
+            RenderTimer.Start();
         }
 
         private void RenderTimer_Tick(object sender, EventArgs e)
@@ -76,6 +93,43 @@ namespace Second
                 MainPaint_HScroll.Visible = false;
             else MainPaint_HScroll.Visible = true;
             Draw.Draw();
+        }
+
+        private void MainForm_SizeChanged(object sender, EventArgs e)
+        {
+            int ChangeWidth = this.Width - SizeForm.X;
+            int ChangeHeight = this.Height - SizeForm.Y;
+            /*Если основная часть программы не запущена (Не нажата первая кнопка "Start")*/
+            if (FirstStartButton.Visible == true)
+            {
+                FirstStartButton.Location = new Point(FirstStartButton.Location.X + ChangeWidth, FirstStartButton.Location.Y);
+                TextBoxWidthArea.Location = new Point(TextBoxWidthArea.Location.X + ChangeWidth, TextBoxWidthArea.Location.Y);
+                TextBoxHeightEarth.Location = new Point(TextBoxHeightEarth.Location.X + ChangeWidth, TextBoxHeightEarth.Location.Y);
+                LabelHeightEarth.Location = new Point(LabelHeightEarth.Location.X + ChangeWidth, LabelHeightEarth.Location.Y);
+                LabelWidthArea.Location = new Point(LabelWidthArea.Location.X + ChangeWidth, LabelWidthArea.Location.Y);
+                FirstLabelMain.Location = new Point(FirstLabelMain.Location.X + ChangeWidth, FirstLabelMain.Location.Y);
+            }
+            /*Изменяем размеры окна*/
+            MainPaint.Width += ChangeWidth;
+            MainPaint.Height += ChangeHeight;
+            /*Настраиваем зум*/
+            if (ChangeWidth > ChangeHeight) Draw.ZOOM = Convert.ToDouble(MainPaint.Width) / Convert.ToDouble(SizeGlControl.X);
+            else Draw.ZOOM = Convert.ToDouble(MainPaint.Height) / Convert.ToDouble(SizeGlControl.Y);         
+            /*Сохраняем размеры текущего окна*/
+            SizeForm.X = this.Width;
+            SizeForm.Y = this.Height;
+            /*Настраиваем горизонтальный ползунок*/
+            MainPaint_VScroll.Location = new Point(MainPaint_VScroll.Location.X + ChangeWidth, MainPaint_VScroll.Location.Y);
+            MainPaint_VScroll.Size = new Size(MainPaint_VScroll.Size.Width, MainPaint.Height);
+            /*Настраиваем вертикальный ползунок*/
+            MainPaint_HScroll.Location = new Point(MainPaint_HScroll.Location.X, MainPaint_HScroll.Location.Y + ChangeHeight);
+            MainPaint_HScroll.Size = new Size(MainPaint.Width, MainPaint_HScroll.Size.Height);
+            /*Настраиваем отображение "нового" окна для функций Gl*/
+            Gl.glViewport(0, 0, MainPaint.Width, MainPaint.Height);
+            Gl.glMatrixMode(Gl.GL_PROJECTION);
+            Gl.glLoadIdentity();
+            Gl.glOrtho(-MainPaint.Width / 2.0, MainPaint.Width / 2.0, -MainPaint.Height / 2.0, MainPaint.Height / 2.0, -1, 1);
+            Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);
         }
 
         private void MainPaint_MouseWheel(object sender, System.Windows.Forms.MouseEventArgs e)
@@ -92,37 +146,18 @@ namespace Second
 
         private void MainPaint_MouseMove(object sender, MouseEventArgs e)
         {
-        }
-
-        private void MainForm_SizeChanged(object sender, EventArgs e)
-        {
-            int ChangeWidth = this.Width - SizeForm.X;
-            int ChangeHeight = this.Height - SizeForm.Y;
-            if (FirstStartButton.Visible == true)
-            {
-                FirstStartButton.Location = new Point(FirstStartButton.Location.X + ChangeWidth, FirstStartButton.Location.Y);
-                TextBoxWidthArea.Location = new Point(TextBoxWidthArea.Location.X + ChangeWidth, TextBoxWidthArea.Location.Y);
-                TextBoxHeightEarth.Location = new Point(TextBoxHeightEarth.Location.X + ChangeWidth, TextBoxHeightEarth.Location.Y);
-                LabelHeightEarth.Location = new Point(LabelHeightEarth.Location.X + ChangeWidth, LabelHeightEarth.Location.Y);
-                LabelWidthArea.Location = new Point(LabelWidthArea.Location.X + ChangeWidth, LabelWidthArea.Location.Y);
-                FirstLabelMain.Location = new Point(FirstLabelMain.Location.X + ChangeWidth, FirstLabelMain.Location.Y);
-            }
-            MainPaint.Width += ChangeWidth;
-            MainPaint.Height += ChangeHeight;
-            MainPaint_VScroll.Location = new Point(MainPaint_VScroll.Location.X + ChangeWidth, MainPaint_VScroll.Location.Y);
-            MainPaint_VScroll.Size = new Size(MainPaint_VScroll.Size.Width, MainPaint.Height);
-            MainPaint_HScroll.Location = new Point(MainPaint_HScroll.Location.X, MainPaint_HScroll.Location.Y + ChangeHeight);
-            MainPaint_HScroll.Size = new Size(MainPaint.Width, MainPaint_HScroll.Size.Height);
-            SizeForm.X = this.Width;
-            SizeForm.Y = this.Height;
+            if(FlagMouseGlControl)
+                Draw.MOUSEPOSITION = new Point(e.X, e.Y);
         }
 
         private void MainPaint_MouseEnter(object sender, EventArgs e)
         {
+            FlagMouseGlControl = true;
         }
 
         private void MainPaint_MouseLeave(object sender, EventArgs e)
         {
+            FlagMouseGlControl = false;
         }
 
         private void MainPaint_MouseClick(object sender, MouseEventArgs e)
@@ -135,6 +170,7 @@ namespace Second
 
         private void MainPaint_MouseDown(object sender, MouseEventArgs e)
         {
+            Draw.MOUSEPOSITION = new Point(e.X, e.Y);
         }
 
         private void NewLayer_Click(object sender, EventArgs e)
@@ -151,6 +187,8 @@ namespace Second
             LabelHeightEarth.Visible = false;
             LabelWidthArea.Visible = false;
             FirstLabelMain.Visible = false;
+
+
             RenderTimer.Start();
         }
 
