@@ -18,6 +18,8 @@ namespace Second
         #region Нужны Get\Set
         /*Зум*/
         double Zoom;
+        /*Минимальный зум*/
+        double MinZoom;
         /*Количество клеток на линии*/
         int CellsNumber;
         /*Смещение по оси X*/
@@ -36,8 +38,6 @@ namespace Second
         #region Не нужны Get\Set
         /*Указатель на окно где рисуем*/
         SimpleOpenGlControl GLPaint;
-        /*Минимальный зум*/
-        double MinZoom;
         /*Cлои почвы*/
         List<Layer> Layers = new List<Layer>();
         #endregion
@@ -53,7 +53,7 @@ namespace Second
         {
             this.GLPaint = Paint;
             this.MousePosition = new Point(0, 0);
-            this.EarthSize = 100;
+            this.EarthSize = 0;
             this.CellsNumber = 10;
             this.XOffset = 0.0;
             this.YOffset = 0.0;
@@ -67,6 +67,11 @@ namespace Second
         {
             get { return this.Zoom; }
             set { this.Zoom = (value > MinZoom) ? value : MinZoom; }
+        }
+        public double MINZOOM
+        {
+            get { return this.MinZoom; }
+            set { this.MinZoom = value; this.Zoom = value; }
         }
         public int CELLSNUMBER
         {
@@ -127,43 +132,45 @@ namespace Second
             Gl.glPushMatrix();          
             /*так как максимум на линии - cells_number клеток, 
             то надо выбрать по Х или Y будем выбирать шаг*/
-            int GridStep = (Convert.ToInt32(GLPaint.Width / CellsNumber / Zoom)
-                > Convert.ToInt32(GLPaint.Height / CellsNumber / Zoom))
-                ? Convert.ToInt32(GLPaint.Width / CellsNumber / Zoom)
-                : Convert.ToInt32(GLPaint.Height / CellsNumber / Zoom);
+            int GridStep = (Convert.ToInt32(GLPaint.Width / CellsNumber)
+                > Convert.ToInt32(GLPaint.Height / CellsNumber))
+                ? Convert.ToInt32(GLPaint.Width / CellsNumber)
+                : Convert.ToInt32(GLPaint.Height / CellsNumber);
             if (GridStep == 0) GridStep = 1;
             Gl.glLineWidth(1);
             Gl.glColor3d(0.8, 0.8, 0.8);
-            double GridHalfDown = (-GLPaint.Height / 2 - YOffset) / Zoom;
-            double GridHalfUp = (GLPaint.Height / 2 - YOffset) / Zoom;
-            double GridHalfLeft = (-GLPaint.Width / 2 - XOffset) / Zoom;
-            double GridHalfRight = (GLPaint.Width / 2 - XOffset) / Zoom;
+            double GridHalfDown = (-GLPaint.Height / 2 - YOffset);
+            double GridHalfUp = (GLPaint.Height / 2 - YOffset);
+            double GridHalfLeft = (-GLPaint.Width / 2 - XOffset);
+            double GridHalfRight = (GLPaint.Width / 2 - XOffset);
+            /*Скалируем до 1*/
+            Gl.glScaled(1 / Zoom, 1 / Zoom, 1 / Zoom);
             for (i = 0; i > GridHalfDown; i -= GridStep)
             {
                 Gl.glBegin(Gl.GL_LINES);
-                Gl.glVertex2d(GridHalfLeft, i);
-                Gl.glVertex2d(GridHalfRight, i);
+                Gl.glVertex2d(GridHalfLeft, i - 2 );
+                Gl.glVertex2d(GridHalfRight, i - 2);
                 Gl.glEnd();
             }
             for (i = 0; i <= GridHalfUp; i += GridStep)
             {
                 Gl.glBegin(Gl.GL_LINES);
-                Gl.glVertex2d(GridHalfLeft, i);
-                Gl.glVertex2d(GridHalfRight, i);
+                Gl.glVertex2d(GridHalfLeft, i - 2);
+                Gl.glVertex2d(GridHalfRight, i - 2);
                 Gl.glEnd();
             }
             for (i = 0; i > GridHalfLeft; i -= GridStep)
             {
                 Gl.glBegin(Gl.GL_LINES);
-                Gl.glVertex2d(i, GridHalfDown);
-                Gl.glVertex2d(i, GridHalfUp);
+                Gl.glVertex2d(i - 2, GridHalfDown);
+                Gl.glVertex2d(i - 2, GridHalfUp);
                 Gl.glEnd();
             }
             for (i = 0; i <= GridHalfRight; i += GridStep)
             {
                 Gl.glBegin(Gl.GL_LINES);
-                Gl.glVertex2d(i, GridHalfDown);
-                Gl.glVertex2d(i, GridHalfUp);
+                Gl.glVertex2d(i - 2, GridHalfDown);
+                Gl.glVertex2d(i - 2, GridHalfUp);
                 Gl.glEnd();
             }
             Gl.glPopMatrix();
@@ -182,11 +189,11 @@ namespace Second
                 Gl.glPushMatrix();
                 Gl.glScaled(1 / Zoom, 1 / Zoom, 1 / Zoom);
                 Gl.glBegin(Gl.GL_POINTS);
-                Gl.glVertex2d(0.0, i * Zoom);
+                Gl.glVertex2d(-2.0, i - 2);
                 Gl.glEnd();
-                Gl.glTranslated(5.0, i * Zoom + 5.0, 0.0);
+                Gl.glTranslated(5.0, i + 5.0, 0.0);
                 Gl.glScaled(0.08, 0.08, 0.08);
-                string number = (i + y).ToString();
+                string number = Convert.ToInt32((i / Zoom + y)).ToString();
                 for (int j = 0; j < number.Length; j++)
                     Glut.glutStrokeCharacter(Glut.GLUT_STROKE_ROMAN, number[j]);
                 Gl.glPopMatrix();
@@ -196,14 +203,14 @@ namespace Second
                 Gl.glPushMatrix();
                 Gl.glScaled(1 / Zoom, 1 / Zoom, 1 / Zoom);
                 Gl.glBegin(Gl.GL_POINTS);
-                Gl.glVertex2d(i * Zoom, 0.0);
+                Gl.glVertex2d(i - 2, -2.0);
                 Gl.glEnd();
                 if (i % (GridStep * 2) == 0)
-                    Gl.glTranslated(i * Zoom + 5.0, 5.0, 0.0);
+                    Gl.glTranslated(i + 5.0, 5.0, 0.0);
                 else
-                    Gl.glTranslated(i * Zoom + 5.0, -15.0, 0.0);
+                    Gl.glTranslated(i + 5.0, -15.0, 0.0);
                 Gl.glScaled(0.08, 0.08, 0.08);
-                string number = (i + x).ToString();
+                string number = Convert.ToInt32((i / Zoom + x)).ToString();
                 for (int j = 0; j < number.Length; j++)
                     Glut.glutStrokeCharacter(Glut.GLUT_STROKE_ROMAN, number[j]);
                 Gl.glPopMatrix();
@@ -213,11 +220,11 @@ namespace Second
                 Gl.glPushMatrix();
                 Gl.glScaled(1 / Zoom, 1 / Zoom, 1 / Zoom);
                 Gl.glBegin(Gl.GL_POINTS);
-                Gl.glVertex2d(0.0, i * Zoom);
+                Gl.glVertex2d(-2.0, i - 2);
                 Gl.glEnd();
-                Gl.glTranslated(5.0, i * Zoom + 5.0, 0.0);
+                Gl.glTranslated(5.0, i + 5.0, 0.0);
                 Gl.glScaled(0.08, 0.08, 0.08);
-                string number = (i + y).ToString();
+                string number = Convert.ToInt32((i / Zoom + y)).ToString();
                 for (int j = 0; j < number.Length; j++)
                     Glut.glutStrokeCharacter(Glut.GLUT_STROKE_ROMAN, number[j]);
                 Gl.glPopMatrix();
@@ -227,14 +234,14 @@ namespace Second
                 Gl.glPushMatrix();
                 Gl.glScaled(1 / Zoom, 1 / Zoom, 1 / Zoom);
                 Gl.glBegin(Gl.GL_POINTS);
-                Gl.glVertex2d(i * Zoom, 0.0);
+                Gl.glVertex2d(i - 2, -2.0);
                 Gl.glEnd();
                 if (i % (GridStep * 2) == 0)
-                    Gl.glTranslated(i * Zoom + 5.0, 5.0, 0.0);
+                    Gl.glTranslated(i + 5.0, 5.0, 0.0);
                 else
-                    Gl.glTranslated(i * Zoom + 5.0, -15.0, 0.0);
+                    Gl.glTranslated(i + 5.0, -15.0, 0.0);
                 Gl.glScaled(0.08, 0.08, 0.08);
-                string number = (i + x).ToString();
+                string number = Convert.ToInt32((i / Zoom + x)).ToString();
                 for (int j = 0; j < number.Length; j++)
                     Glut.glutStrokeCharacter(Glut.GLUT_STROKE_ROMAN, number[j]);
                 Gl.glPopMatrix();
@@ -243,50 +250,64 @@ namespace Second
             #endregion
 
             #region Координаты
+            /*Скалируем до 1*/
+            Gl.glScaled(1 / Zoom, 1 / Zoom, 1 / Zoom);
+            /*Пробел, X\Y, :, -, Максимальная длина числа*/
+            int LengthCoords = (4 + YAreaSize.ToString().Length)*8;
             /*Фон для координат*/
             Gl.glPushMatrix();
             Gl.glColor3d(1.0, 1.0, 1.0);
             Gl.glPushMatrix();
             Gl.glBegin(Gl.GL_QUADS);
-            Gl.glVertex2d(GLPaint.Width / 2 - 100, GLPaint.Height / 2);
-            Gl.glVertex2d(GLPaint.Width / 2 + 100, GLPaint.Height / 2);
-            Gl.glVertex2d(GLPaint.Width / 2 + 100, GLPaint.Height / 2 - 30);
-            Gl.glVertex2d(GLPaint.Width / 2 - 100, GLPaint.Height / 2 - 30);
+            Gl.glVertex2d(GLPaint.Width / 2 - LengthCoords, GLPaint.Height / 2);
+            Gl.glVertex2d(GLPaint.Width / 2 - 4, GLPaint.Height / 2);
+            Gl.glVertex2d(GLPaint.Width / 2 - 4, GLPaint.Height / 2 - 30);
+            Gl.glVertex2d(GLPaint.Width / 2 - LengthCoords, GLPaint.Height / 2 - 30);
             Gl.glEnd();
             Gl.glPopMatrix();
             /*Границы*/
             Gl.glPushMatrix();
             Gl.glColor3d(0.0, 0.0, 0.0);           
             Gl.glBegin(Gl.GL_LINES);
-            Gl.glVertex2d(GLPaint.Width / 2 - 100, GLPaint.Height / 2);
-            Gl.glVertex2d(GLPaint.Width / 2, GLPaint.Height / 2);
-            Gl.glVertex2d(GLPaint.Width / 2, GLPaint.Height / 2);
-            Gl.glVertex2d(GLPaint.Width / 2, GLPaint.Height / 2 - 30);
-            Gl.glVertex2d(GLPaint.Width / 2, GLPaint.Height / 2 - 30);
-            Gl.glVertex2d(GLPaint.Width / 2 - 100, GLPaint.Height / 2 - 30);
-            Gl.glVertex2d(GLPaint.Width / 2 - 100, GLPaint.Height / 2 - 30);
-            Gl.glVertex2d(GLPaint.Width / 2 - 100, GLPaint.Height / 2);
+            Gl.glVertex2d(GLPaint.Width / 2 - LengthCoords, GLPaint.Height / 2);
+            Gl.glVertex2d(GLPaint.Width / 2 - 4, GLPaint.Height / 2);
+            Gl.glVertex2d(GLPaint.Width / 2 - 4, GLPaint.Height / 2);
+            Gl.glVertex2d(GLPaint.Width / 2 - 4, GLPaint.Height / 2 - 30);
+            Gl.glVertex2d(GLPaint.Width / 2 - 4, GLPaint.Height / 2 - 30);
+            Gl.glVertex2d(GLPaint.Width / 2 - LengthCoords, GLPaint.Height / 2 - 30);
+            Gl.glVertex2d(GLPaint.Width / 2 - LengthCoords, GLPaint.Height / 2 - 30);
+            Gl.glVertex2d(GLPaint.Width / 2 - LengthCoords, GLPaint.Height / 2);
             Gl.glEnd();
             Gl.glPopMatrix();
             /*Координаты*/
             Gl.glColor3d(0.0, 0.0, 0.0);
             Gl.glPushMatrix();
-            Gl.glTranslated(GLPaint.Width / 2 - 95, GLPaint.Height / 2 - 16, 0.0);
+            Gl.glTranslated(GLPaint.Width / 2 - LengthCoords + 5, GLPaint.Height / 2 - 16, 0.0);
             Gl.glScaled(0.10, 0.10, 0.10);
-            string coord = "X:"+ Math.Round(((XAreaSize * Zoom - GLPaint.Width + Difference) / 2 - XOffset + MousePosition.X) / Zoom, 2).ToString();
-            for (int j = 0; j < coord.Length; j++)
-                Glut.glutStrokeCharacter(Glut.GLUT_STROKE_ROMAN, coord[j]);
+            string Coordinate = "X: " + Convert.ToInt32(((XAreaSize * Zoom - GLPaint.Width + Difference) / 2 - XOffset + MousePosition.X) / Zoom).ToString();
+            for (int j = 0; j < Coordinate.Length; j++)
+                Glut.glutStrokeCharacter(Glut.GLUT_STROKE_ROMAN, Coordinate[j]);
             Gl.glPopMatrix();
             Gl.glPushMatrix();
-            Gl.glTranslated(GLPaint.Width / 2 - 95, GLPaint.Height / 2 - 28, 0.0);
+            Gl.glTranslated(GLPaint.Width / 2 - LengthCoords + 5, GLPaint.Height / 2 - 28, 0.0);
             Gl.glScaled(0.10, 0.10, 0.10);
-            coord = "Y:"+ Math.Round((EarthSize - ((YAreaSize * Zoom - GLPaint.Height + Difference) / 2 + YOffset + MousePosition.Y) / Zoom), 2).ToString();
-            for (int j = 0; j < coord.Length; j++)
-                Glut.glutStrokeCharacter(Glut.GLUT_STROKE_ROMAN, coord[j]);
+            Coordinate = "Y:"+ Convert.ToInt32((EarthSize - ((YAreaSize * Zoom - GLPaint.Height + Difference) / 2 + YOffset + MousePosition.Y) / Zoom)).ToString();
+            for (int j = 0; j < Coordinate.Length; j++)
+                Glut.glutStrokeCharacter(Glut.GLUT_STROKE_ROMAN, Coordinate[j]);
             Gl.glPopMatrix();
             Gl.glPopMatrix();
             #endregion
         }
+
+        #region Передача параметров
+        /*Вычисление максимального значения скроллбара*/
+        /*Параметры: TypeScroll ( 0 - для вертикального, 1 - для горизонтального)*/
+        public int ScrollMaximum(int TypeScroll)
+        {
+            if (TypeScroll == 0) return Convert.ToInt32(Zoom * GLPaint.Height);
+            else return Convert.ToInt32(Zoom * GLPaint.Width);
+        }
+        #endregion
         #region Потом
 
         public void add_layers(int XAreaSize, int layer_height, int NumberOfPoints)

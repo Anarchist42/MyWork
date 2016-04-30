@@ -47,7 +47,7 @@ namespace Second
             FlagMouseGlControl = false;
 
             Draw.EARTHSIZE = 100;
-            Draw.XAREASIZE = 582;
+            Draw.XAREASIZE = 100000;
             FirstStartButton.Visible = false;
             TextBoxWidthArea.Visible = false;
             TextBoxHeightEarth.Visible = false;
@@ -113,17 +113,21 @@ namespace Second
             MainPaint.Width += ChangeWidth;
             MainPaint.Height += ChangeHeight;
             /*Настраиваем зум*/
-            if (ChangeWidth > ChangeHeight) Draw.ZOOM = Convert.ToDouble(MainPaint.Width) / Convert.ToDouble(SizeGlControl.X);
-            else Draw.ZOOM = Convert.ToDouble(MainPaint.Height) / Convert.ToDouble(SizeGlControl.Y);         
+            if (ChangeWidth > ChangeHeight) Draw.ZOOM = Draw.MINZOOM * Convert.ToDouble(MainPaint.Width - Difference) / Convert.ToDouble(SizeGlControl.X - Difference);
+            else Draw.ZOOM = Draw.MINZOOM * Convert.ToDouble(MainPaint.Height - Difference) / Convert.ToDouble(SizeGlControl.Y - Difference);         
             /*Сохраняем размеры текущего окна*/
             SizeForm.X = this.Width;
             SizeForm.Y = this.Height;
             /*Настраиваем горизонтальный ползунок*/
             MainPaint_VScroll.Location = new Point(MainPaint_VScroll.Location.X + ChangeWidth, MainPaint_VScroll.Location.Y);
             MainPaint_VScroll.Size = new Size(MainPaint_VScroll.Size.Width, MainPaint.Height);
+            MainPaint_VScroll.LargeChange = MainPaint.Height + 1;
+            MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
             /*Настраиваем вертикальный ползунок*/
             MainPaint_HScroll.Location = new Point(MainPaint_HScroll.Location.X, MainPaint_HScroll.Location.Y + ChangeHeight);
             MainPaint_HScroll.Size = new Size(MainPaint.Width, MainPaint_HScroll.Size.Height);
+            MainPaint_HScroll.LargeChange = MainPaint.Width + 1;
+            MainPaint_HScroll.Maximum = Draw.ScrollMaximum(1);
             /*Настраиваем отображение "нового" окна для функций Gl*/
             Gl.glViewport(0, 0, MainPaint.Width, MainPaint.Height);
             Gl.glMatrixMode(Gl.GL_PROJECTION);
