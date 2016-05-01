@@ -15,6 +15,7 @@ namespace Second
     class Paint
     {
         #region Поля класса
+
         #region Нужны Get\Set
         /*Зум*/
         double Zoom;
@@ -35,12 +36,14 @@ namespace Second
         /*Высота уровня земли*/
         int EarthSize;
         #endregion
+
         #region Не нужны Get\Set
         /*Указатель на окно где рисуем*/
         SimpleOpenGlControl GLPaint;
         /*Cлои почвы*/
         List<Layer> Layers = new List<Layer>();
         #endregion
+
         #endregion
 
         #region Константы класса
@@ -79,7 +82,7 @@ namespace Second
             set
             {
                 this.CellsNumber = (value > 0 && value < 20)
-                  ? value : (value < 20) ? 0 : 20;
+                  ? value : (value < 20) ? 1 : 20;
             }
         }
         public double XOFFSET
@@ -148,7 +151,7 @@ namespace Second
             for (i = 0; i > GridHalfDown; i -= GridStep)
             {
                 Gl.glBegin(Gl.GL_LINES);
-                Gl.glVertex2d(GridHalfLeft, i - 2 );
+                Gl.glVertex2d(GridHalfLeft, i - 2);
                 Gl.glVertex2d(GridHalfRight, i - 2);
                 Gl.glEnd();
             }
@@ -166,7 +169,7 @@ namespace Second
                 Gl.glVertex2d(i - 2, GridHalfUp);
                 Gl.glEnd();
             }
-            for (i = 0; i <= GridHalfRight; i += GridStep)
+            for (i = 0; i < GridHalfRight; i += GridStep)
             {
                 Gl.glBegin(Gl.GL_LINES);
                 Gl.glVertex2d(i - 2, GridHalfDown);
@@ -250,10 +253,13 @@ namespace Second
             #endregion
 
             #region Координаты
+            
             /*Скалируем до 1*/
             Gl.glScaled(1 / Zoom, 1 / Zoom, 1 / Zoom);
+            /*Переносим центр оси*/
+            Gl.glTranslated(-XOffset, -YOffset, 0);
             /*Пробел, X\Y, :, -, Максимальная длина числа*/
-            int LengthCoords = (4 + YAreaSize.ToString().Length)*8;
+            int LengthCoords = (4 + XAreaSize.ToString().Length)*8;
             /*Фон для координат*/
             Gl.glPushMatrix();
             Gl.glColor3d(1.0, 1.0, 1.0);
@@ -284,14 +290,15 @@ namespace Second
             Gl.glPushMatrix();
             Gl.glTranslated(GLPaint.Width / 2 - LengthCoords + 5, GLPaint.Height / 2 - 16, 0.0);
             Gl.glScaled(0.10, 0.10, 0.10);
-            string Coordinate = "X: " + Convert.ToInt32(((XAreaSize * Zoom - GLPaint.Width + Difference) / 2 - XOffset + MousePosition.X) / Zoom).ToString();
+            string Coordinate = "X: " + ((int)(((XAreaSize * Zoom - GLPaint.Width + Difference) / 2 - XOffset + MousePosition.X) / Zoom)).ToString();
             for (int j = 0; j < Coordinate.Length; j++)
                 Glut.glutStrokeCharacter(Glut.GLUT_STROKE_ROMAN, Coordinate[j]);
             Gl.glPopMatrix();
             Gl.glPushMatrix();
             Gl.glTranslated(GLPaint.Width / 2 - LengthCoords + 5, GLPaint.Height / 2 - 28, 0.0);
             Gl.glScaled(0.10, 0.10, 0.10);
-            Coordinate = "Y:"+ Convert.ToInt32((EarthSize - ((YAreaSize * Zoom - GLPaint.Height + Difference) / 2 + YOffset + MousePosition.Y) / Zoom)).ToString();
+            int CoordinateY = Convert.ToInt32((EarthSize - ((YAreaSize * Zoom - GLPaint.Height + Difference) / 2 + YOffset + MousePosition.Y) / Zoom));
+            Coordinate = (CoordinateY >= 0) ? "Y: " + CoordinateY.ToString() : "Y:" + CoordinateY.ToString();
             for (int j = 0; j < Coordinate.Length; j++)
                 Glut.glutStrokeCharacter(Glut.GLUT_STROKE_ROMAN, Coordinate[j]);
             Gl.glPopMatrix();
@@ -304,10 +311,31 @@ namespace Second
         /*Параметры: TypeScroll ( 0 - для вертикального, 1 - для горизонтального)*/
         public int ScrollMaximum(int TypeScroll)
         {
-            if (TypeScroll == 0) return Convert.ToInt32(Zoom * GLPaint.Height);
-            else return Convert.ToInt32(Zoom * GLPaint.Width);
+            if (TypeScroll == 0)
+                return
+                    /*Исходный размер*/
+                    YAreaSize +
+                    /*Сколько вверх*/
+                    Convert.ToInt32(((YAreaSize * Zoom - GLPaint.Height + Difference) / 2 + YOffset) / Zoom) +
+                    /*Сколько вниз*/
+                    Convert.ToInt32(YAreaSize - ((YAreaSize * Zoom - GLPaint.Height + Difference) / 2 + YOffset + GLPaint.Height - Difference) / Zoom);
+            else
+                return
+                   /*Исодный размер*/
+                   XAreaSize +
+                   /*Сколько влево*/
+                   Convert.ToInt32(((XAreaSize * Zoom - GLPaint.Width + Difference) / 2 - XOffset) / Zoom) +
+                   /*Сколько вправо*/
+                   Convert.ToInt32(XAreaSize - ((XAreaSize * Zoom - GLPaint.Width + Difference) / 2 - XOffset + GLPaint.Width - Difference) / Zoom);
         }
         #endregion
+
+
+
+
+
+
+
         #region Потом
 
         public void add_layers(int XAreaSize, int layer_height, int NumberOfPoints)

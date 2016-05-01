@@ -46,8 +46,17 @@ namespace Second
             SizeGlControl = new Point(MainPaint.Width, MainPaint.Height);
             FlagMouseGlControl = false;
 
+
+
+
+
+            /*Аля чек*/
+            MainPaint_HScroll.LargeChange = Draw.XAREASIZE + 1;
+            MainPaint_HScroll.Maximum = Draw.XAREASIZE;
+            MainPaint_VScroll.LargeChange = Draw.YAREASIZE + 1;
+            MainPaint_VScroll.Maximum = Draw.YAREASIZE;
             Draw.EARTHSIZE = 100;
-            Draw.XAREASIZE = 100000;
+            Draw.XAREASIZE = 1000;
             FirstStartButton.Visible = false;
             TextBoxWidthArea.Visible = false;
             TextBoxHeightEarth.Visible = false;
@@ -92,6 +101,7 @@ namespace Second
             if (MainPaint_HScroll.LargeChange == MainPaint_HScroll.Maximum + 1)
                 MainPaint_HScroll.Visible = false;
             else MainPaint_HScroll.Visible = true;
+            int a = MainPaint_VScroll.Value;
             Draw.Draw();
         }
 
@@ -113,21 +123,34 @@ namespace Second
             MainPaint.Width += ChangeWidth;
             MainPaint.Height += ChangeHeight;
             /*Настраиваем зум*/
-            if (ChangeWidth > ChangeHeight) Draw.ZOOM = Draw.MINZOOM * Convert.ToDouble(MainPaint.Width - Difference) / Convert.ToDouble(SizeGlControl.X - Difference);
-            else Draw.ZOOM = Draw.MINZOOM * Convert.ToDouble(MainPaint.Height - Difference) / Convert.ToDouble(SizeGlControl.Y - Difference);         
+            if (Math.Abs(ChangeWidth) > Math.Abs(ChangeHeight))
+            {
+                Draw.ZOOM = Draw.MINZOOM * Convert.ToDouble(MainPaint.Width - Difference) / Convert.ToDouble(SizeGlControl.X - Difference);
+                MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
+                MainPaint_HScroll.Maximum = Draw.XAREASIZE;
+            }
+            else
+            {
+                Draw.ZOOM = Draw.MINZOOM * Convert.ToDouble(MainPaint.Height - Difference) / Convert.ToDouble(SizeGlControl.Y - Difference);
+                MainPaint_HScroll.Maximum = Draw.ScrollMaximum(1);
+                MainPaint_VScroll.Maximum = Draw.YAREASIZE;
+            }
             /*Сохраняем размеры текущего окна*/
             SizeForm.X = this.Width;
             SizeForm.Y = this.Height;
             /*Настраиваем горизонтальный ползунок*/
             MainPaint_VScroll.Location = new Point(MainPaint_VScroll.Location.X + ChangeWidth, MainPaint_VScroll.Location.Y);
             MainPaint_VScroll.Size = new Size(MainPaint_VScroll.Size.Width, MainPaint.Height);
-            MainPaint_VScroll.LargeChange = MainPaint.Height + 1;
-            MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
+            MainPaint_VScroll.LargeChange = Draw.YAREASIZE + 1;          
+            MainPaint_VScroll.Value = (MainPaint_VScroll.Maximum - MainPaint_VScroll.LargeChange) / 2 + 1;
             /*Настраиваем вертикальный ползунок*/
             MainPaint_HScroll.Location = new Point(MainPaint_HScroll.Location.X, MainPaint_HScroll.Location.Y + ChangeHeight);
             MainPaint_HScroll.Size = new Size(MainPaint.Width, MainPaint_HScroll.Size.Height);
-            MainPaint_HScroll.LargeChange = MainPaint.Width + 1;
-            MainPaint_HScroll.Maximum = Draw.ScrollMaximum(1);
+            MainPaint_HScroll.LargeChange = Draw.XAREASIZE + 1;          
+            MainPaint_HScroll.Value = (MainPaint_HScroll.Maximum - MainPaint_HScroll.LargeChange) / 2 + 1;
+            /*Сбрасываем сдвиги по осям*/
+            Draw.XOFFSET = 0.0;
+            Draw.YOFFSET = 0.0;
             /*Настраиваем отображение "нового" окна для функций Gl*/
             Gl.glViewport(0, 0, MainPaint.Width, MainPaint.Height);
             Gl.glMatrixMode(Gl.GL_PROJECTION);
@@ -138,14 +161,25 @@ namespace Second
 
         private void MainPaint_MouseWheel(object sender, System.Windows.Forms.MouseEventArgs e)
         {
+            /*Проверяем находится ли мышь на рабочей области*/
+            if(FlagMouseGlControl)
+            {
+                /*Масштабирование*/
+                if(e.Delta >0)
+                {
+                    
+                }
+            }
         }
 
         private void MainPaint_VScroll_Scroll(object sender, ScrollEventArgs e)
         {
+            Draw.YOFFSET += (e.NewValue - e.OldValue) * Draw.ZOOM;
         }
 
         private void MainPaint_HScroll_Scroll(object sender, ScrollEventArgs e)
         {
+            Draw.XOFFSET += (e.OldValue - e.NewValue) * Draw.ZOOM;
         }
 
         private void MainPaint_MouseMove(object sender, MouseEventArgs e)
@@ -183,8 +217,15 @@ namespace Second
 
         private void FirstStartButton_Click(object sender, EventArgs e)
         {
+            /*Передаем введеные параметры*/
             Draw.EARTHSIZE = (TextBoxHeightEarth.TextLength > 0) ? Convert.ToInt32(TextBoxHeightEarth.Text) : 0;
             Draw.XAREASIZE = (TextBoxWidthArea.TextLength > 0) ? Convert.ToInt32(TextBoxWidthArea.Text) : 1;
+            /*Настраиваем значения ползунков*/
+            MainPaint_HScroll.LargeChange = Draw.XAREASIZE + 1;
+            MainPaint_HScroll.Maximum = Draw.XAREASIZE;
+            MainPaint_VScroll.LargeChange = Draw.YAREASIZE + 1;
+            MainPaint_VScroll.Maximum = Draw.YAREASIZE;
+            /*Убираем ненужные объекты интерфейса*/
             FirstStartButton.Visible = false;
             TextBoxWidthArea.Visible = false;
             TextBoxHeightEarth.Visible = false;
@@ -192,7 +233,7 @@ namespace Second
             LabelWidthArea.Visible = false;
             FirstLabelMain.Visible = false;
 
-
+            /*Старт всей отрисовки*/
             RenderTimer.Start();
         }
 
