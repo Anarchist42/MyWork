@@ -108,7 +108,6 @@ namespace Second
         private void MainForm_SizeChanged(object sender, EventArgs e)
         {
             int ChangeWidth = this.Width - SizeForm.X;
-            int ChangeHeight = this.Height - SizeForm.Y;
             /*Если основная часть программы не запущена (Не нажата первая кнопка "Start")*/
             if (FirstStartButton.Visible == true)
             {
@@ -119,11 +118,11 @@ namespace Second
                 LabelWidthArea.Location = new Point(LabelWidthArea.Location.X + ChangeWidth, LabelWidthArea.Location.Y);
                 FirstLabelMain.Location = new Point(FirstLabelMain.Location.X + ChangeWidth, FirstLabelMain.Location.Y);
             }
-            /*Изменяем размеры окна*/
-            MainPaint.Width += ChangeWidth;
-            MainPaint.Height += ChangeHeight;
+            /*Изменяем размеры GlControl*/
+            MainPaint.Width = ChangeWidth + SizeGlControl.X;
+            MainPaint.Height = this.Height - SizeForm.Y + SizeGlControl.Y;
             /*Настраиваем зум*/
-            if (Math.Abs(ChangeWidth) > Math.Abs(ChangeHeight))
+            if (Convert.ToDouble(MainPaint.Width) / Convert.ToDouble(SizeGlControl.X) > Convert.ToDouble(MainPaint.Height) / Convert.ToDouble(SizeGlControl.Y))
             {
                 Draw.ZOOM = Draw.MINZOOM * Convert.ToDouble(MainPaint.Width - Difference) / Convert.ToDouble(SizeGlControl.X - Difference);
                 MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
@@ -135,16 +134,13 @@ namespace Second
                 MainPaint_HScroll.Maximum = Draw.ScrollMaximum(1);
                 MainPaint_VScroll.Maximum = Draw.YAREASIZE;
             }
-            /*Сохраняем размеры текущего окна*/
-            SizeForm.X = this.Width;
-            SizeForm.Y = this.Height;
             /*Настраиваем горизонтальный ползунок*/
-            MainPaint_VScroll.Location = new Point(MainPaint_VScroll.Location.X + ChangeWidth, MainPaint_VScroll.Location.Y);
+            MainPaint_VScroll.Location = new Point(MainPaint.Width + 15, MainPaint_VScroll.Location.Y);
             MainPaint_VScroll.Size = new Size(MainPaint_VScroll.Size.Width, MainPaint.Height);
             MainPaint_VScroll.LargeChange = Draw.YAREASIZE + 1;          
             MainPaint_VScroll.Value = (MainPaint_VScroll.Maximum - MainPaint_VScroll.LargeChange) / 2 + 1;
             /*Настраиваем вертикальный ползунок*/
-            MainPaint_HScroll.Location = new Point(MainPaint_HScroll.Location.X, MainPaint_HScroll.Location.Y + ChangeHeight);
+            MainPaint_HScroll.Location = new Point(MainPaint_HScroll.Location.X, MainPaint.Height + 15);
             MainPaint_HScroll.Size = new Size(MainPaint.Width, MainPaint_HScroll.Size.Height);
             MainPaint_HScroll.LargeChange = Draw.XAREASIZE + 1;          
             MainPaint_HScroll.Value = (MainPaint_HScroll.Maximum - MainPaint_HScroll.LargeChange) / 2 + 1;
