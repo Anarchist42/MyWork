@@ -26,13 +26,13 @@ namespace Second
         Point SizeGlControl;
         /*Флаг находился ли мышка на GlControl*/
         bool FlagMouseGlControl;
-        /*Шаг для прокрутки*/
-        double Wheel = 0.01;
         #endregion
 
         #region Константы
         /*Размер бардюра у GlControl*/
-        const int Difference = 5;      
+        const int Difference = 5;
+        /*Шаг для прокрутки*/
+        const double ZoomWheel = 0.01;
         #endregion
 
         public MainForm()
@@ -107,30 +107,32 @@ namespace Second
 
         private void MainForm_SizeChanged(object sender, EventArgs e)
         {
-            int ChangeWidth = this.Width - SizeForm.X;
+            /*Изменяем размеры GlControl*/
+            MainPaint.Width = this.Width - SizeForm.X + SizeGlControl.X;
+            MainPaint.Height = this.Height - SizeForm.Y + SizeGlControl.Y;
             /*Если основная часть программы не запущена (Не нажата первая кнопка "Start")*/
             if (FirstStartButton.Visible == true)
             {
-                FirstStartButton.Location = new Point(FirstStartButton.Location.X + ChangeWidth, FirstStartButton.Location.Y);
-                TextBoxWidthArea.Location = new Point(TextBoxWidthArea.Location.X + ChangeWidth, TextBoxWidthArea.Location.Y);
-                TextBoxHeightEarth.Location = new Point(TextBoxHeightEarth.Location.X + ChangeWidth, TextBoxHeightEarth.Location.Y);
-                LabelHeightEarth.Location = new Point(LabelHeightEarth.Location.X + ChangeWidth, LabelHeightEarth.Location.Y);
-                LabelWidthArea.Location = new Point(LabelWidthArea.Location.X + ChangeWidth, LabelWidthArea.Location.Y);
-                FirstLabelMain.Location = new Point(FirstLabelMain.Location.X + ChangeWidth, FirstLabelMain.Location.Y);
+                FirstStartButton.Location = new Point(MainPaint.Width + 107, FirstStartButton.Location.Y);
+                TextBoxWidthArea.Location = new Point(MainPaint.Width + 107, TextBoxWidthArea.Location.Y);
+                TextBoxHeightEarth.Location = new Point(MainPaint.Width + 107, TextBoxHeightEarth.Location.Y);
+                LabelHeightEarth.Location = new Point(MainPaint.Width + 31, LabelHeightEarth.Location.Y);
+                LabelWidthArea.Location = new Point(MainPaint.Width + 31, LabelWidthArea.Location.Y);
+                FirstLabelMain.Location = new Point(MainPaint.Width + 31, FirstLabelMain.Location.Y);
             }
-            /*Изменяем размеры GlControl*/
-            MainPaint.Width = ChangeWidth + SizeGlControl.X;
-            MainPaint.Height = this.Height - SizeForm.Y + SizeGlControl.Y;
             /*Настраиваем зум*/
-            if (Convert.ToDouble(MainPaint.Width) / Convert.ToDouble(SizeGlControl.X) > Convert.ToDouble(MainPaint.Height) / Convert.ToDouble(SizeGlControl.Y))
+            if (Convert.ToDouble(MainPaint.Width) / Convert.ToDouble(SizeGlControl.X) 
+                > Convert.ToDouble(MainPaint.Height) / Convert.ToDouble(SizeGlControl.Y))
             {
-                Draw.ZOOM = Draw.MINZOOM * Convert.ToDouble(MainPaint.Width - Difference) / Convert.ToDouble(SizeGlControl.X - Difference);
+                Draw.ZOOM = Draw.MINZOOM * Convert.ToDouble(MainPaint.Width - Difference) 
+                    / Convert.ToDouble(SizeGlControl.X - Difference);
                 MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
                 MainPaint_HScroll.Maximum = Draw.XAREASIZE;
             }
             else
             {
-                Draw.ZOOM = Draw.MINZOOM * Convert.ToDouble(MainPaint.Height - Difference) / Convert.ToDouble(SizeGlControl.Y - Difference);
+                Draw.ZOOM = Draw.MINZOOM * Convert.ToDouble(MainPaint.Height - Difference) 
+                    / Convert.ToDouble(SizeGlControl.Y - Difference);
                 MainPaint_HScroll.Maximum = Draw.ScrollMaximum(1);
                 MainPaint_VScroll.Maximum = Draw.YAREASIZE;
             }
@@ -163,7 +165,20 @@ namespace Second
                 /*Масштабирование*/
                 if(e.Delta >0)
                 {
-                    
+                    Draw.ChangeOffset();
+                    /*Изменяем зум*/
+                    Draw.ZOOM += ZoomWheel;
+                    /*Изменяем ползунки*/
+                    MainPaint_VScroll.LargeChange = Draw.YAREASIZE + 1;
+                    MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
+                    MainPaint_VScroll.Value = Draw.ScrollValue(0);
+                    MainPaint_HScroll.LargeChange = Draw.XAREASIZE + 1;
+                    MainPaint_HScroll.Maximum = Draw.ScrollMaximum(1);
+                    MainPaint_HScroll.Value = Draw.ScrollValue(1);
+                }
+                else
+                {
+
                 }
             }
         }

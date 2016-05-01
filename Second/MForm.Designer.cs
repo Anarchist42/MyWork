@@ -133,7 +133,7 @@
             // LabelWidthArea
             // 
             this.LabelWidthArea.AutoSize = true;
-            this.LabelWidthArea.Location = new System.Drawing.Point(621, 43);
+            this.LabelWidthArea.Location = new System.Drawing.Point(618, 43);
             this.LabelWidthArea.Name = "LabelWidthArea";
             this.LabelWidthArea.Size = new System.Drawing.Size(59, 26);
             this.LabelWidthArea.TabIndex = 7;
@@ -142,7 +142,7 @@
             // LabelHeightEarth
             // 
             this.LabelHeightEarth.AutoSize = true;
-            this.LabelHeightEarth.Location = new System.Drawing.Point(621, 78);
+            this.LabelHeightEarth.Location = new System.Drawing.Point(618, 78);
             this.LabelHeightEarth.Name = "LabelHeightEarth";
             this.LabelHeightEarth.Size = new System.Drawing.Size(50, 26);
             this.LabelHeightEarth.TabIndex = 8;

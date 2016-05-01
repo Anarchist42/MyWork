@@ -307,7 +307,7 @@ namespace Second
         }
 
         #region Передача параметров
-        /*Вычисление максимального значения скроллбара*/
+        /*Вычисление максимального значения ползунка*/
         /*Параметры: TypeScroll ( 0 - для вертикального, 1 - для горизонтального)*/
         public int ScrollMaximum(int TypeScroll)
         {
@@ -328,6 +328,29 @@ namespace Second
                    /*Сколько вправо*/
                    Convert.ToInt32(XAreaSize - ((XAreaSize * Zoom - GLPaint.Width + Difference) / 2 - XOffset + GLPaint.Width - Difference) / Zoom);
         }
+
+        /*Вычисление значения ползунка*/
+        /*Параметры: TypeScroll ( 0 - для вертикального, 1 - для горизонтального)*/
+        public int ScrollValue(int TypeScroll)
+        {
+            if (TypeScroll == 0)
+                return
+                    Convert.ToInt32((YAreaSize * Zoom - GLPaint.Height + Difference) / 2 - YOffset);
+            else
+                return
+                   Convert.ToInt32((XAreaSize * Zoom - GLPaint.Width + Difference) / 2 - XOffset);
+        }
+
+        /*Изменение сдвига по осям*/
+        public void ChangeOffset()
+        {
+                this.YOffset =
+                     (YAreaSize * (Zoom + 0.01) - GLPaint.Height + Difference) / 2 - (((YAreaSize * Zoom - GLPaint.Height + Difference) / 2 - YOffset + MousePosition.Y) / Zoom) * (Zoom + 0.01) + MousePosition.Y;
+                this.XOffset =
+                    (XAreaSize * (Zoom + 0.01) - GLPaint.Width + Difference) / 2 - (((XAreaSize * Zoom - GLPaint.Width + Difference) / 2 - XOffset + MousePosition.X) / Zoom) * (Zoom + 0.01) + MousePosition.X;
+        }
+
+        
         #endregion
 
 
