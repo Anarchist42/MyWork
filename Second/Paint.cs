@@ -290,7 +290,7 @@ namespace Second
             Gl.glPushMatrix();
             Gl.glTranslated(GLPaint.Width / 2 - LengthCoords + 5, GLPaint.Height / 2 - 16, 0.0);
             Gl.glScaled(0.10, 0.10, 0.10);
-            string Coordinate = "X: " + ((int)(((XAreaSize * Zoom - GLPaint.Width + Difference) / 2 - XOffset + MousePosition.X) / Zoom)).ToString();
+            string Coordinate = "X: " + Convert.ToInt32(((XAreaSize * Zoom - GLPaint.Width + Difference) / 2 - XOffset + MousePosition.X) / Zoom).ToString();
             for (int j = 0; j < Coordinate.Length; j++)
                 Glut.glutStrokeCharacter(Glut.GLUT_STROKE_ROMAN, Coordinate[j]);
             Gl.glPopMatrix();
@@ -318,7 +318,7 @@ namespace Second
                     /*Сколько вверх*/
                     Convert.ToInt32(((YAreaSize * Zoom - GLPaint.Height + Difference) / 2 + YOffset) / Zoom) +
                     /*Сколько вниз*/
-                    Convert.ToInt32(YAreaSize - ((YAreaSize * Zoom - GLPaint.Height + Difference) / 2 + YOffset + GLPaint.Height - Difference) / Zoom);
+                    YAreaSize - Convert.ToInt32(((YAreaSize * Zoom - GLPaint.Height + Difference) / 2 + YOffset + GLPaint.Height - Difference) / Zoom);
             else
                 return
                    /*Исодный размер*/
@@ -326,7 +326,7 @@ namespace Second
                    /*Сколько влево*/
                    Convert.ToInt32(((XAreaSize * Zoom - GLPaint.Width + Difference) / 2 - XOffset) / Zoom) +
                    /*Сколько вправо*/
-                   Convert.ToInt32(XAreaSize - ((XAreaSize * Zoom - GLPaint.Width + Difference) / 2 - XOffset + GLPaint.Width - Difference) / Zoom);
+                   XAreaSize - Convert.ToInt32(((XAreaSize * Zoom - GLPaint.Width + Difference) / 2 - XOffset + GLPaint.Width - Difference) / Zoom);
         }
 
         /*Вычисление значения ползунка*/
@@ -335,17 +335,17 @@ namespace Second
         {
             if (TypeScroll == 0)
                 return
-                    Convert.ToInt32((YAreaSize * Zoom - GLPaint.Height + Difference) / 2 - YOffset);
+                    Convert.ToInt32(((YAreaSize * Zoom - GLPaint.Height + Difference) / 2 + YOffset) / Zoom);
             else
                 return
-                   Convert.ToInt32((XAreaSize * Zoom - GLPaint.Width + Difference) / 2 - XOffset);
+                   Convert.ToInt32(((XAreaSize * Zoom - GLPaint.Width + Difference) / 2 - XOffset) / Zoom);
         }
 
         /*Изменение сдвига по осям*/
         public void ChangeOffset()
         {
                 this.YOffset =
-                     (YAreaSize * (Zoom + 0.01) - GLPaint.Height + Difference) / 2 - (((YAreaSize * Zoom - GLPaint.Height + Difference) / 2 - YOffset + MousePosition.Y) / Zoom) * (Zoom + 0.01) + MousePosition.Y;
+                      (((YAreaSize * Zoom - GLPaint.Height + Difference) / 2 + YOffset + MousePosition.Y) / Zoom) * (Zoom + 0.01) - (YAreaSize * (Zoom + 0.01) - GLPaint.Height + Difference) / 2 - MousePosition.Y;
                 this.XOffset =
                     (XAreaSize * (Zoom + 0.01) - GLPaint.Width + Difference) / 2 - (((XAreaSize * Zoom - GLPaint.Width + Difference) / 2 - XOffset + MousePosition.X) / Zoom) * (Zoom + 0.01) + MousePosition.X;
         }

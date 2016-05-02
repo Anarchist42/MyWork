@@ -56,7 +56,7 @@ namespace Second
             MainPaint_VScroll.LargeChange = Draw.YAREASIZE + 1;
             MainPaint_VScroll.Maximum = Draw.YAREASIZE;
             Draw.EARTHSIZE = 100;
-            Draw.XAREASIZE = 1000;
+            Draw.XAREASIZE = 100;
             FirstStartButton.Visible = false;
             TextBoxWidthArea.Visible = false;
             TextBoxHeightEarth.Visible = false;
