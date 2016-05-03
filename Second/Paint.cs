@@ -12,6 +12,18 @@ using Tao.Platform.Windows;
 
 namespace Second
 {
+    public class GlobalConst
+    {
+        #region Константы
+        /*Размер бардюра у GlControl*/
+        public static int Difference = 5;
+        /*Шаг для прокрутки*/
+        public static double ZoomWheel = 0.01;
+        /*Минимальный зум для окна*/
+        public static double MinZoom;
+        #endregion
+    }
+
     class Paint
     {
         #region Поля класса
@@ -44,11 +56,6 @@ namespace Second
         List<Layer> Layers = new List<Layer>();
         #endregion
 
-        #endregion
-
-        #region Константы класса
-        /*Размер бардюра у GlControl*/
-        const int Difference = 5;
         #endregion
 
         #region Конструктор
@@ -106,9 +113,10 @@ namespace Second
             set 
             {
                 this.XAreaSize = value;
-                this.MinZoom = Convert.ToDouble((GLPaint.Width - Difference)) / Convert.ToDouble(XAreaSize);
+                this.MinZoom = Convert.ToDouble((GLPaint.Width - GlobalConst.Difference)) / Convert.ToDouble(XAreaSize);
                 this.Zoom = this.MinZoom;
-                this.YAreaSize = Convert.ToInt32((GLPaint.Height - Difference) / Zoom);
+                GlobalConst.MinZoom = this.MinZoom;
+                this.YAreaSize = Convert.ToInt32((GLPaint.Height - GlobalConst.Difference) / Zoom);
             }
         }
         public int YAREASIZE
@@ -258,8 +266,8 @@ namespace Second
             Gl.glScaled(1 / Zoom, 1 / Zoom, 1 / Zoom);
             /*Переносим центр оси*/
             Gl.glTranslated(-XOffset, -YOffset, 0);
-            /*Пробел, X\Y, :, -, Максимальная длина числа*/
-            int LengthCoords = (4 + XAreaSize.ToString().Length)*8;
+            /*Пробел, X\Y, :, -, Максимальная длина числа, два знака после запятой*/
+            int LengthCoords = (4 + XAreaSize.ToString().Length + 3)*8;
             /*Фон для координат*/
             Gl.glPushMatrix();
             Gl.glColor3d(1.0, 1.0, 1.0);
@@ -290,14 +298,14 @@ namespace Second
             Gl.glPushMatrix();
             Gl.glTranslated(GLPaint.Width / 2 - LengthCoords + 5, GLPaint.Height / 2 - 16, 0.0);
             Gl.glScaled(0.10, 0.10, 0.10);
-            string Coordinate = "X: " + Convert.ToInt32(((XAreaSize * Zoom - GLPaint.Width + Difference) / 2 - XOffset + MousePosition.X) / Zoom).ToString();
+            string Coordinate = "X: " + Math.Round(((XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2 - XOffset + MousePosition.X) / Zoom,2).ToString();
             for (int j = 0; j < Coordinate.Length; j++)
                 Glut.glutStrokeCharacter(Glut.GLUT_STROKE_ROMAN, Coordinate[j]);
             Gl.glPopMatrix();
             Gl.glPushMatrix();
             Gl.glTranslated(GLPaint.Width / 2 - LengthCoords + 5, GLPaint.Height / 2 - 28, 0.0);
             Gl.glScaled(0.10, 0.10, 0.10);
-            int CoordinateY = Convert.ToInt32((EarthSize - ((YAreaSize * Zoom - GLPaint.Height + Difference) / 2 + YOffset + MousePosition.Y) / Zoom));
+            int CoordinateY = Convert.ToInt32((EarthSize - ((YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 + YOffset + MousePosition.Y) / Zoom));
             Coordinate = (CoordinateY >= 0) ? "Y: " + CoordinateY.ToString() : "Y:" + CoordinateY.ToString();
             for (int j = 0; j < Coordinate.Length; j++)
                 Glut.glutStrokeCharacter(Glut.GLUT_STROKE_ROMAN, Coordinate[j]);
@@ -316,41 +324,65 @@ namespace Second
                     /*Исходный размер*/
                     YAreaSize +
                     /*Сколько вверх*/
-                    Convert.ToInt32(((YAreaSize * Zoom - GLPaint.Height + Difference) / 2 + YOffset) / Zoom) +
+                    Convert.ToInt32(((YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 + YOffset) / Zoom) +
                     /*Сколько вниз*/
-                    YAreaSize - Convert.ToInt32(((YAreaSize * Zoom - GLPaint.Height + Difference) / 2 + YOffset + GLPaint.Height - Difference) / Zoom);
+                    YAreaSize - Convert.ToInt32(((YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 + YOffset + GLPaint.Height - GlobalConst.Difference) / Zoom);
             else
                 return
                    /*Исодный размер*/
                    XAreaSize +
                    /*Сколько влево*/
-                   Convert.ToInt32(((XAreaSize * Zoom - GLPaint.Width + Difference) / 2 - XOffset) / Zoom) +
+                   Convert.ToInt32(((XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2 - XOffset) / Zoom) +
                    /*Сколько вправо*/
-                   XAreaSize - Convert.ToInt32(((XAreaSize * Zoom - GLPaint.Width + Difference) / 2 - XOffset + GLPaint.Width - Difference) / Zoom);
+                   XAreaSize - Convert.ToInt32(((XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2 - XOffset + GLPaint.Width - GlobalConst.Difference) / Zoom);
         }
 
         /*Вычисление значения ползунка*/
         /*Параметры: TypeScroll ( 0 - для вертикального, 1 - для горизонтального)*/
         public int ScrollValue(int TypeScroll)
         {
+            int Result;
             if (TypeScroll == 0)
+            {
+                Result = Convert.ToInt32(((YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 + YOffset) / Zoom);
                 return
-                    Convert.ToInt32(((YAreaSize * Zoom - GLPaint.Height + Difference) / 2 + YOffset) / Zoom);
+                    Result > 0 ? Result : 0;
+            }
             else
+            {
+                Result = Convert.ToInt32(((XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2 - XOffset) / Zoom);
                 return
-                   Convert.ToInt32(((XAreaSize * Zoom - GLPaint.Width + Difference) / 2 - XOffset) / Zoom);
+                    Result > 0 ? Result : 0;
+            }
         }
 
-        /*Изменение сдвига по осям*/
-        public void ChangeOffset()
+        /*Изменение сдвига по осям (приближение)*/
+        public void ChangeOffsetZoomIn()
         {
-                this.YOffset =
-                      (((YAreaSize * Zoom - GLPaint.Height + Difference) / 2 + YOffset + MousePosition.Y) / Zoom) * (Zoom + 0.01) - (YAreaSize * (Zoom + 0.01) - GLPaint.Height + Difference) / 2 - MousePosition.Y;
-                this.XOffset =
-                    (XAreaSize * (Zoom + 0.01) - GLPaint.Width + Difference) / 2 - (((XAreaSize * Zoom - GLPaint.Width + Difference) / 2 - XOffset + MousePosition.X) / Zoom) * (Zoom + 0.01) + MousePosition.X;
+            this.YOffset =
+                   (((YAreaSize * (Zoom - GlobalConst.ZoomWheel) - GLPaint.Height + GlobalConst.Difference) / 2 + YOffset + MousePosition.Y) / (Zoom - GlobalConst.ZoomWheel)) * Zoom
+                   - (YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 - MousePosition.Y;
+            this.XOffset =
+                (XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2 - (((XAreaSize * (Zoom - GlobalConst.ZoomWheel) - GLPaint.Width + GlobalConst.Difference) / 2
+                - XOffset + MousePosition.X) / (Zoom - GlobalConst.ZoomWheel)) * Zoom + MousePosition.X;
         }
 
-        
+        /*Изменение сдвига по осям (отдаление)*/
+        public void ChangeOffsetZoomOut()
+        {
+            if (Zoom != MinZoom)
+            {
+                this.YOffset -= (YOffset / ((Zoom - MinZoom) / GlobalConst.ZoomWheel));
+                this.XOffset -= (XOffset / ((Zoom - MinZoom) / GlobalConst.ZoomWheel));
+            }
+            else
+            {
+                this.YOffset = 0.0;
+                this.XOffset = 0.0;
+            }
+        }
+
+
         #endregion
 
 

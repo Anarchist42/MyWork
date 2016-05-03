@@ -13,8 +13,11 @@ using Tao.OpenGl;           // для работы с библиотекой Ope
 using Tao.FreeGlut;         // для работы с библиотекой FreeGLUT 
 using Tao.Platform.Windows; // для работы с элементом управления SimpleOpenGLControl 
 
+
+
 namespace Second
 {
+
     public partial class MainForm : Form
     {
         #region Поля класса
@@ -26,13 +29,6 @@ namespace Second
         Point SizeGlControl;
         /*Флаг находился ли мышка на GlControl*/
         bool FlagMouseGlControl;
-        #endregion
-
-        #region Константы
-        /*Размер бардюра у GlControl*/
-        const int Difference = 5;
-        /*Шаг для прокрутки*/
-        const double ZoomWheel = 0.01;
         #endregion
 
         public MainForm()
@@ -55,8 +51,8 @@ namespace Second
             MainPaint_HScroll.Maximum = Draw.XAREASIZE;
             MainPaint_VScroll.LargeChange = Draw.YAREASIZE + 1;
             MainPaint_VScroll.Maximum = Draw.YAREASIZE;
-            Draw.EARTHSIZE = 100;
-            Draw.XAREASIZE = 100;
+            Draw.EARTHSIZE = 0;
+            Draw.XAREASIZE = 10000;
             FirstStartButton.Visible = false;
             TextBoxWidthArea.Visible = false;
             TextBoxHeightEarth.Visible = false;
@@ -124,15 +120,15 @@ namespace Second
             if (Convert.ToDouble(MainPaint.Width) / Convert.ToDouble(SizeGlControl.X) 
                 > Convert.ToDouble(MainPaint.Height) / Convert.ToDouble(SizeGlControl.Y))
             {
-                Draw.ZOOM = Draw.MINZOOM * Convert.ToDouble(MainPaint.Width - Difference) 
-                    / Convert.ToDouble(SizeGlControl.X - Difference);
+                Draw.MINZOOM = GlobalConst.MinZoom * Convert.ToDouble(MainPaint.Width - GlobalConst.Difference)
+                    / Convert.ToDouble(SizeGlControl.X - GlobalConst.Difference);
                 MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
                 MainPaint_HScroll.Maximum = Draw.XAREASIZE;
             }
             else
             {
-                Draw.ZOOM = Draw.MINZOOM * Convert.ToDouble(MainPaint.Height - Difference) 
-                    / Convert.ToDouble(SizeGlControl.Y - Difference);
+                Draw.MINZOOM = GlobalConst.MinZoom * Convert.ToDouble(MainPaint.Height - GlobalConst.Difference) 
+                    / Convert.ToDouble(SizeGlControl.Y - GlobalConst.Difference);
                 MainPaint_HScroll.Maximum = Draw.ScrollMaximum(1);
                 MainPaint_VScroll.Maximum = Draw.YAREASIZE;
             }
@@ -160,26 +156,30 @@ namespace Second
         private void MainPaint_MouseWheel(object sender, System.Windows.Forms.MouseEventArgs e)
         {
             /*Проверяем находится ли мышь на рабочей области*/
-            if(FlagMouseGlControl)
+            if (FlagMouseGlControl)
             {
                 /*Масштабирование*/
-                if(e.Delta >0)
+                if (e.Delta > 0)
                 {
-                    Draw.ChangeOffset();
                     /*Изменяем зум*/
-                    Draw.ZOOM += ZoomWheel;
-                    /*Изменяем ползунки*/
-                    MainPaint_VScroll.LargeChange = Draw.YAREASIZE + 1;
-                    MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
-                    MainPaint_VScroll.Value = Draw.ScrollValue(0);
-                    MainPaint_HScroll.LargeChange = Draw.XAREASIZE + 1;
-                    MainPaint_HScroll.Maximum = Draw.ScrollMaximum(1);
-                    MainPaint_HScroll.Value = Draw.ScrollValue(1);
+                    Draw.ZOOM += GlobalConst.ZoomWheel;
+                    /*Изменяем смещение по осям с фиксированием точки приближения*/
+                    Draw.ChangeOffsetZoomIn();
                 }
                 else
                 {
-
+                    /*Изменяем зум*/
+                    Draw.ZOOM -= GlobalConst.ZoomWheel;
+                    /*Изменяем смещение по осям с фиксированием точки приближения*/
+                    Draw.ChangeOffsetZoomOut();
                 }
+                /*Изменяем ползунки*/
+                MainPaint_VScroll.LargeChange = Draw.YAREASIZE + 1;
+                MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
+                MainPaint_VScroll.Value = Draw.ScrollValue(0);
+                MainPaint_HScroll.LargeChange = Draw.XAREASIZE + 1;
+                MainPaint_HScroll.Maximum = Draw.ScrollMaximum(1);
+                MainPaint_HScroll.Value = Draw.ScrollValue(1);
             }
         }
 
