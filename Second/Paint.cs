@@ -95,12 +95,22 @@ namespace Second
         public double XOFFSET
         {
             get { return this.XOffset; }
-            set { this.XOffset = value; }
+            set
+            {
+                this.XOffset = (Math.Round((XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2 - Math.Abs(value), 5) >= 0)
+                ? value
+                : (XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2 * value / Math.Abs(value);
+            }
         }
         public double YOFFSET
         {
             get { return this.YOffset; }
-            set { this.YOffset = value; }
+            set
+            {
+                this.YOffset = (Math.Round((YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 - Math.Abs(value), 5) >= 0)
+                ? value
+                : (YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 * value / Math.Abs(value);
+            }
         }
         public Point MOUSEPOSITION
         {
@@ -110,7 +120,7 @@ namespace Second
         public int XAREASIZE
         {
             get { return this.XAreaSize; }
-            set 
+            set
             {
                 this.XAreaSize = value;
                 this.MinZoom = Convert.ToDouble((GLPaint.Width - GlobalConst.Difference)) / Convert.ToDouble(XAreaSize);
@@ -138,9 +148,9 @@ namespace Second
         /*Метод отрсиовки сетки*/
         private void DrawingGrid()
         {
-            int i,k;
+            int i, k;
             #region Сетка
-            Gl.glPushMatrix();          
+            Gl.glPushMatrix();
             /*так как максимум на линии - cells_number клеток, 
             то надо выбрать по Х или Y будем выбирать шаг*/
             int GridStep = (Convert.ToInt32(GLPaint.Width / CellsNumber)
@@ -261,13 +271,13 @@ namespace Second
             #endregion
 
             #region Координаты
-            
+
             /*Скалируем до 1*/
             Gl.glScaled(1 / Zoom, 1 / Zoom, 1 / Zoom);
             /*Переносим центр оси*/
             Gl.glTranslated(-XOffset, -YOffset, 0);
             /*Пробел, X\Y, :, -, Максимальная длина числа, два знака после запятой*/
-            int LengthCoords = (4 + XAreaSize.ToString().Length + 3)*8;
+            int LengthCoords = (4 + XAreaSize.ToString().Length + 3) * 8;
             /*Фон для координат*/
             Gl.glPushMatrix();
             Gl.glColor3d(1.0, 1.0, 1.0);
@@ -281,7 +291,7 @@ namespace Second
             Gl.glPopMatrix();
             /*Границы*/
             Gl.glPushMatrix();
-            Gl.glColor3d(0.0, 0.0, 0.0);           
+            Gl.glColor3d(0.0, 0.0, 0.0);
             Gl.glBegin(Gl.GL_LINES);
             Gl.glVertex2d(GLPaint.Width / 2 - LengthCoords, GLPaint.Height / 2);
             Gl.glVertex2d(GLPaint.Width / 2 - 4, GLPaint.Height / 2);
@@ -298,7 +308,7 @@ namespace Second
             Gl.glPushMatrix();
             Gl.glTranslated(GLPaint.Width / 2 - LengthCoords + 5, GLPaint.Height / 2 - 16, 0.0);
             Gl.glScaled(0.10, 0.10, 0.10);
-            string Coordinate = "X: " + Math.Round(((XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2 - XOffset + MousePosition.X) / Zoom,2).ToString();
+            string Coordinate = "X: " + Math.Round(((XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2 - XOffset + MousePosition.X) / Zoom, 2).ToString();
             for (int j = 0; j < Coordinate.Length; j++)
                 Glut.glutStrokeCharacter(Glut.GLUT_STROKE_ROMAN, Coordinate[j]);
             Gl.glPopMatrix();
@@ -359,10 +369,10 @@ namespace Second
         /*Изменение сдвига по осям (приближение)*/
         public void ChangeOffsetZoomIn()
         {
-            this.YOffset =
+            this.YOFFSET =
                    (((YAreaSize * (Zoom - GlobalConst.ZoomWheel) - GLPaint.Height + GlobalConst.Difference) / 2 + YOffset + MousePosition.Y) / (Zoom - GlobalConst.ZoomWheel)) * Zoom
                    - (YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 - MousePosition.Y;
-            this.XOffset =
+            this.XOFFSET =
                 (XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2 - (((XAreaSize * (Zoom - GlobalConst.ZoomWheel) - GLPaint.Width + GlobalConst.Difference) / 2
                 - XOffset + MousePosition.X) / (Zoom - GlobalConst.ZoomWheel)) * Zoom + MousePosition.X;
         }
@@ -372,17 +382,24 @@ namespace Second
         {
             if (Zoom != MinZoom)
             {
-                this.YOffset -= (YOffset / ((Zoom - MinZoom) / GlobalConst.ZoomWheel));
-                this.XOffset -= (XOffset / ((Zoom - MinZoom) / GlobalConst.ZoomWheel));
+                this.YOFFSET -= (YOffset / ((Zoom - MinZoom) / GlobalConst.ZoomWheel));
+                this.XOFFSET -= (XOffset / ((Zoom - MinZoom) / GlobalConst.ZoomWheel));
             }
             else
             {
-                this.YOffset = 0.0;
-                this.XOffset = 0.0;
+                this.YOFFSET = 0.0;
+                this.XOFFSET = 0.0;
             }
         }
 
-
+        /*Изменение сдвига по осям (мышка)*/
+        public void ChangeOffsetZoomMouse(Point MouseDownPosition)
+        {
+            this.YOFFSET = (((YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 + YOffset + MouseDownPosition.Y) / Zoom) * Zoom
+                       - (YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 - MousePosition.Y;
+            this.XOFFSET = (XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2 - (((XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2
+                    - XOffset + MouseDownPosition.X) / Zoom) * Zoom + MousePosition.X;
+        }
         #endregion
 
 

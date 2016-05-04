@@ -29,6 +29,10 @@ namespace Second
         Point SizeGlControl;
         /*Флаг находился ли мышка на GlControl*/
         bool FlagMouseGlControl;
+        /*Флаг нажата ли левая кнопка мышки*/
+        bool MouseDownLeft;
+        /*Позиция нажатия мышки*/
+        Point MouseDownPosition;
         #endregion
 
         public MainForm()
@@ -41,7 +45,7 @@ namespace Second
             SizeForm = new Point(this.Width, this.Height);
             SizeGlControl = new Point(MainPaint.Width, MainPaint.Height);
             FlagMouseGlControl = false;
-
+            MouseDownLeft = false;
 
 
 
@@ -195,13 +199,28 @@ namespace Second
 
         private void MainPaint_MouseMove(object sender, MouseEventArgs e)
         {
-            if(FlagMouseGlControl)
+            if (e.Y < 0 || e.Y > MainPaint.Height || e.X < 0 || e.X > MainPaint.Width)
+                FlagMouseGlControl = false;
+            else
+                FlagMouseGlControl = true;
+            if (FlagMouseGlControl)
+            {
+                /*Изменяем позицию мышки*/
                 Draw.MOUSEPOSITION = new Point(e.X, e.Y);
+                if (MouseDownLeft)
+                {
+                    /*Изменяем смещение по осям с фиксированием точки*/
+                    Draw.ChangeOffsetZoomMouse(MouseDownPosition);
+                    /*Изменяем ползунки*/
+                    MainPaint_VScroll.Value = Draw.ScrollValue(0);
+                    MainPaint_HScroll.Value = Draw.ScrollValue(1);
+                    MouseDownPosition = new Point(e.X, e.Y);
+                }
+            }
         }
 
         private void MainPaint_MouseEnter(object sender, EventArgs e)
         {
-            FlagMouseGlControl = true;
         }
 
         private void MainPaint_MouseLeave(object sender, EventArgs e)
@@ -215,10 +234,16 @@ namespace Second
 
         private void MainPaint_MouseUp(object sender, MouseEventArgs e)
         {
+            MouseDownLeft = false;
         }
 
         private void MainPaint_MouseDown(object sender, MouseEventArgs e)
         {
+            if (e.Button == System.Windows.Forms.MouseButtons.Left)
+            {
+                MouseDownLeft = true;
+            }
+            MouseDownPosition = new Point(e.X, e.Y);
             Draw.MOUSEPOSITION = new Point(e.X, e.Y);
         }
 
