@@ -123,7 +123,7 @@ namespace Second
             set
             {
                 this.XAreaSize = value;
-                this.MinZoom = Convert.ToDouble((GLPaint.Width - GlobalConst.Difference)) / Convert.ToDouble(XAreaSize);
+                this.MinZoom = Convert.ToDouble(GLPaint.Width - GlobalConst.Difference) / Convert.ToDouble(XAreaSize);
                 this.Zoom = this.MinZoom;
                 GlobalConst.MinZoom = this.MinZoom;
                 this.YAreaSize = Convert.ToInt32((GLPaint.Height - GlobalConst.Difference) / Zoom);
@@ -393,52 +393,165 @@ namespace Second
         }
 
         /*Изменение сдвига по осям (мышка)*/
+        /*Параметры: MouseDownPosition - позиция нажатия левой кнопки мыши*/
         public void ChangeOffsetZoomMouse(Point MouseDownPosition)
         {
-            this.YOFFSET = (((YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 + YOffset + MouseDownPosition.Y) / Zoom) * Zoom
+            if (Zoom != MinZoom || YAreaSize * Zoom== GLPaint.Height + GlobalConst.Difference)
+            {
+                this.YOFFSET = (((YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 + YOffset + MouseDownPosition.Y) / Zoom) * Zoom
                        - (YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 - MousePosition.Y;
-            this.XOFFSET = (XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2 - (((XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2
-                    - XOffset + MouseDownPosition.X) / Zoom) * Zoom + MousePosition.X;
+                this.XOFFSET = (XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2 - (((XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2
+                        - XOffset + MouseDownPosition.X) / Zoom) * Zoom + MousePosition.X;
+            }
         }
         #endregion
 
+        #region Работа со слоями
+        /*Изначальная позиция передвигаемой опорной точки*/
+        private Point StartMoveSpline;
 
-
-
-
-
-
-        #region Потом
-
-        public void add_layers(int XAreaSize, int layer_height, int NumberOfPoints)
+        /*Добавляем слой почвы*/
+        /*Параметры: LayerHeight - высота на которой заканчивается слой*/
+        /*           NumberOfPoints - количество опорных точек сплайна*/
+        public void AddLayers(int LayerHeight, int NumberOfPoints)
         {
+            Layer tmp = new Layer(XAreaSize, LayerHeight, YAreaSize, EarthSize, NumberOfPoints, MinZoom);
+            Layers.Add(tmp);
+            Layers.Sort(delegate (Layer x, Layer y)
+            {
+                return y.ReturnY(0).CompareTo(x.ReturnY(0));
+            });
         }
 
-
-        public void reset()
+        /*Проверка попала ли мышь на опорную точку сплайна*/
+        /*Параметры: MouseDownPosition - позиция точки нажатия*/
+        /*Возвращает: FIJ[3] - массив, где [1] - нашел точку (0/1),*/
+        /*            [2] - номер слоя, [3] - номер точки*/
+        public int[] CheckPoint(Point MouseDownPosition)
         {
+            int[] X = new int[2];
+            int[] Y = new int[2];
+            int[] FIJ = { 0, 0, 0 };
+            int i, j;
+            X[0] = Convert.ToInt32(((XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2 - XOffset + MouseDownPosition.X - 4) / Zoom - XAreaSize / 2);
+            X[1] = Convert.ToInt32(((XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2 - XOffset + MouseDownPosition.X + 4) / Zoom - XAreaSize / 2);
+            Y[0] = Convert.ToInt32(YAreaSize / 2 - ((YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 + YOffset + MouseDownPosition.Y + 4) / Zoom);
+            Y[1] = Convert.ToInt32(YAreaSize / 2 - ((YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 + YOffset + MouseDownPosition.Y - 4) / Zoom);
+            for (i = 0; i < Layers.Count; i++)
+            {
+                List<Point> Points = Layers[i].POINT;
+                for (j = 0; j < Points.Count; j++)
+                    if (Points[j].X >= X[0] && Points[j].X <= X[1] && Points[j].Y >= Y[0] && Points[j].Y <= Y[1])
+                    {
+                        FIJ[0] = 1;
+                        FIJ[1] = i;
+                        FIJ[2] = j;
+                        StartMoveSpline = new Point(Points[j].X,Points[j].Y);
+                        return FIJ;
+                    }
+            }
+            return FIJ;
         }
 
-        public void change_pointY(Point mouse, int[] ij)
+        /*Изменяем позицию опорной точки*/
+        /*Параметры: MouseDownPosition - позиция точки нажатия*/
+        /*           FIJ[3] - массив, где[1] - нашел точку(0/1),*/
+        /*           [2] - номер слоя, [3] - номер точки*/
+        public void ChangePoint(Point MouseDownPosition, int[] FIJ)
         {
-        }   
+            List<Point> Points = Layers[FIJ[1]].POINT;
+            Point Tmp = new Point();
+            if (FIJ[2] != 0 && FIJ[2] != Points.Count - 1)
+                Tmp.X = Convert.ToInt32(StartMoveSpline.X + (MousePosition.X - MouseDownPosition.X) / Zoom);
+            else
+                Tmp.X = Points[FIJ[2]].X;
+            Tmp.Y = Convert.ToInt32(StartMoveSpline.Y + (MouseDownPosition.Y - MousePosition.Y) / Zoom);
+            Points[FIJ[2]] = Tmp;
+        }
 
-        
-
-        private Point GetPoint(int i, List<Point> point)
+        /*Для отрисовки сплайна*/
+        /*Параметры: i - номер точки позицию которой надо вернуть*/
+        /*           Points - массив опорных точек сплайна*/
+        /*Возвращает: Points[1] - точка для отрисовки куска сплайна*/
+        private Point GetPoint(int i, List<Point> Points)
         {
             if (i < 0)
-                return point[0];
-            if (i < point.Count)
-                return point[i];
-            return point[point.Count - 1];
+                return Points[0];
+            if (i < Points.Count)
+                return Points[i];
+            return Points[Points.Count - 1];
         }
-        private void drawing_layers()
+
+        /*Рисуем слои почвы*/
+        private void DrawingLayers()
         {
-            
+            int N = 10;
+            List<Point>[] point = new List<Point>[3];
+            for (int i = 0; i < Layers.Count; i++)
+            {
+                point[1] = Layers[i].POINT;
+                point[1].Add(point[1][point[1].Count - 1]);
+                point[1].Add(point[1][point[1].Count - 1]);
+                if (Layers.Count > 1 && i + 1 != Layers.Count)
+                {
+                    point[2] = Layers[i + 1].POINT;
+                    point[2].Add(point[2][point[2].Count - 1]);
+                    point[2].Add(point[2][point[2].Count - 1]);
+                }
+                if (i > 0)
+                {
+                    point[0] = Layers[i - 1].POINT;
+                    point[0].Add(point[0][point[0].Count - 1]);
+                    point[0].Add(point[0][point[0].Count - 1]);
+                }
+                Color color = Layers[i].COLOR;
+                Gl.glColor3d(color.R / 255.0, color.G / 255.0, color.B / 255.0);
+                Gl.glPushMatrix();
+                Gl.glLineWidth(2);
+                Gl.glBegin(Gl.GL_LINE_STRIP);
+
+                for (int start_cv = -3, j = 0; j != point[1].Count; ++j, ++start_cv)
+                {
+                    for (int k = 0; k != N; ++k)
+                    {
+                        double t = (double)k / N;
+                        double it = 1.0f - t;
+                        double b0 = it * it * it / 6.0f;
+                        double b1 = (3 * t * t * t - 6 * t * t + 4) / 6.0f;
+                        double b2 = (-3 * t * t * t + 3 * t * t + 3 * t + 1) / 6.0f;
+                        double b3 = t * t * t / 6.0f;
+                        double x = b0 * GetPoint(start_cv + 0, point[1]).X +
+                                  b1 * GetPoint(start_cv + 1, point[1]).X +
+                                  b2 * GetPoint(start_cv + 2, point[1]).X +
+                                  b3 * GetPoint(start_cv + 3, point[1]).X;
+                        double y = b0 * GetPoint(start_cv + 0, point[1]).Y +
+                                  b1 * GetPoint(start_cv + 1, point[1]).Y +
+                                  b2 * GetPoint(start_cv + 2, point[1]).Y +
+                                  b3 * GetPoint(start_cv + 3, point[1]).Y;
+                        Gl.glVertex2d(x * Zoom + XOffset, y * Zoom + YOffset);
+                    }
+                }
+                Gl.glEnd();
+                Gl.glPopMatrix();
+                Gl.glColor3d(color.R / 255.0, color.G / 255.0, color.B / 255.0);
+                Gl.glPushMatrix();
+                Gl.glPointSize(7);
+                Gl.glBegin(Gl.GL_POINTS);
+                for (int j = 0; j < point[1].Count; j++)
+                    Gl.glVertex2d(point[1][j].X * Zoom + XOffset, point[1][j].Y * Zoom + YOffset);
+                Gl.glEnd();
+                Gl.glPopMatrix();
+                point[1].RemoveRange(point[1].Count - 2, 2);
+                if (Layers.Count > 1 && i + 1 != Layers.Count)
+                    point[2].RemoveRange(point[2].Count - 2, 2);
+                if (i > 0)
+                    point[0].RemoveRange(point[0].Count - 2, 2);
+            }
         }
         #endregion
+
         #endregion
+
         /*Основной метод класса, вызывает отрисовку*/
         public void Draw()
         {
@@ -447,7 +560,10 @@ namespace Second
             Gl.glPushMatrix();
             Gl.glTranslated(XOffset, YOffset, 0);
             Gl.glScaled(Zoom, Zoom, Zoom);
+            /*Рисуем сетку*/
             DrawingGrid();
+            /*Рисуем слои*/
+            DrawingLayers();
 
             Gl.glPopMatrix();
             Gl.glFinish();

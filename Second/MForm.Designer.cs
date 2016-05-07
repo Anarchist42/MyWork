@@ -33,12 +33,11 @@
             this.RenderTimer = new System.Windows.Forms.Timer(this.components);
             this.MainPaint_VScroll = new System.Windows.Forms.VScrollBar();
             this.MainPaint_HScroll = new System.Windows.Forms.HScrollBar();
-            this.FirstStartButton = new System.Windows.Forms.Button();
-            this.FirstLabelMain = new System.Windows.Forms.Label();
-            this.TextBoxWidthArea = new System.Windows.Forms.TextBox();
-            this.TextBoxHeightEarth = new System.Windows.Forms.TextBox();
-            this.LabelWidthArea = new System.Windows.Forms.Label();
-            this.LabelHeightEarth = new System.Windows.Forms.Label();
+            this.MenuStrip = new System.Windows.Forms.MenuStrip();
+            this.FileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.CloseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.AboutProgrammToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.MenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // MainPaint
@@ -52,16 +51,13 @@
             this.MainPaint.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.MainPaint.ColorBits = ((byte)(32));
             this.MainPaint.DepthBits = ((byte)(16));
-            this.MainPaint.Location = new System.Drawing.Point(12, 12);
+            this.MainPaint.Location = new System.Drawing.Point(12, 32);
             this.MainPaint.Name = "MainPaint";
             this.MainPaint.Size = new System.Drawing.Size(587, 526);
             this.MainPaint.StencilBits = ((byte)(0));
             this.MainPaint.TabIndex = 0;
             this.MainPaint.Load += new System.EventHandler(this.MainPaint_Load);
-            this.MainPaint.MouseClick += new System.Windows.Forms.MouseEventHandler(this.MainPaint_MouseClick);
             this.MainPaint.MouseDown += new System.Windows.Forms.MouseEventHandler(this.MainPaint_MouseDown);
-            this.MainPaint.MouseEnter += new System.EventHandler(this.MainPaint_MouseEnter);
-            this.MainPaint.MouseLeave += new System.EventHandler(this.MainPaint_MouseLeave);
             this.MainPaint.MouseMove += new System.Windows.Forms.MouseEventHandler(this.MainPaint_MouseMove);
             this.MainPaint.MouseUp += new System.Windows.Forms.MouseEventHandler(this.MainPaint_MouseUp);
             this.MainPaint.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.MainPaint_MouseWheel);
@@ -74,7 +70,7 @@
             // MainPaint_VScroll
             // 
             this.MainPaint_VScroll.LargeChange = 527;
-            this.MainPaint_VScroll.Location = new System.Drawing.Point(602, 12);
+            this.MainPaint_VScroll.Location = new System.Drawing.Point(602, 32);
             this.MainPaint_VScroll.Maximum = 526;
             this.MainPaint_VScroll.Name = "MainPaint_VScroll";
             this.MainPaint_VScroll.Size = new System.Drawing.Size(12, 526);
@@ -85,7 +81,7 @@
             // MainPaint_HScroll
             // 
             this.MainPaint_HScroll.LargeChange = 588;
-            this.MainPaint_HScroll.Location = new System.Drawing.Point(12, 541);
+            this.MainPaint_HScroll.Location = new System.Drawing.Point(12, 561);
             this.MainPaint_HScroll.Maximum = 587;
             this.MainPaint_HScroll.Name = "MainPaint_HScroll";
             this.MainPaint_HScroll.Size = new System.Drawing.Size(587, 12);
@@ -93,79 +89,56 @@
             this.MainPaint_HScroll.Visible = false;
             this.MainPaint_HScroll.Scroll += new System.Windows.Forms.ScrollEventHandler(this.MainPaint_HScroll_Scroll);
             // 
-            // FirstStartButton
+            // MenuStrip
             // 
-            this.FirstStartButton.Location = new System.Drawing.Point(694, 116);
-            this.FirstStartButton.Name = "FirstStartButton";
-            this.FirstStartButton.Size = new System.Drawing.Size(84, 23);
-            this.FirstStartButton.TabIndex = 3;
-            this.FirstStartButton.Text = "Start";
-            this.FirstStartButton.UseVisualStyleBackColor = true;
-            this.FirstStartButton.Click += new System.EventHandler(this.FirstStartButton_Click);
+            this.MenuStrip.BackColor = System.Drawing.SystemColors.Control;
+            this.MenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.FileToolStripMenuItem,
+            this.AboutProgrammToolStripMenuItem});
+            this.MenuStrip.Location = new System.Drawing.Point(0, 0);
+            this.MenuStrip.Name = "MenuStrip";
+            this.MenuStrip.Size = new System.Drawing.Size(884, 24);
+            this.MenuStrip.TabIndex = 9;
+            this.MenuStrip.Text = "menuStrip1";
             // 
-            // FirstLabelMain
+            // FileToolStripMenuItem
             // 
-            this.FirstLabelMain.AutoSize = true;
-            this.FirstLabelMain.Location = new System.Drawing.Point(618, 13);
-            this.FirstLabelMain.Name = "FirstLabelMain";
-            this.FirstLabelMain.Size = new System.Drawing.Size(136, 26);
-            this.FirstLabelMain.TabIndex = 4;
-            this.FirstLabelMain.Text = "Введите ширину рабочей \r\nобласти и высоту земли\r\n";
+            this.FileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.CloseToolStripMenuItem});
+            this.FileToolStripMenuItem.Name = "FileToolStripMenuItem";
+            this.FileToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
+            this.FileToolStripMenuItem.Text = "Файл";
             // 
-            // TextBoxWidthArea
+            // CloseToolStripMenuItem
             // 
-            this.TextBoxWidthArea.Location = new System.Drawing.Point(694, 43);
-            this.TextBoxWidthArea.MaxLength = 6;
-            this.TextBoxWidthArea.Name = "TextBoxWidthArea";
-            this.TextBoxWidthArea.Size = new System.Drawing.Size(84, 20);
-            this.TextBoxWidthArea.TabIndex = 5;
-            this.TextBoxWidthArea.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TextBoxWidthArea_KeyPress);
+            this.CloseToolStripMenuItem.Name = "CloseToolStripMenuItem";
+            this.CloseToolStripMenuItem.Size = new System.Drawing.Size(120, 22);
+            this.CloseToolStripMenuItem.Text = "Закрыть";
+            this.CloseToolStripMenuItem.Click += new System.EventHandler(this.CloseToolStripMenuItem_Click);
             // 
-            // TextBoxHeightEarth
+            // AboutProgrammToolStripMenuItem
             // 
-            this.TextBoxHeightEarth.Location = new System.Drawing.Point(694, 78);
-            this.TextBoxHeightEarth.MaxLength = 3;
-            this.TextBoxHeightEarth.Name = "TextBoxHeightEarth";
-            this.TextBoxHeightEarth.Size = new System.Drawing.Size(84, 20);
-            this.TextBoxHeightEarth.TabIndex = 6;
-            this.TextBoxHeightEarth.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TextBoxHeightEarth_KeyPress);
-            // 
-            // LabelWidthArea
-            // 
-            this.LabelWidthArea.AutoSize = true;
-            this.LabelWidthArea.Location = new System.Drawing.Point(618, 43);
-            this.LabelWidthArea.Name = "LabelWidthArea";
-            this.LabelWidthArea.Size = new System.Drawing.Size(59, 26);
-            this.LabelWidthArea.TabIndex = 7;
-            this.LabelWidthArea.Text = "Ширина\r\nобласти,м";
-            // 
-            // LabelHeightEarth
-            // 
-            this.LabelHeightEarth.AutoSize = true;
-            this.LabelHeightEarth.Location = new System.Drawing.Point(618, 78);
-            this.LabelHeightEarth.Name = "LabelHeightEarth";
-            this.LabelHeightEarth.Size = new System.Drawing.Size(50, 26);
-            this.LabelHeightEarth.TabIndex = 8;
-            this.LabelHeightEarth.Text = "Высота\r\nземли,м";
+            this.AboutProgrammToolStripMenuItem.Name = "AboutProgrammToolStripMenuItem";
+            this.AboutProgrammToolStripMenuItem.Size = new System.Drawing.Size(94, 20);
+            this.AboutProgrammToolStripMenuItem.Text = "О программе";
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(784, 562);
-            this.Controls.Add(this.LabelHeightEarth);
-            this.Controls.Add(this.LabelWidthArea);
-            this.Controls.Add(this.TextBoxHeightEarth);
-            this.Controls.Add(this.TextBoxWidthArea);
-            this.Controls.Add(this.FirstLabelMain);
-            this.Controls.Add(this.FirstStartButton);
+            this.ClientSize = new System.Drawing.Size(884, 582);
             this.Controls.Add(this.MainPaint_HScroll);
             this.Controls.Add(this.MainPaint_VScroll);
             this.Controls.Add(this.MainPaint);
+            this.Controls.Add(this.MenuStrip);
+            this.MainMenuStrip = this.MenuStrip;
             this.MinimumSize = new System.Drawing.Size(800, 600);
             this.Name = "MainForm";
-            this.Text = "Приложение версия b0.0000000001";
+            this.Text = "Задание геологических структур для программного комплекса решения задач геоэлектр" +
+    "ики";
             this.SizeChanged += new System.EventHandler(this.MainForm_SizeChanged);
+            this.MenuStrip.ResumeLayout(false);
+            this.MenuStrip.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -177,12 +150,16 @@
         private System.Windows.Forms.Timer RenderTimer;
         private System.Windows.Forms.VScrollBar MainPaint_VScroll;
         private System.Windows.Forms.HScrollBar MainPaint_HScroll;
-        private System.Windows.Forms.Button FirstStartButton;
-        private System.Windows.Forms.Label FirstLabelMain;
-        private System.Windows.Forms.TextBox TextBoxWidthArea;
-        private System.Windows.Forms.TextBox TextBoxHeightEarth;
-        private System.Windows.Forms.Label LabelWidthArea;
-        private System.Windows.Forms.Label LabelHeightEarth;
+        //private System.Windows.Forms.Button FirstStartButton;
+        //private System.Windows.Forms.Label FirstLabelMain;
+        //private System.Windows.Forms.TextBox TextBoxWidthArea;
+        //private System.Windows.Forms.TextBox TextBoxHeightEarth;
+        //private System.Windows.Forms.Label LabelWidthArea;
+        //private System.Windows.Forms.Label LabelHeightEarth;
+        private System.Windows.Forms.MenuStrip MenuStrip;
+        private System.Windows.Forms.ToolStripMenuItem FileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem CloseToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem AboutProgrammToolStripMenuItem;
     }
 }
 
