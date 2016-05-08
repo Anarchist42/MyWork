@@ -423,6 +423,13 @@ namespace Second
             });
         }
 
+        /*Удаляем слой почвы*/
+        /*Параметры: LayerNumber - номер удаляемого слоя*/
+        public void DeleteLayers(int LayerNumber)
+        {
+            Layers.RemoveAt(LayerNumber);
+        }
+
         /*Проверка попала ли мышь на опорную точку сплайна*/
         /*Параметры: MouseDownPosition - позиция точки нажатия*/
         /*Возвращает: FIJ[3] - массив, где [1] - нашел точку (0/1),*/

@@ -31,6 +31,8 @@ namespace Second
         bool FlagMouseGlControl;
         /*Флаг нажата ли левая кнопка мышки*/
         bool MouseDownLeft;
+        /*Флаг нажата ли правая кнопка мышки*/
+        bool MouseDownRight;
         /*Позиция нажатия мышки*/
         Point MouseDownPosition;
         /*Попала ли мышка на опорную точку*/
@@ -48,8 +50,9 @@ namespace Second
             SizeGlControl = new Point(MainPaint.Width, MainPaint.Height);
             FlagMouseGlControl = false;
             MouseDownLeft = false;
+            MouseDownRight = false;
             CheckControlPoint = new int[3];
-
+            
 
 
             /*Аля чек*/
@@ -57,9 +60,9 @@ namespace Second
             MainPaint_HScroll.Maximum = Draw.XAREASIZE;
             MainPaint_VScroll.LargeChange = Draw.YAREASIZE + 1;
             MainPaint_VScroll.Maximum = Draw.YAREASIZE;
-            Draw.EARTHSIZE = 100;
+            Draw.EARTHSIZE = 0;
             Draw.XAREASIZE = 58200;
-
+            //TabControl.Visible = true;
 
             //FirstStartButton.Visible = false;
             //TextBoxWidthArea.Visible = false;
@@ -117,17 +120,7 @@ namespace Second
         {
             /*Изменяем размеры GlControl*/
             MainPaint.Width = this.Width - SizeForm.X + SizeGlControl.X;
-            MainPaint.Height = this.Height - SizeForm.Y + SizeGlControl.Y;
-            /*Если основная часть программы не запущена (Не нажата первая кнопка "Start")*/
-            //if (FirstStartButton.Visible == true)
-            //{
-            //    FirstStartButton.Location = new Point(MainPaint.Width + 107, FirstStartButton.Location.Y);
-            //    TextBoxWidthArea.Location = new Point(MainPaint.Width + 107, TextBoxWidthArea.Location.Y);
-            //    TextBoxHeightEarth.Location = new Point(MainPaint.Width + 107, TextBoxHeightEarth.Location.Y);
-            //    LabelHeightEarth.Location = new Point(MainPaint.Width + 31, LabelHeightEarth.Location.Y);
-            //    LabelWidthArea.Location = new Point(MainPaint.Width + 31, LabelWidthArea.Location.Y);
-            //    FirstLabelMain.Location = new Point(MainPaint.Width + 31, FirstLabelMain.Location.Y);
-            //}
+            MainPaint.Height = this.Height - SizeForm.Y + SizeGlControl.Y;              
             /*Настраиваем зум*/
             if (Convert.ToDouble(MainPaint.Width) / Convert.ToDouble(SizeGlControl.X) 
                 > Convert.ToDouble(MainPaint.Height) / Convert.ToDouble(SizeGlControl.Y))
@@ -145,15 +138,15 @@ namespace Second
                 MainPaint_VScroll.Maximum = Draw.YAREASIZE;
             }
             /*Настраиваем вертикальный ползунок*/
-            MainPaint_VScroll.Location = new Point(MainPaint.Width + 15, MainPaint_VScroll.Location.Y);
             MainPaint_VScroll.Size = new Size(MainPaint_VScroll.Size.Width, MainPaint.Height);
             MainPaint_VScroll.LargeChange = Draw.YAREASIZE + 1;          
             MainPaint_VScroll.Value = (MainPaint_VScroll.Maximum - MainPaint_VScroll.LargeChange) / 2 + 1;
             /*Настраиваем горизонтальный ползунок*/
-            MainPaint_HScroll.Location = new Point(MainPaint_HScroll.Location.X, MainPaint.Height + 35);
             MainPaint_HScroll.Size = new Size(MainPaint.Width, MainPaint_HScroll.Size.Height);
             MainPaint_HScroll.LargeChange = Draw.XAREASIZE + 1;          
             MainPaint_HScroll.Value = (MainPaint_HScroll.Maximum - MainPaint_HScroll.LargeChange) / 2 + 1;
+            /*Настраиваем панель с параметрами*/
+            TabControl.Size = new Size(TabControl.Size.Width, MainPaint.Height);
             /*Сбрасываем сдвиги по осям*/
             Draw.XOFFSET = 0.0;
             Draw.YOFFSET = 0.0;
@@ -246,44 +239,46 @@ namespace Second
             MouseDownPosition = new Point(e.X, e.Y);
             Draw.MOUSEPOSITION = new Point(e.X, e.Y);
             CheckControlPoint = Draw.CheckPoint(new Point(e.X, e.Y));
+            if (CheckControlPoint[0] == 1 && e.Button == System.Windows.Forms.MouseButtons.Right)
+                СontextMenuStrip.Show(Cursor.Position);
         }
 
 
         #region Начальное окно
 
-        //private void FirstStartButton_Click(object sender, EventArgs e)
-        //{
-        //    /*Передаем введеные параметры*/
-        //    Draw.EARTHSIZE = (TextBoxHeightEarth.TextLength > 0) ? Convert.ToInt32(TextBoxHeightEarth.Text) : 0;
-        //    Draw.XAREASIZE = (TextBoxWidthArea.TextLength > 0) ? Convert.ToInt32(TextBoxWidthArea.Text) : 1;
-        //    /*Настраиваем значения ползунков*/
-        //    MainPaint_HScroll.LargeChange = Draw.XAREASIZE + 1;
-        //    MainPaint_HScroll.Maximum = Draw.XAREASIZE;
-        //    MainPaint_VScroll.LargeChange = Draw.YAREASIZE + 1;
-        //    MainPaint_VScroll.Maximum = Draw.YAREASIZE;
-        //    /*Убираем ненужные объекты интерфейса*/
-        //    FirstStartButton.Visible = false;
-        //    TextBoxWidthArea.Visible = false;
-        //    TextBoxHeightEarth.Visible = false;
-        //    LabelHeightEarth.Visible = false;
-        //    LabelWidthArea.Visible = false;
-        //    FirstLabelMain.Visible = false;
+        private void FirstStartButton_Click(object sender, EventArgs e)
+        {
+            /*Передаем введеные параметры*/
+            Draw.EARTHSIZE = (TextBoxHeightEarth.TextLength > 0) ? Convert.ToInt32(TextBoxHeightEarth.Text) : 0;
+            Draw.XAREASIZE = (TextBoxWidthArea.TextLength > 0) ? Convert.ToInt32(TextBoxWidthArea.Text) : 1;
+            /*Настраиваем значения ползунков*/
+            MainPaint_HScroll.LargeChange = Draw.XAREASIZE + 1;
+            MainPaint_HScroll.Maximum = Draw.XAREASIZE;
+            MainPaint_VScroll.LargeChange = Draw.YAREASIZE + 1;
+            MainPaint_VScroll.Maximum = Draw.YAREASIZE;
+            /*Убираем ненужные объекты интерфейса*/
+            FirstStartButton.Visible = false;
+            TextBoxWidthArea.Visible = false;
+            TextBoxHeightEarth.Visible = false;
+            LabelHeightEarth.Visible = false;
+            LabelWidthArea.Visible = false;
+            FirstLabelMain.Visible = false;
+            TabControl.Visible = true;
+            /*Старт всей отрисовки*/
+            RenderTimer.Start();
+        }
 
-        //    /*Старт всей отрисовки*/
-        //    RenderTimer.Start();
-        //}
+        private void TextBoxWidthArea_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!Char.IsDigit(e.KeyChar) && e.KeyChar != 8)
+                e.Handled = true;
+        }
 
-        //private void TextBoxWidthArea_KeyPress(object sender, KeyPressEventArgs e)
-        //{
-        //    if (!Char.IsDigit(e.KeyChar) && e.KeyChar != 8)
-        //        e.Handled = true;
-        //}
-
-        //private void TextBoxHeightEarth_KeyPress(object sender, KeyPressEventArgs e)
-        //{
-        //    if (!Char.IsDigit(e.KeyChar) && e.KeyChar != 8 && (e.KeyChar != 45 || TextBoxHeightEarth.TextLength > 0))
-        //        e.Handled = true;
-        //}
+        private void TextBoxHeightEarth_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!Char.IsDigit(e.KeyChar) && e.KeyChar != 8 && (e.KeyChar != 45 || TextBoxHeightEarth.TextLength > 0))
+                e.Handled = true;
+        }
 
         #endregion
 
@@ -293,5 +288,10 @@ namespace Second
             Close();
         }
         #endregion
+
+        private void DeleteLayers_Click(object sender, EventArgs e)
+        {
+            Draw.DeleteLayers(CheckControlPoint[1]);
+        }
     }
 }
