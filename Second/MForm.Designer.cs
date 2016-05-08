@@ -48,6 +48,7 @@
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.СontextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.DeleteLayers = new System.Windows.Forms.ToolStripMenuItem();
+            this.ToolTipFirstStart = new System.Windows.Forms.ToolTip(this.components);
             this.MenuStrip.SuspendLayout();
             this.TabControl.SuspendLayout();
             this.СontextMenuStrip.SuspendLayout();
@@ -112,6 +113,8 @@
             this.FirstStartButton.Size = new System.Drawing.Size(84, 23);
             this.FirstStartButton.TabIndex = 3;
             this.FirstStartButton.Text = "Start";
+            this.ToolTipFirstStart.SetToolTip(this.FirstStartButton, "Запуск основной части программы. Изменить введенные\r\nданные после нажатия кнопки " +
+        "- НЕЛЬЗЯ.");
             this.FirstStartButton.UseVisualStyleBackColor = true;
             this.FirstStartButton.Click += new System.EventHandler(this.FirstStartButton_Click);
             // 
@@ -123,7 +126,7 @@
             this.FirstLabelMain.Name = "FirstLabelMain";
             this.FirstLabelMain.Size = new System.Drawing.Size(136, 26);
             this.FirstLabelMain.TabIndex = 4;
-            this.FirstLabelMain.Text = "Введите ширину рабочей \r\nобласти и высоту земли\r\n";
+            this.FirstLabelMain.Text = "Введите ширину исследуемой \r\nобласти и высоту земли\r\n";
             // 
             // TextBoxWidthArea
             // 
@@ -133,6 +136,7 @@
             this.TextBoxWidthArea.Name = "TextBoxWidthArea";
             this.TextBoxWidthArea.Size = new System.Drawing.Size(84, 20);
             this.TextBoxWidthArea.TabIndex = 5;
+            this.ToolTipFirstStart.SetToolTip(this.TextBoxWidthArea, "Ширина исследуемой облости 582-999999 м");
             this.TextBoxWidthArea.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TextBoxWidthArea_KeyPress);
             // 
             // TextBoxHeightEarth
@@ -143,6 +147,7 @@
             this.TextBoxHeightEarth.Name = "TextBoxHeightEarth";
             this.TextBoxHeightEarth.Size = new System.Drawing.Size(84, 20);
             this.TextBoxHeightEarth.TabIndex = 6;
+            this.ToolTipFirstStart.SetToolTip(this.TextBoxHeightEarth, "Высота над уровнем земли 0-999 1м");
             this.TextBoxHeightEarth.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TextBoxHeightEarth_KeyPress);
             // 
             // LabelWidthArea
@@ -246,6 +251,12 @@
             this.DeleteLayers.Text = "Удалить";
             this.DeleteLayers.Click += new System.EventHandler(this.DeleteLayers_Click);
             // 
+            // ToolTipFirstStart
+            // 
+            this.ToolTipFirstStart.AutoPopDelay = 5000;
+            this.ToolTipFirstStart.InitialDelay = 500;
+            this.ToolTipFirstStart.ReshowDelay = 100;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -298,6 +309,7 @@
         private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.ContextMenuStrip СontextMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem DeleteLayers;
+        private System.Windows.Forms.ToolTip ToolTipFirstStart;
     }
 }
 

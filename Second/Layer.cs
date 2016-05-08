@@ -25,7 +25,7 @@ namespace Second
                 tmp.Y = YAreaSize / 2 - EarthSize + LayerHeight;
                 this.Points.Add(tmp);
             }
-            this.Points.Add(new Point(XAreaSize / 2 - Convert.ToInt32(5.0/Zoom), YAreaSize / 2 - EarthSize + LayerHeight));
+            this.Points.Add(new Point(XAreaSize / 2, YAreaSize / 2 - EarthSize + LayerHeight));
             Random rand = new Random(LayerHeight);
             this.Colors = Color.FromArgb(rand.Next(0, 255), rand.Next(0, 255), rand.Next(0, 255));
         }
