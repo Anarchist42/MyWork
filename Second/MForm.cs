@@ -31,13 +31,21 @@ namespace Second
         bool FlagMouseGlControl;
         /*Флаг нажата ли левая кнопка мышки*/
         bool MouseDownLeft;
-        /*Флаг нажата ли правая кнопка мышки*/
-        bool MouseDownRight;
         /*Позиция нажатия мышки*/
         Point MouseDownPosition;
         /*Попала ли мышка на опорную точку*/
         int[] CheckControlPoint;
+        /*Флаг нажата ли кнопка "Нарисовать" слой почвы*/
+        bool DrawLayers;
         #endregion
+
+        #region Меню
+        private void CloseToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
+        #endregion
+
 
         public MainForm()
         {
@@ -50,9 +58,16 @@ namespace Second
             SizeGlControl = new Point(MainPaint.Width, MainPaint.Height);
             FlagMouseGlControl = false;
             MouseDownLeft = false;
-            MouseDownRight = false;
             CheckControlPoint = new int[3];
             
+            //FirstStartButton.Visible = false;
+            //TextBoxWidthArea.Visible = false;
+            //TextBoxHeightEarth.Visible = false;
+            //LabelHeightEarth.Visible = false;
+            //LabelWidthArea.Visible = false;
+            //FirstLabelMain.Visible = false;
+
+
 
 
             /*Аля чек*/
@@ -62,19 +77,13 @@ namespace Second
             MainPaint_VScroll.Maximum = Draw.YAREASIZE;
             Draw.EARTHSIZE = 0;
             Draw.XAREASIZE = 58200;
-            //TabControl.Visible = true;
-
-            //FirstStartButton.Visible = false;
-            //TextBoxWidthArea.Visible = false;
-            //TextBoxHeightEarth.Visible = false;
-            //LabelHeightEarth.Visible = false;
-            //LabelWidthArea.Visible = false;
-            //FirstLabelMain.Visible = false;
+            TabControl.Visible = true;
+            DrawLayers = false;
+            
 
 
-            Draw.AddLayers(-30000, 13);
-            Draw.AddLayers(-39900, 5);
-            Draw.AddLayers(-100, 4);
+            //DataGridViewLayers.Columns[2].ValueType = typeof(int);
+            //DataGridViewLayers.Columns[3].ValueType = typeof(uint);
         }
 
         private void MainPaint_Load(object sender, EventArgs e)
@@ -102,6 +111,7 @@ namespace Second
             Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);
 
 
+
             RenderTimer.Start();
         }
 
@@ -115,6 +125,85 @@ namespace Second
             else MainPaint_HScroll.Visible = true;
             Draw.Draw();
         }
+
+        #region Начальное окно
+
+        /*Добавить максимально допустимые значения кол-ва точек*/
+
+
+        //private void FirstStartButton_Click(object sender, EventArgs e)
+        //{
+        //    /*Передаем введеные параметры*/
+        //    Draw.EARTHSIZE = (TextBoxHeightEarth.TextLength > 0) ? Convert.ToInt32(TextBoxHeightEarth.Text) : 0;
+        //    Draw.XAREASIZE = (TextBoxWidthArea.TextLength > 0) ? Convert.ToInt32(TextBoxWidthArea.Text) : 1;
+        //    /*Настраиваем значения ползунков*/
+        //    MainPaint_HScroll.LargeChange = Draw.XAREASIZE + 1;
+        //    MainPaint_HScroll.Maximum = Draw.XAREASIZE;
+        //    MainPaint_VScroll.LargeChange = Draw.YAREASIZE + 1;
+        //    MainPaint_VScroll.Maximum = Draw.YAREASIZE;
+        //    /*Убираем ненужные объекты интерфейса*/
+        //    FirstStartButton.Visible = false;
+        //    TextBoxWidthArea.Visible = false;
+        //    TextBoxHeightEarth.Visible = false;
+        //    LabelHeightEarth.Visible = false;
+        //    LabelWidthArea.Visible = false;
+        //    FirstLabelMain.Visible = false;
+        //    TabControl.Visible = true;
+        //    /*Старт всей отрисовки*/
+        //    RenderTimer.Start();
+        //}
+
+        //private void TextBoxWidthArea_KeyPress(object sender, KeyPressEventArgs e)
+        //{
+        //    if (!Char.IsDigit(e.KeyChar) && e.KeyChar != 8)
+        //        e.Handled = true;
+        //}
+
+        //private void TextBoxHeightEarth_KeyPress(object sender, KeyPressEventArgs e)
+        //{
+        //    if (!Char.IsDigit(e.KeyChar) && e.KeyChar != 8)
+        //        e.Handled = true;
+        //}
+
+        #endregion
+
+        #region Работа с MainPaint
+
+        #region Контексное меню
+        private void AddValueToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void AddPointToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void DeletePointToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void DeleteLayersMainPaint_Click(object sender, EventArgs e)
+        {
+            int i,
+            /*Удаляем слой*/
+            IndexNumber = Draw.DeleteLayersNumber(CheckControlPoint[1]),
+            /*Старое значение максимального значения ползунка*/
+            MaximumScroll = MainPaint_VScroll.Maximum;
+            /*Изменяем ползунки*/
+            MainPaint_VScroll.LargeChange = Draw.YAREASIZE + 1;            
+            MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
+            Draw.YOFFSET += (MaximumScroll - MainPaint_VScroll.Maximum ) * Draw.ZOOM;
+            MainPaint_VScroll.Value = Draw.ScrollValue(0);
+            /*Удаляем строку в таблице*/
+            DataGridViewLayers.Rows.RemoveAt(IndexNumber);
+            /*Уменьшаем индекс в таблице*/
+            for (i = IndexNumber; i < DataGridViewLayers.Rows.Count - 1; i++)
+                DataGridViewLayers.Rows[i].Cells[0].Value = Convert.ToInt32(DataGridViewLayers.Rows[i].Cells[0].Value) - 1;
+        }
+        #endregion
 
         private void MainForm_SizeChanged(object sender, EventArgs e)
         {
@@ -203,7 +292,7 @@ namespace Second
 
         private void MainPaint_MouseMove(object sender, MouseEventArgs e)
         {
-            if (e.Y < 0 || e.Y > MainPaint.Height-GlobalConst.Difference || e.X < 0 || e.X > MainPaint.Width - GlobalConst.Difference)
+            if (e.Y < 0 || e.Y > MainPaint.Height - GlobalConst.Difference || e.X < 0 || e.X > MainPaint.Width - GlobalConst.Difference)
                 FlagMouseGlControl = false;
             else
                 FlagMouseGlControl = true;
@@ -211,6 +300,9 @@ namespace Second
             {
                 /*Изменяем позицию мышки*/
                 Draw.MOUSEPOSITION = new Point(e.X, e.Y);
+                /*Если нажата кнопка нарисовать слой (нельзя двигать)*/
+                if (DrawLayers == true)
+                    return;
                 if (MouseDownLeft)
                 {
                     if (CheckControlPoint[0] == 1)
@@ -233,68 +325,209 @@ namespace Second
             MouseDownLeft = false;
         }
 
+        private void MainPaint_MouseEnter(object sender, EventArgs e)
+        {
+            MainPaint.Focus();
+        }
+
         private void MainPaint_MouseDown(object sender, MouseEventArgs e)
         {
+            /*Убираем выделение в таблице Слоев*/
+            DataGridViewLayers.ClearSelection();
+            /*Если нажата левая кнопка мыши*/
             if (e.Button == System.Windows.Forms.MouseButtons.Left)
             {
                 MouseDownLeft = true;
+                MouseDownPosition = new Point(e.X, e.Y);
+                Draw.MOUSEPOSITION = new Point(e.X, e.Y);
+                /*Если кнопка "Нарисовать" новый слой "включена"*/
+                if (DrawLayers == true)
+                {
+                    /*Рисуем новый слой*/
+                    Draw.AddLayers(Draw.GetLayerHeight(), Convert.ToInt32(TextBoxLayerNumberOfPoints.Text));
+                    /*Заполняем таблицу*/
+                    if (DataGridViewLayers.Rows.Count == 1)
+                    {
+                        DataGridViewLayers.Rows.Add(1, "", Draw.GetLayerHeight(), Convert.ToInt32(TextBoxLayerNumberOfPoints.Text));
+                        DataGridViewLayers.Rows[0].Cells[1].Style.BackColor = Draw.GetLayerColor(Convert.ToInt32(DataGridViewLayers.Rows[0].Cells[0].Value));
+                    }
+                    else
+                    {
+                        DataGridViewLayers.Rows.Add(DataGridViewLayers.Rows.Count, "", Draw.GetLayerHeight(), Convert.ToInt32(TextBoxLayerNumberOfPoints.Text));
+                        DataGridViewLayers.Rows[DataGridViewLayers.Rows.Count - 2].Cells[1].Style.BackColor = Draw.GetLayerColor(Convert.ToInt32(DataGridViewLayers.Rows[DataGridViewLayers.Rows.Count - 2].Cells[0].Value));
+                    }
+                }
             }
-            MouseDownPosition = new Point(e.X, e.Y);
-            Draw.MOUSEPOSITION = new Point(e.X, e.Y);
+            /*Проверяем попали ли мы на опорную точку*/
             CheckControlPoint = Draw.CheckPoint(new Point(e.X, e.Y));
+            /*Если попали и нажата правая кнопка мыши, то вызываем контексное меню*/
             if (CheckControlPoint[0] == 1 && e.Button == System.Windows.Forms.MouseButtons.Right)
-                СontextMenuStrip.Show(Cursor.Position);
+                СontextMenuMainPaint.Show(Cursor.Position);
         }
-
-
-        #region Начальное окно
-
-        //private void FirstStartButton_Click(object sender, EventArgs e)
-        //{
-        //    /*Передаем введеные параметры*/
-        //    Draw.EARTHSIZE = (TextBoxHeightEarth.TextLength > 0) ? Convert.ToInt32(TextBoxHeightEarth.Text) : 0;
-        //    Draw.XAREASIZE = (TextBoxWidthArea.TextLength > 0) ? Convert.ToInt32(TextBoxWidthArea.Text) : 1;
-        //    /*Настраиваем значения ползунков*/
-        //    MainPaint_HScroll.LargeChange = Draw.XAREASIZE + 1;
-        //    MainPaint_HScroll.Maximum = Draw.XAREASIZE;
-        //    MainPaint_VScroll.LargeChange = Draw.YAREASIZE + 1;
-        //    MainPaint_VScroll.Maximum = Draw.YAREASIZE;
-        //    /*Убираем ненужные объекты интерфейса*/
-        //    FirstStartButton.Visible = false;
-        //    TextBoxWidthArea.Visible = false;
-        //    TextBoxHeightEarth.Visible = false;
-        //    LabelHeightEarth.Visible = false;
-        //    LabelWidthArea.Visible = false;
-        //    FirstLabelMain.Visible = false;
-        //    TabControl.Visible = true;
-        //    /*Старт всей отрисовки*/
-        //    RenderTimer.Start();
-        //}
-
-        //private void TextBoxWidthArea_KeyPress(object sender, KeyPressEventArgs e)
-        //{
-        //    if (!Char.IsDigit(e.KeyChar) && e.KeyChar != 8)
-        //        e.Handled = true;
-        //}
-
-        //private void TextBoxHeightEarth_KeyPress(object sender, KeyPressEventArgs e)
-        //{
-        //    if (!Char.IsDigit(e.KeyChar) && e.KeyChar != 8 && (e.KeyChar != 45 || TextBoxHeightEarth.TextLength > 0))
-        //        e.Handled = true;
-        //}
 
         #endregion
 
-        #region Меню
-        private void CloseToolStripMenuItem_Click(object sender, EventArgs e)
+        #region Почва
+
+        #region Контекстное меню
+        private void DeleteLayersDataGridViewLayers_Click(object sender, EventArgs e)
         {
-            Close();
+            int i,
+            /*Старое значение максимального значения ползунка*/
+            MaximumScroll = MainPaint_VScroll.Maximum;
+            /*Удаляем слой*/
+            Draw.DeleteLayersIndex(CheckControlPoint[1]);           
+            /*Изменяем ползунки*/
+            MainPaint_VScroll.LargeChange = Draw.YAREASIZE + 1;
+            MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
+            Draw.YOFFSET += (MaximumScroll - MainPaint_VScroll.Maximum) * Draw.ZOOM;
+            MainPaint_VScroll.Value = Draw.ScrollValue(0);
+            /*Удаляем строку в таблице*/
+            DataGridViewLayers.Rows.RemoveAt(CheckControlPoint[1]);
+            /*Уменьшаем индекс таблице*/
+            for (i = CheckControlPoint[1]; i < DataGridViewLayers.Rows.Count - 1; i++)
+                DataGridViewLayers.Rows[i].Cells[0].Value = Convert.ToInt32(DataGridViewLayers.Rows[i].Cells[0].Value) - 1;
+            /*Убираем выделение в таблице Слоев*/
+            DataGridViewLayers.ClearSelection();
         }
         #endregion
 
-        private void DeleteLayers_Click(object sender, EventArgs e)
+        private void DrawSplineLayers_Click(object sender, EventArgs e)
         {
-            Draw.DeleteLayers(CheckControlPoint[1]);
+            /*Проверка количества опорных точек*/
+            if (TextBoxLayerNumberOfPoints.Text.Length == 0 || Convert.ToInt32(TextBoxLayerNumberOfPoints.Text) < 2)
+            {
+                MessageBox.Show("Должно быть минимум 2 опорных точки.");
+                return;
+            }
+            /*"Включаем" кнопку, теперь можно рисовать несколько слоев с заданным количеством*/
+            /*опорных точек*/
+            if (DrawLayers == false)
+            {
+                DrawLayers = true;
+                DrawSplineLayers.BackColor = System.Drawing.SystemColors.Highlight;
+                LabelLayerHeight.Focus();
+            }
+            else
+            {
+                DrawLayers = false;
+                DrawSplineLayers.BackColor = System.Drawing.SystemColors.Control;
+                LabelLayerHeight.Focus();
+            }
         }
+
+        private void AddSplineLayers_Click(object sender, EventArgs e)
+        {
+            /*Рисуем новый слой*/
+            Draw.AddLayers(Convert.ToInt32(TextBoxLayerHeight.Text), Convert.ToInt32(TextBoxLayerNumberOfPoints.Text));
+            /*Изменяем ползунки*/
+            MainPaint_VScroll.LargeChange = Draw.YAREASIZE + 1;
+            MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
+            MainPaint_VScroll.Value = Draw.ScrollValue(0);
+            /*Заполняем таблицу*/
+            if (DataGridViewLayers.Rows.Count == 1)
+            {
+                DataGridViewLayers.Rows.Add(1, "", Convert.ToInt32(TextBoxLayerHeight.Text), Convert.ToInt32(TextBoxLayerNumberOfPoints.Text));
+                DataGridViewLayers.Rows[0].Cells[1].Style.BackColor = Draw.GetLayerColor(Convert.ToInt32(DataGridViewLayers.Rows[0].Cells[0].Value));
+            }
+            else
+            {
+                DataGridViewLayers.Rows.Add(DataGridViewLayers.Rows.Count, "", Convert.ToInt32(TextBoxLayerHeight.Text), Convert.ToInt32(TextBoxLayerNumberOfPoints.Text));
+                DataGridViewLayers.Rows[DataGridViewLayers.Rows.Count - 2].Cells[1].Style.BackColor = Draw.GetLayerColor(Convert.ToInt32(DataGridViewLayers.Rows[DataGridViewLayers.Rows.Count - 2].Cells[0].Value));
+            }
+        }
+
+        private void TextBoxLayerNumberOfPoints_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            /*Можно вводить только числа и бэкспейс*/
+            if (!Char.IsDigit(e.KeyChar) && e.KeyChar != 8)
+                e.Handled = true;
+            /*При изменение значений делаем кнопку "Выключенной", в целях проверки введенного числа*/
+            DrawLayers = false;
+            DrawSplineLayers.BackColor = System.Drawing.SystemColors.Control;
+        }
+
+        private void TextBoxLayerHeight_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            /*Можно вводить только числа и бэкспейс*/
+            if (!Char.IsDigit(e.KeyChar) && e.KeyChar != 8)
+                e.Handled = true;
+        }
+
+        private void DataGridViewLayers_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right && e.RowIndex != DataGridViewLayers.Rows.Count - 1)
+            {
+                DataGridViewLayers.Rows[e.RowIndex].Selected = true;
+                CheckControlPoint[1] =  e.RowIndex;
+                ContextMenuDataGridViewLayers.Show(Cursor.Position);
+            }
+        }
+
+        private void DataGridViewLayers_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
+        {
+            DataGridViewLayers.Rows[e.RowIndex].ErrorText = "";
+            int newInteger;
+            if (DataGridViewLayers.Rows[e.RowIndex].IsNewRow)
+                return;
+            if (DataGridViewLayers.CurrentCell.ColumnIndex == 2)
+            {
+                if (!int.TryParse(e.FormattedValue.ToString(), out newInteger) || newInteger >= 0)
+                {
+                    e.Cancel = true;
+                    DataGridViewLayers.Rows[e.RowIndex].ErrorText = "Значение должно быть меньше или равно 0";
+                }
+                return;
+            }
+            if (DataGridViewLayers.CurrentCell.ColumnIndex == 3)
+            {
+                if (!int.TryParse(e.FormattedValue.ToString(), out newInteger) || newInteger >= Draw.XAREASIZE)
+                {
+                    e.Cancel = true;
+                    DataGridViewLayers.Rows[e.RowIndex].ErrorText = "Количество опорных точек должно быть меньше или равно размеру области";
+                }
+                return;
+            }
+        }
+
+        #endregion
+
+        
+
+        private void СheckedListBox_ItemCheck(object sender, ItemCheckEventArgs e)
+        {
+            /*Если нажата Сетка*/
+            if(e.Index == 0)
+            {
+                if (e.NewValue == CheckState.Checked)
+                    Draw.GRID = true;
+                else Draw.GRID = false;
+            }
+            /*Если нажата Разметка*/
+            if (e.Index == 1)
+            {
+                if (e.NewValue == CheckState.Checked)
+                    Draw.MARKING = true;
+                else Draw.MARKING = false;
+            }
+            /*Если нажата Опорные линии*/
+            if (e.Index == 2)
+            {
+                if (e.NewValue == CheckState.Checked)
+                    Draw.SUPPORTLINE = true;
+                else Draw.SUPPORTLINE = false;
+            }
+        }
+
+        #region Минералы
+
+        private void DrawSplineMinerals_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        #endregion
+
+
     }
 }

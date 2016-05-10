@@ -12,17 +12,7 @@ using Tao.Platform.Windows;
 
 namespace Second
 {
-    public class GlobalConst
-    {
-        #region Константы
-        /*Размер бардюра у GlControl*/
-        public static int Difference = 5;
-        /*Шаг для прокрутки*/
-        public static double ZoomWheel = 0.01;
-        /*Минимальный зум для окна*/
-        public static double MinZoom;
-        #endregion
-    }
+    
 
     class Paint
     {
@@ -47,6 +37,14 @@ namespace Second
         int YAreaSize;
         /*Высота уровня земли*/
         int EarthSize;
+
+
+        /*Флаг нужна ли сетка*/
+        bool Grid;
+        /*Флаг нужна ли разметка*/
+        bool Marking;
+        /*Флаг нужна ли опорная линия*/
+        bool SupportLine;
         #endregion
 
         #region Не нужны Get\Set
@@ -54,6 +52,8 @@ namespace Second
         SimpleOpenGlControl GLPaint;
         /*Cлои почвы*/
         List<Layer> Layers = new List<Layer>();
+        /*Начальная высота рабочей области*/
+        int DefYAreaSize;
         #endregion
 
         #endregion
@@ -69,6 +69,10 @@ namespace Second
             this.YOffset = 0.0;
             this.XAreaSize = 0;
             this.YAreaSize = 0;
+            this.DefYAreaSize = 0;
+            this.Grid = false;
+            this.Marking = false;
+            this.SupportLine = false;
         }
         #endregion
 
@@ -127,6 +131,7 @@ namespace Second
                 this.Zoom = this.MinZoom;
                 GlobalConst.MinZoom = this.MinZoom;
                 this.YAreaSize = Convert.ToInt32((GLPaint.Height - GlobalConst.Difference) / Zoom);
+                this.DefYAreaSize = YAreaSize;
             }
         }
         public int YAREASIZE
@@ -142,14 +147,31 @@ namespace Second
             get { return this.EarthSize; }
             set { this.EarthSize = (value > 0) ? value : 0; }
         }
+
+
+        public bool GRID
+        {
+            get { return this.Grid; }
+            set { this.Grid = value; }
+        }
+        public bool MARKING
+        {
+            get { return this.Marking; }
+            set { this.Marking = value; }
+        }
+        public bool SUPPORTLINE
+        {
+            get { return this.SupportLine; }
+            set { this.SupportLine = value; }
+        }
         #endregion
 
         #region Методы
-        /*Метод отрсиовки сетки*/
+
+        #region Сетка, Разметка, Координаты
         private void DrawingGrid()
         {
-            int i, k;
-            #region Сетка
+            int i;
             Gl.glPushMatrix();
             /*так как максимум на линии - cells_number клеток, 
             то надо выбрать по Х или Y будем выбирать шаг*/
@@ -164,8 +186,6 @@ namespace Second
             double GridHalfUp = (GLPaint.Height / 2 - YOffset);
             double GridHalfLeft = (-GLPaint.Width / 2 - XOffset);
             double GridHalfRight = (GLPaint.Width / 2 - XOffset);
-            /*Скалируем до 1*/
-            Gl.glScaled(1 / Zoom, 1 / Zoom, 1 / Zoom);
             for (i = 0; i > GridHalfDown; i -= GridStep)
             {
                 Gl.glBegin(Gl.GL_LINES);
@@ -195,11 +215,25 @@ namespace Second
                 Gl.glEnd();
             }
             Gl.glPopMatrix();
-            #endregion
+        }
 
-            #region Значение на координатных прямых
+        private void DrawingMarking()
+        {
+            int i, k;
             Gl.glPushMatrix();
             Gl.glColor3d(0.3, 0.3, 0.3);
+            /*так как максимум на линии - cells_number клеток, 
+           то надо выбрать по Х или Y будем выбирать шаг*/
+            int GridStep = (Convert.ToInt32(GLPaint.Width / CellsNumber)
+                > Convert.ToInt32(GLPaint.Height / CellsNumber))
+                ? Convert.ToInt32(GLPaint.Width / CellsNumber)
+                : Convert.ToInt32(GLPaint.Height / CellsNumber);
+            if (GridStep == 0) GridStep = 1;
+            Gl.glLineWidth(1);
+            double GridHalfDown = (-GLPaint.Height / 2 - YOffset);
+            double GridHalfUp = (GLPaint.Height / 2 - YOffset);
+            double GridHalfLeft = (-GLPaint.Width / 2 - XOffset);
+            double GridHalfRight = (GLPaint.Width / 2 - XOffset);
             int LabelStart;
             int x = XAreaSize / 2;
             int y = -YAreaSize / 2 + EarthSize;
@@ -208,7 +242,6 @@ namespace Second
             for (i = -LabelStart, k = -1; i > GridHalfDown; i -= GridStep, k--)
             {
                 Gl.glPushMatrix();
-                Gl.glScaled(1 / Zoom, 1 / Zoom, 1 / Zoom);
                 Gl.glBegin(Gl.GL_POINTS);
                 Gl.glVertex2d(-2.0, i - 2);
                 Gl.glEnd();
@@ -222,7 +255,6 @@ namespace Second
             for (i = -LabelStart, k = -1; i > GridHalfLeft; i -= GridStep, k--)
             {
                 Gl.glPushMatrix();
-                Gl.glScaled(1 / Zoom, 1 / Zoom, 1 / Zoom);
                 Gl.glBegin(Gl.GL_POINTS);
                 Gl.glVertex2d(i - 2, -2.0);
                 Gl.glEnd();
@@ -239,7 +271,6 @@ namespace Second
             for (i = LabelStart, k = 1; i <= GridHalfUp; i += GridStep, k++)
             {
                 Gl.glPushMatrix();
-                Gl.glScaled(1 / Zoom, 1 / Zoom, 1 / Zoom);
                 Gl.glBegin(Gl.GL_POINTS);
                 Gl.glVertex2d(-2.0, i - 2);
                 Gl.glEnd();
@@ -253,7 +284,6 @@ namespace Second
             for (i = 0, k = 0; i <= GridHalfRight; i += GridStep, k++)
             {
                 Gl.glPushMatrix();
-                Gl.glScaled(1 / Zoom, 1 / Zoom, 1 / Zoom);
                 Gl.glBegin(Gl.GL_POINTS);
                 Gl.glVertex2d(i - 2, -2.0);
                 Gl.glEnd();
@@ -268,12 +298,10 @@ namespace Second
                 Gl.glPopMatrix();
             }
             Gl.glPopMatrix();
-            #endregion
+        }
 
-            #region Координаты
-
-            /*Скалируем до 1*/
-            Gl.glScaled(1 / Zoom, 1 / Zoom, 1 / Zoom);
+        private void DrawingCoords()
+        {
             /*Переносим центр оси*/
             Gl.glTranslated(-XOffset, -YOffset, 0);
             /*Пробел, X\Y, :, -, Максимальная длина числа, два знака после запятой*/
@@ -281,6 +309,7 @@ namespace Second
             /*Фон для координат*/
             Gl.glPushMatrix();
             Gl.glColor3d(1.0, 1.0, 1.0);
+            Gl.glLineWidth(1);
             Gl.glPushMatrix();
             Gl.glBegin(Gl.GL_QUADS);
             Gl.glVertex2d(GLPaint.Width / 2 - LengthCoords, GLPaint.Height / 2);
@@ -321,8 +350,8 @@ namespace Second
                 Glut.glutStrokeCharacter(Glut.GLUT_STROKE_ROMAN, Coordinate[j]);
             Gl.glPopMatrix();
             Gl.glPopMatrix();
-            #endregion
         }
+        #endregion
 
         #region Передача параметров
         /*Вычисление максимального значения ползунка*/
@@ -396,7 +425,7 @@ namespace Second
         /*Параметры: MouseDownPosition - позиция нажатия левой кнопки мыши*/
         public void ChangeOffsetZoomMouse(Point MouseDownPosition)
         {
-            if (Zoom != MinZoom || YAreaSize * Zoom== GLPaint.Height + GlobalConst.Difference)
+            //if (Zoom != MinZoom || YAreaSize * Zoom== GLPaint.Height + GlobalConst.Difference)
             {
                 this.YOFFSET = (((YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 + YOffset + MouseDownPosition.Y) / Zoom) * Zoom
                        - (YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 - MousePosition.Y;
@@ -410,24 +439,124 @@ namespace Second
         /*Изначальная позиция передвигаемой опорной точки*/
         private Point StartMoveSpline;
 
+        /*Вернуть глубину слоя*/
+        /*Возвращает: Значение глубины в месте нажатия мыши*/
+        public int GetLayerHeight()
+        {
+            return Math.Abs(Convert.ToInt32((EarthSize - ((YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 + YOffset + MousePosition.Y) / Zoom)));
+        }
+
+        /*Вернуть цвет слоя*/
+        /*Параметры: IndexNumber - порядковый номер слоя*/
+        /*Возвращает: Color - цвет слоя с заданным порядковым номером*/
+        public Color GetLayerColor(int IndexNumber)
+        {
+            int i;
+            for (i = 0; i < Layers.Count; i++)
+                if (Layers[i].INDEXNMUMBER == IndexNumber)
+                    return Layers[i].COLOR;
+            return Color.White;
+        }
+
         /*Добавляем слой почвы*/
         /*Параметры: LayerHeight - высота на которой заканчивается слой*/
         /*           NumberOfPoints - количество опорных точек сплайна*/
         public void AddLayers(int LayerHeight, int NumberOfPoints)
         {
-            Layer tmp = new Layer(XAreaSize, LayerHeight, YAreaSize, EarthSize, NumberOfPoints, MinZoom);
+            /*Если новый слой имеет глубину больше чем есть сейчас*/
+            if (LayerHeight + EarthSize > YAreaSize)
+            {
+                int i, NewYAreaSize;
+                NewYAreaSize = LayerHeight + EarthSize + XAreaSize / 10;
+                /*Меняем значения Y предыдущих слоев*/
+                for (i = 0; i < Layers.Count; i++)
+                    Layers[i].ChangeY((NewYAreaSize - YAreaSize) / 2);
+                /*Меняем значение высоты*/
+                this.YAREASIZE = NewYAreaSize;
+            }
+            /*Добавляем новый слой*/
+            Layer tmp = new Layer(XAreaSize, LayerHeight, YAreaSize, EarthSize, NumberOfPoints, Layers.Count + 1);
             Layers.Add(tmp);
+            /*Сортируем по высоте*/
             Layers.Sort(delegate (Layer x, Layer y)
             {
                 return y.ReturnY(0).CompareTo(x.ReturnY(0));
             });
         }
 
-        /*Удаляем слой почвы*/
+        /*Удаляем слой почвы (на сетке)*/
         /*Параметры: LayerNumber - номер удаляемого слоя*/
-        public void DeleteLayers(int LayerNumber)
+        /*Возвращает: IndexNumber - порядковый номер удаляемого слоя*/
+        public int DeleteLayersNumber(int LayerNumber)
         {
+            int i,IndexNumber;
+            /*Получаем порядковый номер слоя*/
+            IndexNumber = Layers[LayerNumber].INDEXNMUMBER;
+            /*Меняем Y у слоев*/
+            ForDeleteLayers(LayerNumber);
+            /*Удаляем слой*/
             Layers.RemoveAt(LayerNumber);
+            /*Уменьшаем порядковые номера всех последующих слоев*/
+            for (i = 0; i < Layers.Count; i++)
+                if (Layers[i].INDEXNMUMBER > IndexNumber) Layers[i].INDEXNMUMBER--;
+            /*-1, так как номера слоя начинаются с 1*/
+            return IndexNumber - 1;
+        }
+
+        /*Удаляем слой почвы (на таблице)*/
+        /*Параметры: IndexNumber - порядковый номер удаляемого слоя*/
+        public void DeleteLayersIndex(int IndexNumber)
+        {
+            int i, k;
+            for (i = 0, k = -1; i < Layers.Count; i++)
+            {
+                /*Находим какой слой нужно удалить*/
+                if (Layers[i].INDEXNMUMBER == IndexNumber + 1 && k == -1)
+                    k = i;
+                /*Уменьшаем порядковые номера всех последующих слоев*/
+                if (Layers[i].INDEXNMUMBER > IndexNumber + 1)
+                    Layers[i].INDEXNMUMBER--;
+            }
+            /*Меняем Y у слоев*/
+            ForDeleteLayers(k);
+            /*Удаляем слой*/
+            Layers.RemoveAt(k);
+        }
+
+        /*Изменяем значения Y у Layers.Point'ов*/
+        /*Параметры: LayerNumber - номер удаляемого слоя*/
+        private void ForDeleteLayers(int LayerNumber)
+        {
+            int i;
+            /*Если слой был один*/
+            if (Layers.Count == 1)
+                YAREASIZE = DefYAreaSize;
+            /*Если удаляемый слой последний, то надо убрать лишние по Y*/
+            if (LayerNumber == Layers.Count - 1 && Layers.Count > 1)
+            {
+                /*Поиск максимальной глубины предпоследнего слоя*/
+                List<Point> Points = Layers[LayerNumber - 1].POINT;
+                int Max = Points[0].Y;
+                for (i = 1; i < Points.Count; i++)
+                    if (Max < Points[i].Y) Max = Points[i].Y;
+                Max = YAreaSize / 2 - EarthSize - Max;
+                /*Если значение меньше изначального*/
+                if (Max < DefYAreaSize)
+                {
+                    /*Меняем значения Y предыдущих слоев*/
+                    for (i = 0; i < Layers.Count - 1; i++)
+                        Layers[i].ChangeY((DefYAreaSize - YAreaSize) / 2);
+                    /*Ставим дефолтное значение*/
+                    YAREASIZE = DefYAreaSize;
+                }
+                else
+                {
+                    /*Меняем значения Y предыдущих слоев*/
+                    for (i = 0; i < Layers.Count - 1; i++)
+                        Layers[i].ChangeY((Max + EarthSize + XAreaSize / 10 - YAreaSize) / 2);
+                    YAREASIZE = Max + XAreaSize / 10;
+                }
+            }
         }
 
         /*Проверка попала ли мышь на опорную точку сплайна*/
@@ -436,26 +565,29 @@ namespace Second
         /*            [2] - номер слоя, [3] - номер точки*/
         public int[] CheckPoint(Point MouseDownPosition)
         {
-            int[] X = new int[2];
-            int[] Y = new int[2];
             int[] FIJ = { 0, 0, 0 };
-            int i, j;
-            X[0] = Convert.ToInt32(((XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2 - XOffset + MouseDownPosition.X - 4) / Zoom - XAreaSize / 2);
-            X[1] = Convert.ToInt32(((XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2 - XOffset + MouseDownPosition.X + 4) / Zoom - XAreaSize / 2);
-            Y[0] = Convert.ToInt32(YAreaSize / 2 - ((YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 + YOffset + MouseDownPosition.Y + 4) / Zoom);
-            Y[1] = Convert.ToInt32(YAreaSize / 2 - ((YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 + YOffset + MouseDownPosition.Y - 4) / Zoom);
-            for (i = 0; i < Layers.Count; i++)
+            if (SupportLine)
             {
-                List<Point> Points = Layers[i].POINT;
-                for (j = 0; j < Points.Count; j++)
-                    if (Points[j].X >= X[0] && Points[j].X <= X[1] && Points[j].Y >= Y[0] && Points[j].Y <= Y[1])
-                    {
-                        FIJ[0] = 1;
-                        FIJ[1] = i;
-                        FIJ[2] = j;
-                        StartMoveSpline = new Point(Points[j].X,Points[j].Y);
-                        return FIJ;
-                    }
+                int[] X = new int[2];
+                int[] Y = new int[2];
+                int i, j;
+                X[0] = Convert.ToInt32(((XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2 - XOffset + MouseDownPosition.X - 4) / Zoom - XAreaSize / 2);
+                X[1] = Convert.ToInt32(((XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2 - XOffset + MouseDownPosition.X + 4) / Zoom - XAreaSize / 2);
+                Y[0] = Convert.ToInt32(YAreaSize / 2 - ((YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 + YOffset + MouseDownPosition.Y + 4) / Zoom);
+                Y[1] = Convert.ToInt32(YAreaSize / 2 - ((YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 + YOffset + MouseDownPosition.Y - 4) / Zoom);
+                for (i = 0; i < Layers.Count; i++)
+                {
+                    List<Point> Points = Layers[i].POINT;
+                    for (j = 0; j < Points.Count; j++)
+                        if (Points[j].X >= X[0] && Points[j].X <= X[1] && Points[j].Y >= Y[0] && Points[j].Y <= Y[1])
+                        {
+                            FIJ[0] = 1;
+                            FIJ[1] = i;
+                            FIJ[2] = j;
+                            StartMoveSpline = new Point(Points[j].X, Points[j].Y);
+                            return FIJ;
+                        }
+                }
             }
             return FIJ;
         }
@@ -493,31 +625,20 @@ namespace Second
         private void DrawingLayers()
         {
             int N = 10;
-            List<Point>[] point = new List<Point>[3];
+            Gl.glPushMatrix();
+            List<Point> point = new List<Point>();
             for (int i = 0; i < Layers.Count; i++)
             {
-                point[1] = Layers[i].POINT;
-                point[1].Add(point[1][point[1].Count - 1]);
-                point[1].Add(point[1][point[1].Count - 1]);
-                if (Layers.Count > 1 && i + 1 != Layers.Count)
-                {
-                    point[2] = Layers[i + 1].POINT;
-                    point[2].Add(point[2][point[2].Count - 1]);
-                    point[2].Add(point[2][point[2].Count - 1]);
-                }
-                if (i > 0)
-                {
-                    point[0] = Layers[i - 1].POINT;
-                    point[0].Add(point[0][point[0].Count - 1]);
-                    point[0].Add(point[0][point[0].Count - 1]);
-                }
+                point = Layers[i].POINT;
+                point.Add(point[point.Count - 1]);
+                point.Add(point[point.Count - 1]);
                 Color color = Layers[i].COLOR;
                 Gl.glColor3d(color.R / 255.0, color.G / 255.0, color.B / 255.0);
                 Gl.glPushMatrix();
                 Gl.glLineWidth(2);
                 Gl.glBegin(Gl.GL_LINE_STRIP);
 
-                for (int start_cv = -3, j = 0; j != point[1].Count; ++j, ++start_cv)
+                for (int start_cv = -3, j = 0; j != point.Count; ++j, ++start_cv)
                 {
                     for (int k = 0; k != N; ++k)
                     {
@@ -527,34 +648,48 @@ namespace Second
                         double b1 = (3 * t * t * t - 6 * t * t + 4) / 6.0f;
                         double b2 = (-3 * t * t * t + 3 * t * t + 3 * t + 1) / 6.0f;
                         double b3 = t * t * t / 6.0f;
-                        double x = b0 * GetPoint(start_cv + 0, point[1]).X +
-                                  b1 * GetPoint(start_cv + 1, point[1]).X +
-                                  b2 * GetPoint(start_cv + 2, point[1]).X +
-                                  b3 * GetPoint(start_cv + 3, point[1]).X;
-                        double y = b0 * GetPoint(start_cv + 0, point[1]).Y +
-                                  b1 * GetPoint(start_cv + 1, point[1]).Y +
-                                  b2 * GetPoint(start_cv + 2, point[1]).Y +
-                                  b3 * GetPoint(start_cv + 3, point[1]).Y;
+                        double x = b0 * GetPoint(start_cv + 0, point).X +
+                                  b1 * GetPoint(start_cv + 1, point).X +
+                                  b2 * GetPoint(start_cv + 2, point).X +
+                                  b3 * GetPoint(start_cv + 3, point).X;
+                        double y = b0 * GetPoint(start_cv + 0, point).Y +
+                                  b1 * GetPoint(start_cv + 1, point).Y +
+                                  b2 * GetPoint(start_cv + 2, point).Y +
+                                  b3 * GetPoint(start_cv + 3, point).Y;
                         Gl.glVertex2d(x * Zoom + XOffset, y * Zoom + YOffset);
                     }
                 }
                 Gl.glEnd();
                 Gl.glPopMatrix();
-                Gl.glColor3d(color.R / 255.0, color.G / 255.0, color.B / 255.0);
-                Gl.glPushMatrix();
-                Gl.glPointSize(7);
-                Gl.glBegin(Gl.GL_POINTS);
-                for (int j = 0; j < point[1].Count; j++)
-                    Gl.glVertex2d(point[1][j].X * Zoom + XOffset, point[1][j].Y * Zoom + YOffset);
-                Gl.glEnd();
-                Gl.glPopMatrix();
-                point[1].RemoveRange(point[1].Count - 2, 2);
-                if (Layers.Count > 1 && i + 1 != Layers.Count)
-                    point[2].RemoveRange(point[2].Count - 2, 2);
-                if (i > 0)
-                    point[0].RemoveRange(point[0].Count - 2, 2);
+                if (SupportLine)
+                {
+                    Gl.glColor4d(color.R / 255.0, color.G / 255.0, color.B / 255.0, 0.7);
+                    Gl.glPushMatrix();
+                    Gl.glPointSize(7);
+                    Gl.glBegin(Gl.GL_POINTS);
+                    for (int j = 0; j < point.Count; j++)
+                        Gl.glVertex2d(point[j].X * Zoom + XOffset, point[j].Y * Zoom + YOffset);
+                    Gl.glEnd();
+                    Gl.glPopMatrix();
+
+                    Gl.glPushMatrix();
+                    Gl.glLineWidth(2);
+                    Gl.glBegin(Gl.GL_LINE_STRIP);
+                    for (int j = 0; j < point.Count; j++)
+                        Gl.glVertex2d(point[j].X * Zoom + XOffset, point[j].Y * Zoom + YOffset);
+                    Gl.glEnd();
+                    Gl.glPopMatrix();
+                    
+                }
+                point.RemoveRange(point.Count - 2, 2);
             }
+            
+            Gl.glPopMatrix();
         }
+        #endregion
+
+        #region Работа с минералами
+
         #endregion
 
         #endregion
@@ -565,12 +700,20 @@ namespace Second
             Gl.glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
             Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);
             Gl.glPushMatrix();
-            Gl.glTranslated(XOffset, YOffset, 0);
-            Gl.glScaled(Zoom, Zoom, Zoom);
-            /*Рисуем сетку*/
-            DrawingGrid();
             /*Рисуем слои*/
             DrawingLayers();
+            /*Переносим центр оси*/
+            Gl.glTranslated(XOffset, YOffset, 0);
+            /*Рисуем сетку*/
+            if (Grid)
+                DrawingGrid();          
+            /*Рисуем разметку*/
+            if (Marking)
+                DrawingMarking();          
+            /*Рисуем координаты*/
+            DrawingCoords();
+            
+
 
             Gl.glPopMatrix();
             Gl.glFinish();

@@ -33,25 +33,48 @@
             this.RenderTimer = new System.Windows.Forms.Timer(this.components);
             this.MainPaint_VScroll = new System.Windows.Forms.VScrollBar();
             this.MainPaint_HScroll = new System.Windows.Forms.HScrollBar();
-            this.FirstStartButton = new System.Windows.Forms.Button();
-            this.FirstLabelMain = new System.Windows.Forms.Label();
-            this.TextBoxWidthArea = new System.Windows.Forms.TextBox();
-            this.TextBoxHeightEarth = new System.Windows.Forms.TextBox();
-            this.LabelWidthArea = new System.Windows.Forms.Label();
-            this.LabelHeightEarth = new System.Windows.Forms.Label();
             this.MenuStrip = new System.Windows.Forms.MenuStrip();
             this.FileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CloseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.AboutProgrammToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.TabControl = new System.Windows.Forms.TabControl();
             this.TabPageSpline = new System.Windows.Forms.TabPage();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.СontextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.DeleteLayers = new System.Windows.Forms.ToolStripMenuItem();
-            this.ToolTipFirstStart = new System.Windows.Forms.ToolTip(this.components);
+            this.ComboBoxMaterial = new System.Windows.Forms.ComboBox();
+            this.СheckedListBox = new System.Windows.Forms.CheckedListBox();
+            this.LabelMineralMaterial = new System.Windows.Forms.Label();
+            this.DrawSplineMinerals = new System.Windows.Forms.Button();
+            this.DataGridViewMinerals = new System.Windows.Forms.DataGridView();
+            this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dataGridViewTextBoxColumn3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.TextBoxLayerHeight = new System.Windows.Forms.TextBox();
+            this.LabelLayerHeight = new System.Windows.Forms.Label();
+            this.AddSplineLayers = new System.Windows.Forms.Button();
+            this.DataGridViewLayers = new System.Windows.Forms.DataGridView();
+            this.NumberLayer = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColorLayer = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.HeightLayer = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.NumberOfPoints = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.TextBoxLayerNumberOfPoints = new System.Windows.Forms.TextBox();
+            this.LabelLayerNumberOfPoints = new System.Windows.Forms.Label();
+            this.DrawSplineLayers = new System.Windows.Forms.Button();
+            this.TabPageMKE = new System.Windows.Forms.TabPage();
+            this.СontextMenuMainPaint = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.DeleteLayersMainPaint = new System.Windows.Forms.ToolStripMenuItem();
+            this.ToolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.ContextMenuDataGridViewLayers = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.DeleteLayersDataGridViewLayers = new System.Windows.Forms.ToolStripMenuItem();
+            this.AddPointToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.DeletePointToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.AddValueToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuStrip.SuspendLayout();
             this.TabControl.SuspendLayout();
-            this.СontextMenuStrip.SuspendLayout();
+            this.TabPageSpline.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.DataGridViewMinerals)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.DataGridViewLayers)).BeginInit();
+            this.СontextMenuMainPaint.SuspendLayout();
+            this.ContextMenuDataGridViewLayers.SuspendLayout();
             this.SuspendLayout();
             // 
             // MainPaint
@@ -72,6 +95,7 @@
             this.MainPaint.TabIndex = 0;
             this.MainPaint.Load += new System.EventHandler(this.MainPaint_Load);
             this.MainPaint.MouseDown += new System.Windows.Forms.MouseEventHandler(this.MainPaint_MouseDown);
+            this.MainPaint.MouseEnter += new System.EventHandler(this.MainPaint_MouseEnter);
             this.MainPaint.MouseMove += new System.Windows.Forms.MouseEventHandler(this.MainPaint_MouseMove);
             this.MainPaint.MouseUp += new System.Windows.Forms.MouseEventHandler(this.MainPaint_MouseUp);
             this.MainPaint.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.MainPaint_MouseWheel);
@@ -104,71 +128,6 @@
             this.MainPaint_HScroll.TabIndex = 2;
             this.MainPaint_HScroll.Visible = false;
             this.MainPaint_HScroll.Scroll += new System.Windows.Forms.ScrollEventHandler(this.MainPaint_HScroll_Scroll);
-            // 
-            // FirstStartButton
-            // 
-            this.FirstStartButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.FirstStartButton.Location = new System.Drawing.Point(694, 135);
-            this.FirstStartButton.Name = "FirstStartButton";
-            this.FirstStartButton.Size = new System.Drawing.Size(84, 23);
-            this.FirstStartButton.TabIndex = 3;
-            this.FirstStartButton.Text = "Start";
-            this.ToolTipFirstStart.SetToolTip(this.FirstStartButton, "Запуск основной части программы. Изменить введенные\r\nданные после нажатия кнопки " +
-        "- НЕЛЬЗЯ.");
-            this.FirstStartButton.UseVisualStyleBackColor = true;
-            this.FirstStartButton.Click += new System.EventHandler(this.FirstStartButton_Click);
-            // 
-            // FirstLabelMain
-            // 
-            this.FirstLabelMain.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.FirstLabelMain.AutoSize = true;
-            this.FirstLabelMain.Location = new System.Drawing.Point(618, 32);
-            this.FirstLabelMain.Name = "FirstLabelMain";
-            this.FirstLabelMain.Size = new System.Drawing.Size(136, 26);
-            this.FirstLabelMain.TabIndex = 4;
-            this.FirstLabelMain.Text = "Введите ширину исследуемой \r\nобласти и высоту земли\r\n";
-            // 
-            // TextBoxWidthArea
-            // 
-            this.TextBoxWidthArea.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.TextBoxWidthArea.Location = new System.Drawing.Point(694, 62);
-            this.TextBoxWidthArea.MaxLength = 6;
-            this.TextBoxWidthArea.Name = "TextBoxWidthArea";
-            this.TextBoxWidthArea.Size = new System.Drawing.Size(84, 20);
-            this.TextBoxWidthArea.TabIndex = 5;
-            this.ToolTipFirstStart.SetToolTip(this.TextBoxWidthArea, "Ширина исследуемой облости 582-999999 м");
-            this.TextBoxWidthArea.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TextBoxWidthArea_KeyPress);
-            // 
-            // TextBoxHeightEarth
-            // 
-            this.TextBoxHeightEarth.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.TextBoxHeightEarth.Location = new System.Drawing.Point(694, 97);
-            this.TextBoxHeightEarth.MaxLength = 3;
-            this.TextBoxHeightEarth.Name = "TextBoxHeightEarth";
-            this.TextBoxHeightEarth.Size = new System.Drawing.Size(84, 20);
-            this.TextBoxHeightEarth.TabIndex = 6;
-            this.ToolTipFirstStart.SetToolTip(this.TextBoxHeightEarth, "Высота над уровнем земли 0-999 1м");
-            this.TextBoxHeightEarth.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TextBoxHeightEarth_KeyPress);
-            // 
-            // LabelWidthArea
-            // 
-            this.LabelWidthArea.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.LabelWidthArea.AutoSize = true;
-            this.LabelWidthArea.Location = new System.Drawing.Point(618, 62);
-            this.LabelWidthArea.Name = "LabelWidthArea";
-            this.LabelWidthArea.Size = new System.Drawing.Size(59, 26);
-            this.LabelWidthArea.TabIndex = 7;
-            this.LabelWidthArea.Text = "Ширина\r\nобласти,м";
-            // 
-            // LabelHeightEarth
-            // 
-            this.LabelHeightEarth.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.LabelHeightEarth.AutoSize = true;
-            this.LabelHeightEarth.Location = new System.Drawing.Point(618, 97);
-            this.LabelHeightEarth.Name = "LabelHeightEarth";
-            this.LabelHeightEarth.Size = new System.Drawing.Size(50, 26);
-            this.LabelHeightEarth.TabIndex = 8;
-            this.LabelHeightEarth.Text = "Высота\r\nземли,м";
             // 
             // MenuStrip
             // 
@@ -207,7 +166,7 @@
             // 
             this.TabControl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.TabControl.Controls.Add(this.TabPageSpline);
-            this.TabControl.Controls.Add(this.tabPage2);
+            this.TabControl.Controls.Add(this.TabPageMKE);
             this.TabControl.Location = new System.Drawing.Point(618, 32);
             this.TabControl.Name = "TabControl";
             this.TabControl.SelectedIndex = 0;
@@ -218,6 +177,18 @@
             // TabPageSpline
             // 
             this.TabPageSpline.BackColor = System.Drawing.SystemColors.Control;
+            this.TabPageSpline.Controls.Add(this.ComboBoxMaterial);
+            this.TabPageSpline.Controls.Add(this.СheckedListBox);
+            this.TabPageSpline.Controls.Add(this.LabelMineralMaterial);
+            this.TabPageSpline.Controls.Add(this.DrawSplineMinerals);
+            this.TabPageSpline.Controls.Add(this.DataGridViewMinerals);
+            this.TabPageSpline.Controls.Add(this.TextBoxLayerHeight);
+            this.TabPageSpline.Controls.Add(this.LabelLayerHeight);
+            this.TabPageSpline.Controls.Add(this.AddSplineLayers);
+            this.TabPageSpline.Controls.Add(this.DataGridViewLayers);
+            this.TabPageSpline.Controls.Add(this.TextBoxLayerNumberOfPoints);
+            this.TabPageSpline.Controls.Add(this.LabelLayerNumberOfPoints);
+            this.TabPageSpline.Controls.Add(this.DrawSplineLayers);
             this.TabPageSpline.ForeColor = System.Drawing.SystemColors.ControlText;
             this.TabPageSpline.Location = new System.Drawing.Point(4, 22);
             this.TabPageSpline.Name = "TabPageSpline";
@@ -226,48 +197,300 @@
             this.TabPageSpline.TabIndex = 0;
             this.TabPageSpline.Text = "Почва";
             // 
-            // tabPage2
+            // ComboBoxMaterial
             // 
-            this.tabPage2.BackColor = System.Drawing.SystemColors.Control;
-            this.tabPage2.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.tabPage2.Location = new System.Drawing.Point(4, 22);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(246, 500);
-            this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "tabPage2";
+            this.ComboBoxMaterial.FormattingEnabled = true;
+            this.ComboBoxMaterial.Location = new System.Drawing.Point(70, 201);
+            this.ComboBoxMaterial.Name = "ComboBoxMaterial";
+            this.ComboBoxMaterial.Size = new System.Drawing.Size(89, 21);
+            this.ComboBoxMaterial.TabIndex = 11;
             // 
-            // СontextMenuStrip
+            // СheckedListBox
             // 
-            this.СontextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.DeleteLayers});
-            this.СontextMenuStrip.Name = "СontextMenuStrip";
-            this.СontextMenuStrip.Size = new System.Drawing.Size(119, 26);
+            this.СheckedListBox.BackColor = System.Drawing.SystemColors.Control;
+            this.СheckedListBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.СheckedListBox.FormattingEnabled = true;
+            this.СheckedListBox.Items.AddRange(new object[] {
+            "Сетка.",
+            "Разметка.",
+            "Опорные линии."});
+            this.СheckedListBox.Location = new System.Drawing.Point(4, 367);
+            this.СheckedListBox.Name = "СheckedListBox";
+            this.СheckedListBox.Size = new System.Drawing.Size(109, 45);
+            this.СheckedListBox.TabIndex = 10;
+            this.СheckedListBox.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.СheckedListBox_ItemCheck);
             // 
-            // DeleteLayers
+            // LabelMineralMaterial
             // 
-            this.DeleteLayers.Name = "DeleteLayers";
-            this.DeleteLayers.Size = new System.Drawing.Size(118, 22);
-            this.DeleteLayers.Text = "Удалить";
-            this.DeleteLayers.Click += new System.EventHandler(this.DeleteLayers_Click);
+            this.LabelMineralMaterial.AutoSize = true;
+            this.LabelMineralMaterial.Location = new System.Drawing.Point(3, 201);
+            this.LabelMineralMaterial.Name = "LabelMineralMaterial";
+            this.LabelMineralMaterial.Size = new System.Drawing.Size(60, 26);
+            this.LabelMineralMaterial.TabIndex = 9;
+            this.LabelMineralMaterial.Text = "Выберите \r\nматериал";
             // 
-            // ToolTipFirstStart
+            // DrawSplineMinerals
             // 
-            this.ToolTipFirstStart.AutoPopDelay = 5000;
-            this.ToolTipFirstStart.InitialDelay = 500;
-            this.ToolTipFirstStart.ReshowDelay = 100;
+            this.DrawSplineMinerals.BackColor = System.Drawing.SystemColors.Control;
+            this.DrawSplineMinerals.Location = new System.Drawing.Point(162, 201);
+            this.DrawSplineMinerals.Name = "DrawSplineMinerals";
+            this.DrawSplineMinerals.Size = new System.Drawing.Size(78, 23);
+            this.DrawSplineMinerals.TabIndex = 8;
+            this.DrawSplineMinerals.Text = "Нарисовать";
+            this.DrawSplineMinerals.UseVisualStyleBackColor = false;
+            this.DrawSplineMinerals.Click += new System.EventHandler(this.DrawSplineMinerals_Click);
+            // 
+            // DataGridViewMinerals
+            // 
+            this.DataGridViewMinerals.AllowUserToResizeColumns = false;
+            this.DataGridViewMinerals.AllowUserToResizeRows = false;
+            this.DataGridViewMinerals.BackgroundColor = System.Drawing.SystemColors.Control;
+            this.DataGridViewMinerals.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.DataGridViewMinerals.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.dataGridViewTextBoxColumn1,
+            this.dataGridViewTextBoxColumn2,
+            this.dataGridViewTextBoxColumn3,
+            this.dataGridViewTextBoxColumn4});
+            this.DataGridViewMinerals.GridColor = System.Drawing.SystemColors.Control;
+            this.DataGridViewMinerals.Location = new System.Drawing.Point(3, 230);
+            this.DataGridViewMinerals.Name = "DataGridViewMinerals";
+            this.DataGridViewMinerals.RowHeadersVisible = false;
+            this.DataGridViewMinerals.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
+            this.DataGridViewMinerals.Size = new System.Drawing.Size(239, 131);
+            this.DataGridViewMinerals.TabIndex = 7;
+            // 
+            // dataGridViewTextBoxColumn1
+            // 
+            this.dataGridViewTextBoxColumn1.HeaderText = "№";
+            this.dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
+            this.dataGridViewTextBoxColumn1.ReadOnly = true;
+            this.dataGridViewTextBoxColumn1.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.dataGridViewTextBoxColumn1.ToolTipText = "Порядковый номер слоя.";
+            this.dataGridViewTextBoxColumn1.Width = 32;
+            // 
+            // dataGridViewTextBoxColumn2
+            // 
+            this.dataGridViewTextBoxColumn2.HeaderText = "Цвет";
+            this.dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
+            this.dataGridViewTextBoxColumn2.ReadOnly = true;
+            this.dataGridViewTextBoxColumn2.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.dataGridViewTextBoxColumn2.ToolTipText = "Цвет минерала.";
+            this.dataGridViewTextBoxColumn2.Width = 68;
+            // 
+            // dataGridViewTextBoxColumn3
+            // 
+            this.dataGridViewTextBoxColumn3.HeaderText = "Материал";
+            this.dataGridViewTextBoxColumn3.MaxInputLength = 6;
+            this.dataGridViewTextBoxColumn3.Name = "dataGridViewTextBoxColumn3";
+            this.dataGridViewTextBoxColumn3.ReadOnly = true;
+            this.dataGridViewTextBoxColumn3.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.dataGridViewTextBoxColumn3.ToolTipText = "Материал минерала.";
+            this.dataGridViewTextBoxColumn3.Width = 68;
+            // 
+            // dataGridViewTextBoxColumn4
+            // 
+            this.dataGridViewTextBoxColumn4.HeaderText = "Точек";
+            this.dataGridViewTextBoxColumn4.MaxInputLength = 6;
+            this.dataGridViewTextBoxColumn4.Name = "dataGridViewTextBoxColumn4";
+            this.dataGridViewTextBoxColumn4.ReadOnly = true;
+            this.dataGridViewTextBoxColumn4.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.dataGridViewTextBoxColumn4.ToolTipText = "Количество опорных точек минерала.";
+            this.dataGridViewTextBoxColumn4.Width = 68;
+            // 
+            // TextBoxLayerHeight
+            // 
+            this.TextBoxLayerHeight.Location = new System.Drawing.Point(116, 35);
+            this.TextBoxLayerHeight.MaxLength = 6;
+            this.TextBoxLayerHeight.Name = "TextBoxLayerHeight";
+            this.TextBoxLayerHeight.Size = new System.Drawing.Size(43, 20);
+            this.TextBoxLayerHeight.TabIndex = 6;
+            this.TextBoxLayerHeight.Text = "0";
+            this.TextBoxLayerHeight.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TextBoxLayerHeight_KeyPress);
+            // 
+            // LabelLayerHeight
+            // 
+            this.LabelLayerHeight.AutoSize = true;
+            this.LabelLayerHeight.Location = new System.Drawing.Point(3, 35);
+            this.LabelLayerHeight.Name = "LabelLayerHeight";
+            this.LabelLayerHeight.Size = new System.Drawing.Size(94, 26);
+            this.LabelLayerHeight.TabIndex = 5;
+            this.LabelLayerHeight.Text = "Введите глубину \r\nслоя почвы\r\n";
+            // 
+            // AddSplineLayers
+            // 
+            this.AddSplineLayers.BackColor = System.Drawing.SystemColors.Control;
+            this.AddSplineLayers.Location = new System.Drawing.Point(165, 35);
+            this.AddSplineLayers.Name = "AddSplineLayers";
+            this.AddSplineLayers.Size = new System.Drawing.Size(78, 23);
+            this.AddSplineLayers.TabIndex = 4;
+            this.AddSplineLayers.Text = "Добавить";
+            this.AddSplineLayers.UseVisualStyleBackColor = false;
+            this.AddSplineLayers.Click += new System.EventHandler(this.AddSplineLayers_Click);
+            // 
+            // DataGridViewLayers
+            // 
+            this.DataGridViewLayers.AllowUserToResizeColumns = false;
+            this.DataGridViewLayers.AllowUserToResizeRows = false;
+            this.DataGridViewLayers.BackgroundColor = System.Drawing.SystemColors.Control;
+            this.DataGridViewLayers.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.DataGridViewLayers.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.NumberLayer,
+            this.ColorLayer,
+            this.HeightLayer,
+            this.NumberOfPoints});
+            this.DataGridViewLayers.GridColor = System.Drawing.SystemColors.Control;
+            this.DataGridViewLayers.Location = new System.Drawing.Point(4, 64);
+            this.DataGridViewLayers.MultiSelect = false;
+            this.DataGridViewLayers.Name = "DataGridViewLayers";
+            this.DataGridViewLayers.RowHeadersVisible = false;
+            this.DataGridViewLayers.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
+            this.DataGridViewLayers.Size = new System.Drawing.Size(239, 131);
+            this.DataGridViewLayers.TabIndex = 3;
+            this.DataGridViewLayers.CellMouseDown += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.DataGridViewLayers_CellMouseDown);
+            this.DataGridViewLayers.CellValidating += new System.Windows.Forms.DataGridViewCellValidatingEventHandler(this.DataGridViewLayers_CellValidating);
+            // 
+            // NumberLayer
+            // 
+            this.NumberLayer.HeaderText = "№";
+            this.NumberLayer.Name = "NumberLayer";
+            this.NumberLayer.ReadOnly = true;
+            this.NumberLayer.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.NumberLayer.ToolTipText = "Порядковый номер слоя.";
+            this.NumberLayer.Width = 32;
+            // 
+            // ColorLayer
+            // 
+            this.ColorLayer.HeaderText = "Цвет";
+            this.ColorLayer.Name = "ColorLayer";
+            this.ColorLayer.ReadOnly = true;
+            this.ColorLayer.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.ColorLayer.ToolTipText = "Цвет слоя.";
+            this.ColorLayer.Width = 68;
+            // 
+            // HeightLayer
+            // 
+            this.HeightLayer.HeaderText = "Глубина";
+            this.HeightLayer.MaxInputLength = 6;
+            this.HeightLayer.Name = "HeightLayer";
+            this.HeightLayer.ReadOnly = true;
+            this.HeightLayer.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.HeightLayer.ToolTipText = "Глубина на которой находится слой.";
+            this.HeightLayer.Width = 68;
+            // 
+            // NumberOfPoints
+            // 
+            this.NumberOfPoints.HeaderText = "Точек";
+            this.NumberOfPoints.MaxInputLength = 6;
+            this.NumberOfPoints.Name = "NumberOfPoints";
+            this.NumberOfPoints.ReadOnly = true;
+            this.NumberOfPoints.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.NumberOfPoints.ToolTipText = "Количество опорных точек слоя.";
+            this.NumberOfPoints.Width = 68;
+            // 
+            // TextBoxLayerNumberOfPoints
+            // 
+            this.TextBoxLayerNumberOfPoints.Location = new System.Drawing.Point(116, 9);
+            this.TextBoxLayerNumberOfPoints.MaxLength = 6;
+            this.TextBoxLayerNumberOfPoints.Name = "TextBoxLayerNumberOfPoints";
+            this.TextBoxLayerNumberOfPoints.Size = new System.Drawing.Size(43, 20);
+            this.TextBoxLayerNumberOfPoints.TabIndex = 2;
+            this.TextBoxLayerNumberOfPoints.Text = "3";
+            this.TextBoxLayerNumberOfPoints.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TextBoxLayerNumberOfPoints_KeyPress);
+            // 
+            // LabelLayerNumberOfPoints
+            // 
+            this.LabelLayerNumberOfPoints.AutoSize = true;
+            this.LabelLayerNumberOfPoints.Location = new System.Drawing.Point(3, 6);
+            this.LabelLayerNumberOfPoints.Name = "LabelLayerNumberOfPoints";
+            this.LabelLayerNumberOfPoints.Size = new System.Drawing.Size(110, 26);
+            this.LabelLayerNumberOfPoints.TabIndex = 1;
+            this.LabelLayerNumberOfPoints.Text = "Введите количество\r\nопорных точек слоя";
+            // 
+            // DrawSplineLayers
+            // 
+            this.DrawSplineLayers.BackColor = System.Drawing.SystemColors.Control;
+            this.DrawSplineLayers.Location = new System.Drawing.Point(165, 9);
+            this.DrawSplineLayers.Name = "DrawSplineLayers";
+            this.DrawSplineLayers.Size = new System.Drawing.Size(78, 23);
+            this.DrawSplineLayers.TabIndex = 0;
+            this.DrawSplineLayers.Text = "Нарисовать";
+            this.DrawSplineLayers.UseVisualStyleBackColor = false;
+            this.DrawSplineLayers.Click += new System.EventHandler(this.DrawSplineLayers_Click);
+            // 
+            // TabPageMKE
+            // 
+            this.TabPageMKE.BackColor = System.Drawing.SystemColors.Control;
+            this.TabPageMKE.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.TabPageMKE.Location = new System.Drawing.Point(4, 22);
+            this.TabPageMKE.Name = "TabPageMKE";
+            this.TabPageMKE.Padding = new System.Windows.Forms.Padding(3);
+            this.TabPageMKE.Size = new System.Drawing.Size(246, 500);
+            this.TabPageMKE.TabIndex = 1;
+            this.TabPageMKE.Text = "МКЭ";
+            // 
+            // СontextMenuMainPaint
+            // 
+            this.СontextMenuMainPaint.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.AddValueToolStripMenuItem,
+            this.AddPointToolStripMenuItem,
+            this.DeletePointToolStripMenuItem,
+            this.DeleteLayersMainPaint});
+            this.СontextMenuMainPaint.Name = "СontextMenuStrip";
+            this.СontextMenuMainPaint.Size = new System.Drawing.Size(165, 114);
+            // 
+            // DeleteLayersMainPaint
+            // 
+            this.DeleteLayersMainPaint.Name = "DeleteLayersMainPaint";
+            this.DeleteLayersMainPaint.Size = new System.Drawing.Size(164, 22);
+            this.DeleteLayersMainPaint.Text = "Удалить сплайн";
+            this.DeleteLayersMainPaint.Click += new System.EventHandler(this.DeleteLayersMainPaint_Click);
+            // 
+            // ToolTip
+            // 
+            this.ToolTip.AutoPopDelay = 5000;
+            this.ToolTip.InitialDelay = 500;
+            this.ToolTip.ReshowDelay = 100;
+            // 
+            // ContextMenuDataGridViewLayers
+            // 
+            this.ContextMenuDataGridViewLayers.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.DeleteLayersDataGridViewLayers});
+            this.ContextMenuDataGridViewLayers.Name = "СontextMenuStrip";
+            this.ContextMenuDataGridViewLayers.Size = new System.Drawing.Size(119, 26);
+            // 
+            // DeleteLayersDataGridViewLayers
+            // 
+            this.DeleteLayersDataGridViewLayers.Name = "DeleteLayersDataGridViewLayers";
+            this.DeleteLayersDataGridViewLayers.Size = new System.Drawing.Size(118, 22);
+            this.DeleteLayersDataGridViewLayers.Text = "Удалить";
+            this.DeleteLayersDataGridViewLayers.Click += new System.EventHandler(this.DeleteLayersDataGridViewLayers_Click);
+            // 
+            // AddPointToolStripMenuItem
+            // 
+            this.AddPointToolStripMenuItem.Name = "AddPointToolStripMenuItem";
+            this.AddPointToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+            this.AddPointToolStripMenuItem.Text = "Добавить точку";
+            this.AddPointToolStripMenuItem.Click += new System.EventHandler(this.AddPointToolStripMenuItem_Click);
+            // 
+            // DeletePointToolStripMenuItem
+            // 
+            this.DeletePointToolStripMenuItem.Name = "DeletePointToolStripMenuItem";
+            this.DeletePointToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+            this.DeletePointToolStripMenuItem.Text = "Удалить точку";
+            this.DeletePointToolStripMenuItem.Click += new System.EventHandler(this.DeletePointToolStripMenuItem_Click);
+            // 
+            // AddValueToolStripMenuItem
+            // 
+            this.AddValueToolStripMenuItem.Name = "AddValueToolStripMenuItem";
+            this.AddValueToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+            this.AddValueToolStripMenuItem.Text = "Задать значение";
+            this.AddValueToolStripMenuItem.Click += new System.EventHandler(this.AddValueToolStripMenuItem_Click);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(884, 582);
-            this.Controls.Add(this.LabelHeightEarth);
-            this.Controls.Add(this.LabelWidthArea);
-            this.Controls.Add(this.TextBoxHeightEarth);
-            this.Controls.Add(this.TextBoxWidthArea);
-            this.Controls.Add(this.FirstLabelMain);
-            this.Controls.Add(this.FirstStartButton);
             this.Controls.Add(this.TabControl);
             this.Controls.Add(this.MainPaint_HScroll);
             this.Controls.Add(this.MainPaint_VScroll);
@@ -282,7 +505,12 @@
             this.MenuStrip.ResumeLayout(false);
             this.MenuStrip.PerformLayout();
             this.TabControl.ResumeLayout(false);
-            this.СontextMenuStrip.ResumeLayout(false);
+            this.TabPageSpline.ResumeLayout(false);
+            this.TabPageSpline.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.DataGridViewMinerals)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.DataGridViewLayers)).EndInit();
+            this.СontextMenuMainPaint.ResumeLayout(false);
+            this.ContextMenuDataGridViewLayers.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -294,22 +522,47 @@
         private System.Windows.Forms.Timer RenderTimer;
         private System.Windows.Forms.VScrollBar MainPaint_VScroll;
         private System.Windows.Forms.HScrollBar MainPaint_HScroll;
-        private System.Windows.Forms.Button FirstStartButton;
-        private System.Windows.Forms.Label FirstLabelMain;
-        private System.Windows.Forms.TextBox TextBoxWidthArea;
-        private System.Windows.Forms.TextBox TextBoxHeightEarth;
-        private System.Windows.Forms.Label LabelWidthArea;
-        private System.Windows.Forms.Label LabelHeightEarth;
+        //private System.Windows.Forms.Button FirstStartButton;
+        //private System.Windows.Forms.Label FirstLabelMain;
+        //private System.Windows.Forms.TextBox TextBoxWidthArea;
+        //private System.Windows.Forms.TextBox TextBoxHeightEarth;
+        //private System.Windows.Forms.Label LabelWidthArea;
+        //private System.Windows.Forms.Label LabelHeightEarth;
         private System.Windows.Forms.MenuStrip MenuStrip;
         private System.Windows.Forms.ToolStripMenuItem FileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem CloseToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem AboutProgrammToolStripMenuItem;
         private System.Windows.Forms.TabControl TabControl;
         private System.Windows.Forms.TabPage TabPageSpline;
-        private System.Windows.Forms.TabPage tabPage2;
-        private System.Windows.Forms.ContextMenuStrip СontextMenuStrip;
-        private System.Windows.Forms.ToolStripMenuItem DeleteLayers;
-        private System.Windows.Forms.ToolTip ToolTipFirstStart;
+        private System.Windows.Forms.TabPage TabPageMKE;
+        private System.Windows.Forms.ContextMenuStrip СontextMenuMainPaint;
+        private System.Windows.Forms.ToolStripMenuItem DeleteLayersMainPaint;
+        private System.Windows.Forms.ToolTip ToolTip;
+        private System.Windows.Forms.Button DrawSplineLayers;
+        private System.Windows.Forms.TextBox TextBoxLayerNumberOfPoints;
+        private System.Windows.Forms.Label LabelLayerNumberOfPoints;
+        private System.Windows.Forms.DataGridView DataGridViewLayers;
+        private System.Windows.Forms.TextBox TextBoxLayerHeight;
+        private System.Windows.Forms.Label LabelLayerHeight;
+        private System.Windows.Forms.Button AddSplineLayers;
+        private System.Windows.Forms.Label LabelMineralMaterial;
+        private System.Windows.Forms.Button DrawSplineMinerals;
+        private System.Windows.Forms.DataGridView DataGridViewMinerals;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn2;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
+        private System.Windows.Forms.CheckedListBox СheckedListBox;
+        private System.Windows.Forms.ComboBox ComboBoxMaterial;
+        private System.Windows.Forms.DataGridViewTextBoxColumn NumberLayer;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColorLayer;
+        private System.Windows.Forms.DataGridViewTextBoxColumn HeightLayer;
+        private System.Windows.Forms.DataGridViewTextBoxColumn NumberOfPoints;
+        private System.Windows.Forms.ContextMenuStrip ContextMenuDataGridViewLayers;
+        private System.Windows.Forms.ToolStripMenuItem DeleteLayersDataGridViewLayers;
+        private System.Windows.Forms.ToolStripMenuItem AddValueToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem AddPointToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem DeletePointToolStripMenuItem;
     }
 }
 
