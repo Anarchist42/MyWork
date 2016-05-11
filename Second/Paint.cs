@@ -608,6 +608,28 @@ namespace Second
             Points[FIJ[2]] = Tmp;
         }
 
+        /*Добавляем точку*/
+        /*Параметры: FIJ[3] - массив, где[1] - нашел точку(0/1),*/
+        /*           [2] - номер слоя, [3] - номер точки*/
+        public int[] AddPointLayers(int NumberLayer)
+        {
+            int X = Convert.ToInt32(((XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2 - XOffset + MousePosition.X) / Zoom) - XAreaSize / 2,
+                Y = YAreaSize / 2 - EarthSize + Convert.ToInt32((EarthSize - ((YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 + YOffset + MousePosition.Y) / Zoom));
+            Layers[NumberLayer].AddPoint(new Point(X, Y));
+            return new int[] { Layers[NumberLayer].POINT.Count, Layers[NumberLayer].INDEXNMUMBER };
+        }
+
+        /*Удаляем точку*/
+        /*Параметры: FIJ[3] - массив, где[1] - нашел точку(0/1),*/
+        /*           [2] - номер слоя, [3] - номер точки*/
+        /*Возвращает: Count - количество точек слоя*/
+        /*            IndexNumber - порядковый номер*/
+        public int[] DeletePointLayers(int[] FIJ)
+        {
+            Layers[FIJ[1]].DeletePoint(FIJ[2]);
+            return new int[] { Layers[FIJ[1]].POINT.Count, Layers[FIJ[1]].INDEXNMUMBER };
+        }
+
         /*Для отрисовки сплайна*/
         /*Параметры: i - номер точки позицию которой надо вернуть*/
         /*           Points - массив опорных точек сплайна*/
@@ -624,7 +646,7 @@ namespace Second
         /*Рисуем слои почвы*/
         private void DrawingLayers()
         {
-            int N = 10;
+            int N = 100;
             Gl.glPushMatrix();
             List<Point> point = new List<Point>();
             for (int i = 0; i < Layers.Count; i++)
@@ -637,7 +659,6 @@ namespace Second
                 Gl.glPushMatrix();
                 Gl.glLineWidth(2);
                 Gl.glBegin(Gl.GL_LINE_STRIP);
-
                 for (int start_cv = -3, j = 0; j != point.Count; ++j, ++start_cv)
                 {
                     for (int k = 0; k != N; ++k)
@@ -664,6 +685,15 @@ namespace Second
                 if (SupportLine)
                 {
                     Gl.glColor4d(color.R / 255.0, color.G / 255.0, color.B / 255.0, 0.7);
+                    /*Рисуем опорные линии*/
+                    Gl.glPushMatrix();
+                    Gl.glLineWidth(2);
+                    Gl.glBegin(Gl.GL_LINE_STRIP);
+                    for (int j = 0; j < point.Count; j++)
+                        Gl.glVertex2d(point[j].X * Zoom + XOffset, point[j].Y * Zoom + YOffset);
+                    Gl.glEnd();
+                    Gl.glPopMatrix();
+                    /*Рисуем опорные точки*/
                     Gl.glPushMatrix();
                     Gl.glPointSize(7);
                     Gl.glBegin(Gl.GL_POINTS);
@@ -672,14 +702,6 @@ namespace Second
                     Gl.glEnd();
                     Gl.glPopMatrix();
 
-                    Gl.glPushMatrix();
-                    Gl.glLineWidth(2);
-                    Gl.glBegin(Gl.GL_LINE_STRIP);
-                    for (int j = 0; j < point.Count; j++)
-                        Gl.glVertex2d(point[j].X * Zoom + XOffset, point[j].Y * Zoom + YOffset);
-                    Gl.glEnd();
-                    Gl.glPopMatrix();
-                    
                 }
                 point.RemoveRange(point.Count - 2, 2);
             }
@@ -700,6 +722,7 @@ namespace Second
             Gl.glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
             Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);
             Gl.glPushMatrix();
+
             /*Рисуем слои*/
             DrawingLayers();
             /*Переносим центр оси*/
@@ -711,9 +734,7 @@ namespace Second
             if (Marking)
                 DrawingMarking();          
             /*Рисуем координаты*/
-            DrawingCoords();
-            
-
+            DrawingCoords();           
 
             Gl.glPopMatrix();
             Gl.glFinish();

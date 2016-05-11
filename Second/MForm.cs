@@ -37,6 +37,8 @@ namespace Second
         int[] CheckControlPoint;
         /*Флаг нажата ли кнопка "Нарисовать" слой почвы*/
         bool DrawLayers;
+        /*Флаг нажата ли кнопка "Добавить точку" в контексном меню*/
+        bool AddPointLayers;
         #endregion
 
         #region Меню
@@ -59,7 +61,8 @@ namespace Second
             FlagMouseGlControl = false;
             MouseDownLeft = false;
             CheckControlPoint = new int[3];
-            
+            AddPointLayers = false;
+
             //FirstStartButton.Visible = false;
             //TextBoxWidthArea.Visible = false;
             //TextBoxHeightEarth.Visible = false;
@@ -177,12 +180,13 @@ namespace Second
 
         private void AddPointToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            AddPointLayers = true;
         }
 
         private void DeletePointToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            int[] CountIndex = Draw.DeletePointLayers(CheckControlPoint);
+            DataGridViewLayers.Rows[CountIndex[1] - 1].Cells[3].Value = CountIndex[0];
         }
 
         private void DeleteLayersMainPaint_Click(object sender, EventArgs e)
@@ -340,8 +344,17 @@ namespace Second
                 MouseDownLeft = true;
                 MouseDownPosition = new Point(e.X, e.Y);
                 Draw.MOUSEPOSITION = new Point(e.X, e.Y);
+                /*Если выбранно "Добавить точку" в контексном меню слоя*/
+                if(AddPointLayers)
+                {
+                    int[] CountIndex = Draw.AddPointLayers(CheckControlPoint[1]);
+                    DataGridViewLayers.Rows[CountIndex[1] - 1].Cells[3].Value = CountIndex[0];
+                    AddPointLayers = false;
+                    MouseDownLeft = false;
+                    return;
+                }            
                 /*Если кнопка "Нарисовать" новый слой "включена"*/
-                if (DrawLayers == true)
+                if (DrawLayers)
                 {
                     /*Рисуем новый слой*/
                     Draw.AddLayers(Draw.GetLayerHeight(), Convert.ToInt32(TextBoxLayerNumberOfPoints.Text));
@@ -356,6 +369,8 @@ namespace Second
                         DataGridViewLayers.Rows.Add(DataGridViewLayers.Rows.Count, "", Draw.GetLayerHeight(), Convert.ToInt32(TextBoxLayerNumberOfPoints.Text));
                         DataGridViewLayers.Rows[DataGridViewLayers.Rows.Count - 2].Cells[1].Style.BackColor = Draw.GetLayerColor(Convert.ToInt32(DataGridViewLayers.Rows[DataGridViewLayers.Rows.Count - 2].Cells[0].Value));
                     }
+                    MouseDownLeft = false;
+                    return;
                 }
             }
             /*Проверяем попали ли мы на опорную точку*/

@@ -32,7 +32,7 @@ namespace Second
             this.IndexNumber = IndexNumber;
             int step = (XAreaSize) / (NumberOfPoints-1) > 0 ? (XAreaSize) / (NumberOfPoints - 1) : 1 ;
             this.Points.Add(new Point(-XAreaSize / 2, YAreaSize / 2 - EarthSize - LayerHeight));
-            for (int i = -XAreaSize / 2 + step; i < XAreaSize / 2; i+= step)
+            for (int i = -XAreaSize / 2 + step; i <= XAreaSize / 2 - step; i+= step)
             {
                 tmp.X = i;
                 tmp.Y = YAreaSize / 2 - EarthSize - LayerHeight;
@@ -77,6 +77,29 @@ namespace Second
             int i;
             for (i = 0; i < Points.Count; i++)
                 Points[i] = new Point(Points[i].X,Points[i].Y+Increase);
+        }
+
+        /*Добавление опорной точки*/
+        /*Параметры: Add - координаты точки которую хотим добавить*/
+        public void AddPoint(Point Add)
+        {
+            int i;
+            /*Ищем куда вставить*/
+            for(i=1;i<Points.Count;i++)
+                if(Points[i].X > Add.X)
+                {
+                    /*Вставляем элементы*/
+                    Points.Insert(i, Add);
+                    return;
+                }
+        }
+
+        /*Удаление опорной точки*/
+        /*Параметры: Delete - индекс удаляемой точки в массиве*/
+        public void DeletePoint(int Delete)
+        {
+            if (Delete > 0 && Delete < Points.Count - 1)
+                Points.RemoveAt(Delete);
         }
         #endregion
     }
