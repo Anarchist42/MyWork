@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Numerics;
+using System.Text.RegularExpressions;
 
 using Tao.DevIl;
 using Tao.OpenGl;           // для работы с библиотекой OpenGL 
@@ -22,23 +24,23 @@ namespace Second
     {
         #region Поля класса
         /*Переменная для отрисовки*/
-        Paint Draw;
+        private Paint Draw;
         /*Исходный размер окна*/
-        Point SizeForm;
+        private Point SizeForm;
         /*Исходный размер GlControl*/
-        Point SizeGlControl;
+        private Point SizeGlControl;
         /*Флаг находился ли мышка на GlControl*/
-        bool FlagMouseGlControl;
+        private bool FlagMouseGlControl;
         /*Флаг нажата ли левая кнопка мышки*/
-        bool MouseDownLeft;
+        private bool MouseDownLeft;
         /*Позиция нажатия мышки*/
-        Point MouseDownPosition;
+        private Point MouseDownPosition;
         /*Попала ли мышка на опорную точку*/
-        int[] CheckControlPoint;
+        private int[] CheckControlPoint;
         /*Флаг нажата ли кнопка "Нарисовать" слой почвы*/
-        bool DrawLayers;
+        private bool DrawLayers;
         /*Флаг нажата ли кнопка "Добавить точку" в контексном меню*/
-        bool AddPointLayers;
+        private bool AddPointLayers;
         #endregion
 
         #region Меню
@@ -62,31 +64,21 @@ namespace Second
             MouseDownLeft = false;
             CheckControlPoint = new int[3];
             AddPointLayers = false;
-
-            //FirstStartButton.Visible = false;
-            //TextBoxWidthArea.Visible = false;
-            //TextBoxHeightEarth.Visible = false;
-            //LabelHeightEarth.Visible = false;
-            //LabelWidthArea.Visible = false;
-            //FirstLabelMain.Visible = false;
-
-
-
-
-            /*Аля чек*/
-            MainPaint_HScroll.LargeChange = Draw.XAREASIZE + 1;
-            MainPaint_HScroll.Maximum = Draw.XAREASIZE;
-            MainPaint_VScroll.LargeChange = Draw.YAREASIZE + 1;
-            MainPaint_VScroll.Maximum = Draw.YAREASIZE;
-            Draw.EARTHSIZE = 0;
-            Draw.XAREASIZE = 58200;
-            TabControl.Visible = true;
-            DrawLayers = false;
+            GlobalConst.Difference = 5;
+            GlobalConst.Accuracy = -1;
+            GlobalConst.ZoomWheel = 0.01;
             
 
+            ///*Аля чек*/
+            //MainPaint_HScroll.LargeChange = Convert.ToInt32(Draw.XAREASIZE + 1);
+            //MainPaint_HScroll.Maximum = Convert.ToInt32(Draw.XAREASIZE);
+            //MainPaint_VScroll.LargeChange = Convert.ToInt32(Draw.YAREASIZE + 1);
+            //MainPaint_VScroll.Maximum = Convert.ToInt32(Draw.YAREASIZE);
+            ////Draw.EARTHSIZE = 999;
+            ////Draw.XAREASIZE = 999999;
+            //DrawLayers = false;
 
-            //DataGridViewLayers.Columns[2].ValueType = typeof(int);
-            //DataGridViewLayers.Columns[3].ValueType = typeof(uint);
+            ////MainPaint.Enabled = true;
         }
 
         private void MainPaint_Load(object sender, EventArgs e)
@@ -112,10 +104,8 @@ namespace Second
             /*очищаем экран*/
             Gl.glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
             Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);
-
-
-
-            RenderTimer.Start();
+            //Запуск таймера
+            //RenderTimer.Start();
         }
 
         private void RenderTimer_Tick(object sender, EventArgs e)
@@ -128,47 +118,6 @@ namespace Second
             else MainPaint_HScroll.Visible = true;
             Draw.Draw();
         }
-
-        #region Начальное окно
-
-        /*Добавить максимально допустимые значения кол-ва точек*/
-
-
-        //private void FirstStartButton_Click(object sender, EventArgs e)
-        //{
-        //    /*Передаем введеные параметры*/
-        //    Draw.EARTHSIZE = (TextBoxHeightEarth.TextLength > 0) ? Convert.ToInt32(TextBoxHeightEarth.Text) : 0;
-        //    Draw.XAREASIZE = (TextBoxWidthArea.TextLength > 0) ? Convert.ToInt32(TextBoxWidthArea.Text) : 1;
-        //    /*Настраиваем значения ползунков*/
-        //    MainPaint_HScroll.LargeChange = Draw.XAREASIZE + 1;
-        //    MainPaint_HScroll.Maximum = Draw.XAREASIZE;
-        //    MainPaint_VScroll.LargeChange = Draw.YAREASIZE + 1;
-        //    MainPaint_VScroll.Maximum = Draw.YAREASIZE;
-        //    /*Убираем ненужные объекты интерфейса*/
-        //    FirstStartButton.Visible = false;
-        //    TextBoxWidthArea.Visible = false;
-        //    TextBoxHeightEarth.Visible = false;
-        //    LabelHeightEarth.Visible = false;
-        //    LabelWidthArea.Visible = false;
-        //    FirstLabelMain.Visible = false;
-        //    TabControl.Visible = true;
-        //    /*Старт всей отрисовки*/
-        //    RenderTimer.Start();
-        //}
-
-        //private void TextBoxWidthArea_KeyPress(object sender, KeyPressEventArgs e)
-        //{
-        //    if (!Char.IsDigit(e.KeyChar) && e.KeyChar != 8)
-        //        e.Handled = true;
-        //}
-
-        //private void TextBoxHeightEarth_KeyPress(object sender, KeyPressEventArgs e)
-        //{
-        //    if (!Char.IsDigit(e.KeyChar) && e.KeyChar != 8)
-        //        e.Handled = true;
-        //}
-
-        #endregion
 
         #region Работа с MainPaint
 
@@ -197,7 +146,7 @@ namespace Second
             /*Старое значение максимального значения ползунка*/
             MaximumScroll = MainPaint_VScroll.Maximum;
             /*Изменяем ползунки*/
-            MainPaint_VScroll.LargeChange = Draw.YAREASIZE + 1;            
+            MainPaint_VScroll.LargeChange = Convert.ToInt32(Draw.YAREASIZE + 1);            
             MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
             Draw.YOFFSET += (MaximumScroll - MainPaint_VScroll.Maximum ) * Draw.ZOOM;
             MainPaint_VScroll.Value = Draw.ScrollValue(0);
@@ -213,9 +162,12 @@ namespace Second
         {
             if (this.WindowState != FormWindowState.Minimized)
             {
+                /*Сбрасываем сдвиги по осям*/
+                Draw.XOFFSET = 0.0;
+                Draw.YOFFSET = 0.0;
                 /*Изменяем размеры GlControl*/
                 MainPaint.Width = this.Width - SizeForm.X + SizeGlControl.X;
-                MainPaint.Height = this.Height - SizeForm.Y + SizeGlControl.Y;
+                MainPaint.Height = this.Height - SizeForm.Y + SizeGlControl.Y;              
                 /*Настраиваем зум*/
                 if (Convert.ToDouble(MainPaint.Width) / Convert.ToDouble(SizeGlControl.X)
                     > Convert.ToDouble(MainPaint.Height) / Convert.ToDouble(SizeGlControl.Y))
@@ -223,28 +175,25 @@ namespace Second
                     Draw.MINZOOM = GlobalConst.MinZoom * Convert.ToDouble(MainPaint.Width - GlobalConst.Difference)
                         / Convert.ToDouble(SizeGlControl.X - GlobalConst.Difference);
                     MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
-                    MainPaint_HScroll.Maximum = Draw.XAREASIZE;
+                    MainPaint_HScroll.Maximum = Convert.ToInt32(Draw.XAREASIZE);
                 }
                 else
                 {
                     Draw.MINZOOM = GlobalConst.MinZoom * Convert.ToDouble(MainPaint.Height - GlobalConst.Difference)
                         / Convert.ToDouble(SizeGlControl.Y - GlobalConst.Difference);
                     MainPaint_HScroll.Maximum = Draw.ScrollMaximum(1);
-                    MainPaint_VScroll.Maximum = Draw.YAREASIZE;
+                    MainPaint_VScroll.Maximum = Convert.ToInt32(Draw.YAREASIZE);
                 }
                 /*Настраиваем вертикальный ползунок*/
                 MainPaint_VScroll.Size = new Size(MainPaint_VScroll.Size.Width, MainPaint.Height);
-                MainPaint_VScroll.LargeChange = Draw.YAREASIZE + 1;
+                MainPaint_VScroll.LargeChange = Convert.ToInt32(Draw.YAREASIZE + 1);
                 MainPaint_VScroll.Value = (MainPaint_VScroll.Maximum - MainPaint_VScroll.LargeChange) / 2 + 1;
                 /*Настраиваем горизонтальный ползунок*/
                 MainPaint_HScroll.Size = new Size(MainPaint.Width, MainPaint_HScroll.Size.Height);
-                MainPaint_HScroll.LargeChange = Draw.XAREASIZE + 1;
+                MainPaint_HScroll.LargeChange = Convert.ToInt32(Draw.XAREASIZE + 1);
                 MainPaint_HScroll.Value = (MainPaint_HScroll.Maximum - MainPaint_HScroll.LargeChange) / 2 + 1;
                 /*Настраиваем панель с параметрами*/
-                TabControl.Size = new Size(TabControl.Size.Width, MainPaint.Height);
-                /*Сбрасываем сдвиги по осям*/
-                Draw.XOFFSET = 0.0;
-                Draw.YOFFSET = 0.0;
+                TabControl.Size = new Size(TabControl.Size.Width, MainPaint.Height);             
                 /*Настраиваем отображение "нового" окна для функций Gl*/
                 Gl.glViewport(0, 0, MainPaint.Width, MainPaint.Height);
                 Gl.glMatrixMode(Gl.GL_PROJECTION);
@@ -275,10 +224,10 @@ namespace Second
                     Draw.ChangeOffsetZoomOut();
                 }
                 /*Изменяем ползунки*/
-                MainPaint_VScroll.LargeChange = Draw.YAREASIZE + 1;
+                MainPaint_VScroll.LargeChange = Convert.ToInt32(Draw.YAREASIZE + 1);
                 MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
                 MainPaint_VScroll.Value = Draw.ScrollValue(0);
-                MainPaint_HScroll.LargeChange = Draw.XAREASIZE + 1;
+                MainPaint_HScroll.LargeChange = Convert.ToInt32(Draw.XAREASIZE + 1);
                 MainPaint_HScroll.Maximum = Draw.ScrollMaximum(1);
                 MainPaint_HScroll.Value = Draw.ScrollValue(1);
             }
@@ -286,12 +235,12 @@ namespace Second
 
         private void MainPaint_VScroll_Scroll(object sender, ScrollEventArgs e)
         {
-            Draw.YOFFSET += (e.NewValue - e.OldValue) * Draw.ZOOM;
+            Draw.YOFFSET += (e.NewValue - e.OldValue) * Draw.ScrollStep(0, MainPaint_VScroll.Maximum - MainPaint_VScroll.LargeChange - 1);
         }
 
         private void MainPaint_HScroll_Scroll(object sender, ScrollEventArgs e)
         {
-            Draw.XOFFSET += (e.OldValue - e.NewValue) * Draw.ZOOM;
+            Draw.XOFFSET += (e.OldValue - e.NewValue) * Draw.ScrollStep(1, MainPaint_HScroll.Maximum - MainPaint_HScroll.LargeChange - 1);
         }
 
         private void MainPaint_MouseMove(object sender, MouseEventArgs e)
@@ -304,6 +253,9 @@ namespace Second
             {
                 /*Изменяем позицию мышки*/
                 Draw.MOUSEPOSITION = new Point(e.X, e.Y);
+                /*Выводим координаты*/
+                TextBoxXCoordinate.Text = Draw.GetCoordinate(0).ToString();
+                TextBoxYCoordinate.Text = Draw.GetCoordinate(1).ToString();
                 /*Если нажата кнопка нарисовать слой (нельзя двигать)*/
                 if (DrawLayers == true)
                     return;
@@ -382,6 +334,242 @@ namespace Second
 
         #endregion
 
+
+
+
+
+
+
+
+
+
+
+
+        #region Настройки
+        private void TextBoxAccuracy_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            /*Можно вводить только числа и бэкспейс*/
+            if (!Char.IsDigit(e.KeyChar) && e.KeyChar != 8)
+                e.Handled = true;
+            /*Если нажат энтер*/
+            if (e.KeyChar == 13)
+            {
+                TextBoxAccuracy.Enabled = false;
+                TextBoxAccuracy.Enabled = true;
+            }
+        }
+        private void TextBoxAccuracy_Validating(object sender, CancelEventArgs e)
+        {
+            /*Если число меньше 16*/
+            if (TextBoxAccuracy.TextLength > 0 && Convert.ToInt32(TextBoxAccuracy.Text) < 16)
+                e.Cancel = false;
+            else
+            {
+                if (GlobalConst.Accuracy == -1)
+                    TextBoxAccuracy.Text = "";
+                else
+                    TextBoxAccuracy.Text = GlobalConst.Accuracy.ToString();
+                MessageBox.Show("Введите число от 0 до 15");
+            }
+        }
+        private void TextBoxAccuracy_Validated(object sender, EventArgs e)
+        {
+            if (TextBoxAccuracy.TextLength > 0)
+            {
+                GlobalConst.Accuracy = Convert.ToInt32(TextBoxAccuracy.Text);
+                if (TextBoxXAreaSize.TextLength == 0)
+                {
+                    TextBoxXAreaSize.Text = (582 / Math.Pow(10, GlobalConst.Accuracy)).ToString();
+                    TextBoxXAreaSize.Enabled = true;
+                    TextBoxEarthSize.Enabled = true;
+                    TextBoxYAreaSize.Enabled = true;
+                    Draw.XAREASIZE = Convert.ToDouble(TextBoxXAreaSize.Text);
+                    TextBoxYAreaSize.Text = Draw.YAREASIZE.ToString();
+                    TextBoxEarthSize.Text = "0";
+                    Draw.EARTHSIZE = Convert.ToDouble(TextBoxEarthSize.Text);
+                    /*Делаем активным окно с сеткой*/
+                    MainPaint.Enabled = true;
+                    /*Меняем ползунки*/
+                    MainPaint_HScroll.LargeChange = Convert.ToInt32(Draw.XAREASIZE + 1);
+                    MainPaint_HScroll.Maximum = Convert.ToInt32(Draw.XAREASIZE);
+                    MainPaint_VScroll.LargeChange = Convert.ToInt32(Draw.YAREASIZE + 1);
+                    MainPaint_VScroll.Maximum = Convert.ToInt32(Draw.YAREASIZE);
+                    /*Запускаем отрисовку*/
+                    RenderTimer.Start();
+                }
+                else
+                {
+                    Draw.XAREASIZE = Convert.ToDouble(TextBoxXAreaSize.Text);
+                    Draw.EARTHSIZE = Convert.ToDouble(TextBoxEarthSize.Text);
+                    TextBoxEarthSize.Text = Draw.EARTHSIZE.ToString();
+                    TextBoxXAreaSize.Text = Draw.XAREASIZE.ToString();
+                    TextBoxYAreaSize.Text = Draw.YAREASIZE.ToString();
+                    /*Изменяем ползунки*/
+                    MainPaint_VScroll.LargeChange = Convert.ToInt32(Draw.YAREASIZE + 1);
+                    MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
+                    MainPaint_VScroll.Value = Draw.ScrollValue(0);
+                    MainPaint_HScroll.LargeChange = Convert.ToInt32(Draw.XAREASIZE + 1);
+                    MainPaint_HScroll.Maximum = Draw.ScrollMaximum(1);
+                    MainPaint_HScroll.Value = Draw.ScrollValue(1);
+                }
+            }
+        }
+
+        private void TextBoxXAreaSize_KeyPress(object sender, KeyPressEventArgs e)
+        {       
+            /*Можно вводить только числа, бэкспейс и запятая */
+            if (!Char.IsDigit(e.KeyChar) && e.KeyChar != 8 
+                && (e.KeyChar != 44 || TextBoxXAreaSize.Text.IndexOf(",")>-1 ))
+                e.Handled = true;
+            /*Если нажат энтер*/
+            if (e.KeyChar == 13)
+            {
+                TextBoxXAreaSize.Enabled = false;
+                TextBoxXAreaSize.Enabled = true;
+            }
+            if (TextBoxXAreaSize.TextLength == 0 && e.KeyChar == 44)
+                e.Handled = true;
+        }
+        private void TextBoxXAreaSize_Validating(object sender, CancelEventArgs e)
+        {
+            if(TextBoxXAreaSize.TextLength == 0)
+                TextBoxXAreaSize.Text = (582 / Math.Pow(10, GlobalConst.Accuracy)).ToString();
+            if(Convert.ToDouble(TextBoxXAreaSize.Text)>1000000)
+            {
+                TextBoxXAreaSize.Text = "1000000";
+                MessageBox.Show("Ширина области должна быть меньше 1000км");
+            }
+            if (Convert.ToDouble(TextBoxXAreaSize.Text) < 582 / Math.Pow(10,GlobalConst.Accuracy))
+            {
+                TextBoxXAreaSize.Text = (582 / Math.Pow(10, GlobalConst.Accuracy)).ToString();
+                MessageBox.Show("Ширина области должна быть больше чем " + (582 / Math.Pow(10, GlobalConst.Accuracy)).ToString()+"м");
+            }
+        }
+        private void TextBoxXAreaSize_Validated(object sender, EventArgs e)
+        {
+            /*Записываем данные*/
+            Draw.XAREASIZE = Convert.ToDouble(TextBoxXAreaSize.Text);
+            TextBoxXAreaSize.Text = Draw.XAREASIZE.ToString();
+            TextBoxYAreaSize.Text = Draw.YAREASIZE.ToString();
+            /*Изменяем ползунки*/
+            MainPaint_VScroll.LargeChange = Convert.ToInt32(Draw.YAREASIZE + 1);
+            MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
+            MainPaint_VScroll.Value = Draw.ScrollValue(0);
+            MainPaint_HScroll.LargeChange = Convert.ToInt32(Draw.XAREASIZE + 1);
+            MainPaint_HScroll.Maximum = Draw.ScrollMaximum(1);
+            MainPaint_HScroll.Value = Draw.ScrollValue(1);
+            /*Запускаем отрисовку*/
+            RenderTimer.Start();
+        }
+
+        private void TextBoxEarthSize_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            /*Можно вводить только числа, бэкспейс и запятая */
+            if (!Char.IsDigit(e.KeyChar) && e.KeyChar != 8
+                && (e.KeyChar != 44 || TextBoxEarthSize.Text.IndexOf(",") > -1))
+                e.Handled = true;
+            /*Если нажат энтер*/
+            if (e.KeyChar == 13)
+            {
+                TextBoxEarthSize.Enabled = false;
+                TextBoxEarthSize.Enabled = true;
+            }
+            if (TextBoxEarthSize.TextLength == 0 && e.KeyChar == 44)
+                e.Handled = true;
+        }
+        private void TextBoxEarthSize_Validating(object sender, CancelEventArgs e)
+        {
+            if (TextBoxEarthSize.TextLength == 0)
+                TextBoxEarthSize.Text = "0";
+            if (Convert.ToDouble(TextBoxEarthSize.Text) > 10000)
+            {
+                TextBoxXAreaSize.Text = "10000";
+                MessageBox.Show("Высота над уровнем земли должна быть меньше 10км");
+            }
+        }
+        private void TextBoxEarthSize_Validated(object sender, EventArgs e)
+        {
+            /*Записываем данные*/
+            Draw.EARTHSIZE = Convert.ToDouble(TextBoxEarthSize.Text);
+            TextBoxEarthSize.Text = Draw.EARTHSIZE.ToString();
+        }
+
+        private void TextBoxYAreaSize_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            /*Можно вводить только числа, бэкспейс и запятая */
+            if (!Char.IsDigit(e.KeyChar) && e.KeyChar != 8
+                && (e.KeyChar != 44 || TextBoxYAreaSize.Text.IndexOf(",") > -1))
+                e.Handled = true;
+            /*Если нажат энтер*/
+            if (e.KeyChar == 13)
+            {
+                TextBoxYAreaSize.Enabled = false;
+                TextBoxYAreaSize.Enabled = true;
+            }
+            if (TextBoxYAreaSize.TextLength == 0 && e.KeyChar == 44)
+                e.Handled = true;
+        }
+        private void TextBoxYAreaSize_Validating(object sender, CancelEventArgs e)
+        {
+            if (TextBoxYAreaSize.TextLength == 0)
+                TextBoxYAreaSize.Text = Draw.DEFYAREASIZE.ToString();
+            if (Convert.ToDouble(TextBoxYAreaSize.Text) > 1000000)
+            {
+                TextBoxYAreaSize.Text = "1000000";
+                MessageBox.Show("Высота области должна быть меньше 1000км");
+            }
+            if (Convert.ToDouble(TextBoxYAreaSize.Text)  < Draw.DEFYAREASIZE)
+            {
+                TextBoxYAreaSize.Text = Draw.YAREASIZE.ToString();
+                MessageBox.Show("Высота области должна быть больше чем " + Draw.DEFYAREASIZE.ToString() + "м");
+            }
+            //if(Convert.ToDouble(TextBoxYAreaSize.Text) < Draw.GetMaxPointLayers())
+            //{
+            //    TextBoxYAreaSize.Text = Draw.YAREASIZE.ToString();
+            //    MessageBox.Show("Высота области должна быть больше чем " + Draw.GetMaxPointLayers().ToString() + "м");
+            //}
+        }
+        private void TextBoxYAreaSize_Validated(object sender, EventArgs e)
+        {
+            /*Записываем данные*/
+            Draw.YAREASIZE = Convert.ToDouble(TextBoxYAreaSize.Text);
+            TextBoxYAreaSize.Text = Draw.YAREASIZE.ToString();
+            /*Изменяем ползунки*/
+            MainPaint_VScroll.LargeChange = Convert.ToInt32(Draw.YAREASIZE + 1);
+            MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
+            MainPaint_VScroll.Value = Draw.ScrollValue(0);
+            MainPaint_HScroll.LargeChange = Convert.ToInt32(Draw.XAREASIZE + 1);
+            MainPaint_HScroll.Maximum = Draw.ScrollMaximum(1);
+            MainPaint_HScroll.Value = Draw.ScrollValue(1);
+        }
+
+        private void СheckedListBoxSettings_ItemCheck(object sender, ItemCheckEventArgs e)
+        {
+            /*Если область не задана*/
+            if (Draw.XAREASIZE != 0)
+            {
+                /*Если нажата Сетка*/
+                if (e.Index == 0)
+                {
+                    if (e.NewValue == CheckState.Checked)
+                        Draw.GRID = true;
+                    else Draw.GRID = false;
+                }
+                /*Если нажата Разметка*/
+                if (e.Index == 1)
+                {
+                    if (e.NewValue == CheckState.Checked)
+                        Draw.MARKING = true;
+                    else Draw.MARKING = false;
+                }
+            }
+            else
+                e.NewValue = e.CurrentValue;
+        }
+
+
+        #endregion
+
         #region Почва
 
         #region Контекстное меню
@@ -393,7 +581,7 @@ namespace Second
             /*Удаляем слой*/
             Draw.DeleteLayersIndex(CheckControlPoint[1]);           
             /*Изменяем ползунки*/
-            MainPaint_VScroll.LargeChange = Draw.YAREASIZE + 1;
+            MainPaint_VScroll.LargeChange = Convert.ToInt32(Draw.YAREASIZE + 1);
             MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
             Draw.YOFFSET += (MaximumScroll - MainPaint_VScroll.Maximum) * Draw.ZOOM;
             MainPaint_VScroll.Value = Draw.ScrollValue(0);
@@ -436,7 +624,7 @@ namespace Second
             /*Рисуем новый слой*/
             Draw.AddLayers(Convert.ToInt32(TextBoxLayerHeight.Text), Convert.ToInt32(TextBoxLayerNumberOfPoints.Text));
             /*Изменяем ползунки*/
-            MainPaint_VScroll.LargeChange = Draw.YAREASIZE + 1;
+            MainPaint_VScroll.LargeChange = Convert.ToInt32(Draw.YAREASIZE + 1);
             MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
             MainPaint_VScroll.Value = Draw.ScrollValue(0);
             /*Заполняем таблицу*/
@@ -505,28 +693,10 @@ namespace Second
             }
         }
 
-        #endregion
-
-        
-
         private void СheckedListBox_ItemCheck(object sender, ItemCheckEventArgs e)
         {
-            /*Если нажата Сетка*/
-            if(e.Index == 0)
-            {
-                if (e.NewValue == CheckState.Checked)
-                    Draw.GRID = true;
-                else Draw.GRID = false;
-            }
-            /*Если нажата Разметка*/
-            if (e.Index == 1)
-            {
-                if (e.NewValue == CheckState.Checked)
-                    Draw.MARKING = true;
-                else Draw.MARKING = false;
-            }
             /*Если нажата Опорные линии*/
-            if (e.Index == 2)
+            if (e.Index == 0)
             {
                 if (e.NewValue == CheckState.Checked)
                     Draw.SUPPORTLINE = true;
@@ -534,12 +704,25 @@ namespace Second
             }
         }
 
+        #endregion
+
+
+
+
+
         #region Минералы
 
         private void DrawSplineMinerals_Click(object sender, EventArgs e)
         {
 
         }
+
+
+
+
+
+
+
 
         #endregion
 

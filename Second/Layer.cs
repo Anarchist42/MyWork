@@ -11,7 +11,7 @@ namespace Second
     {
         #region Поля класса
         /*Массив опорных точек*/
-        private List<Point> Points = new List<Point>();
+        private List<PointSpline> Points = new List<PointSpline>();
         /*Цвет слоя*/
         private Color Colors = new Color();
         /*Порядковый номер слоя*/
@@ -26,38 +26,53 @@ namespace Second
         /*           EarthSize - высота над уровнем земли*/
         /*           NumberOfPoints - количество опорных точек*/
         /*           IndexNumber - порядковый номер слоя*/
-        public Layer(int XAreaSize,int LayerHeight, int YAreaSize, int EarthSize,int NumberOfPoints, int IndexNumber)
+        public Layer(double XAreaSize, double LayerHeight, double YAreaSize, double EarthSize, int NumberOfPoints, int IndexNumber)
         {
-            Point tmp = new Point();
             this.IndexNumber = IndexNumber;
-            int step = (XAreaSize) / (NumberOfPoints-1) > 0 ? (XAreaSize) / (NumberOfPoints - 1) : 1 ;
-            this.Points.Add(new Point(-XAreaSize / 2, YAreaSize / 2 - EarthSize - LayerHeight));
-            for (int i = -XAreaSize / 2 + step; i <= XAreaSize / 2 - step; i+= step)
-            {
-                tmp.X = i;
-                tmp.Y = YAreaSize / 2 - EarthSize - LayerHeight;
-                this.Points.Add(tmp);
-            }
-            this.Points.Add(new Point(XAreaSize / 2, YAreaSize / 2 - EarthSize - LayerHeight));
-            Random rand = new Random(LayerHeight);
+            double Step = (XAreaSize) / (NumberOfPoints - 1) > 0 ? (XAreaSize) / (NumberOfPoints - 1) : 1;
+            for (int i = 0; i < NumberOfPoints; i++)
+                this.Points.Add(new PointSpline(i * Step, LayerHeight));
+            Random rand = new Random(Convert.ToInt32(LayerHeight));
             this.Colors = Color.FromArgb(rand.Next(0, 255), rand.Next(0, 255), rand.Next(0, 255));
+
+            //this.Points.Add(new PointSpline(-XAreaSize / 2, YAreaSize / 2 - EarthSize - LayerHeight));
+            //for (int i = -(NumberOfPoints - 2) / 2; i <= (NumberOfPoints - 2) / 2; i++)
+            //    this.Points.Add(new PointSpline(-XAreaSize / 2 + i * Step, YAreaSize / 2 - EarthSize - LayerHeight));
+            //this.Points.Add(new PointSpline(XAreaSize / 2, YAreaSize / 2 - EarthSize - LayerHeight));
+
+
         }
         #endregion
 
         #region SETs and GETs
-        public List<Point> POINT
+        public List<PointSpline> POINT
         {
-            get { return Points; }
+            get
+            {
+                return Points;
+            }
         }
         public Color COLOR
         {
-            set { this.Colors = value; }
-            get { return Colors; }
+            set
+            {
+                this.Colors = value;
+            }
+            get
+            {
+                return Colors;
+            }
         }
         public int INDEXNMUMBER
         {
-            get { return IndexNumber; }
-            set { this.IndexNumber = value; }
+            get
+            {
+                return IndexNumber;
+            }
+            set
+            {
+                this.IndexNumber = value;
+            }
         }
         #endregion
 
@@ -65,23 +80,23 @@ namespace Second
         /*Значение Y заданной точки (надо для сортировки слоев)*/
         /*Параметры: Number - номер точки*/
         /*Возвращает: Y - значение Y заданной точки*/
-        public int ReturnY(int Number)
+        public double ReturnY(int Number)
         {
             return Points[Number].Y;
         }
 
         /*Изменение значений Y при изменение YAreaSize*/
         /*Параметры: Increase - величина на которую надо изменить Y*/
-        public void ChangeY(int Increase)
+        public void ChangeY(double Increase)
         {
             int i;
             for (i = 0; i < Points.Count; i++)
-                Points[i] = new Point(Points[i].X,Points[i].Y+Increase);
+                Points[i] = new PointSpline(Points[i].X,Points[i].Y+Increase);
         }
 
         /*Добавление опорной точки*/
         /*Параметры: Add - координаты точки которую хотим добавить*/
-        public void AddPoint(Point Add)
+        public void AddPoint(PointSpline Add)
         {
             int i;
             /*Ищем куда вставить*/

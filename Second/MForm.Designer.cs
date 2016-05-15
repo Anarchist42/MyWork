@@ -38,6 +38,16 @@
             this.CloseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.AboutProgrammToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.TabControl = new System.Windows.Forms.TabControl();
+            this.TabPageSettings = new System.Windows.Forms.TabPage();
+            this.СheckedListBoxSettings = new System.Windows.Forms.CheckedListBox();
+            this.TextBoxAccuracy = new System.Windows.Forms.TextBox();
+            this.LabelAccuracy = new System.Windows.Forms.Label();
+            this.TextBoxXAreaSize = new System.Windows.Forms.TextBox();
+            this.TextBoxYAreaSize = new System.Windows.Forms.TextBox();
+            this.TextBoxEarthSize = new System.Windows.Forms.TextBox();
+            this.LabelEarthSize = new System.Windows.Forms.Label();
+            this.LabelYAreaSize = new System.Windows.Forms.Label();
+            this.LabelXAreaSize = new System.Windows.Forms.Label();
             this.TabPageSpline = new System.Windows.Forms.TabPage();
             this.ComboBoxMaterial = new System.Windows.Forms.ComboBox();
             this.СheckedListBox = new System.Windows.Forms.CheckedListBox();
@@ -61,20 +71,27 @@
             this.DrawSplineLayers = new System.Windows.Forms.Button();
             this.TabPageMKE = new System.Windows.Forms.TabPage();
             this.СontextMenuMainPaint = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.AddValueToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.AddPointToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.DeletePointToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.DeleteLayersMainPaint = new System.Windows.Forms.ToolStripMenuItem();
             this.ToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.ContextMenuDataGridViewLayers = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.DeleteLayersDataGridViewLayers = new System.Windows.Forms.ToolStripMenuItem();
-            this.AddPointToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.DeletePointToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.AddValueToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.TextBoxYCoordinate = new System.Windows.Forms.TextBox();
+            this.TextBoxXCoordinate = new System.Windows.Forms.TextBox();
+            this.LabelYCoordiante = new System.Windows.Forms.Label();
+            this.LabelXCoordinate = new System.Windows.Forms.Label();
             this.MenuStrip.SuspendLayout();
             this.TabControl.SuspendLayout();
+            this.TabPageSettings.SuspendLayout();
             this.TabPageSpline.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DataGridViewMinerals)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DataGridViewLayers)).BeginInit();
             this.СontextMenuMainPaint.SuspendLayout();
             this.ContextMenuDataGridViewLayers.SuspendLayout();
+            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // MainPaint
@@ -88,6 +105,7 @@
             this.MainPaint.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.MainPaint.ColorBits = ((byte)(32));
             this.MainPaint.DepthBits = ((byte)(16));
+            this.MainPaint.Enabled = false;
             this.MainPaint.Location = new System.Drawing.Point(12, 32);
             this.MainPaint.Name = "MainPaint";
             this.MainPaint.Size = new System.Drawing.Size(587, 526);
@@ -165,14 +183,126 @@
             // TabControl
             // 
             this.TabControl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.TabControl.Controls.Add(this.TabPageSettings);
             this.TabControl.Controls.Add(this.TabPageSpline);
             this.TabControl.Controls.Add(this.TabPageMKE);
-            this.TabControl.Location = new System.Drawing.Point(618, 32);
+            this.TabControl.Location = new System.Drawing.Point(618, 107);
             this.TabControl.Name = "TabControl";
             this.TabControl.SelectedIndex = 0;
-            this.TabControl.Size = new System.Drawing.Size(254, 526);
+            this.TabControl.Size = new System.Drawing.Size(254, 451);
             this.TabControl.TabIndex = 10;
-            this.TabControl.Visible = false;
+            // 
+            // TabPageSettings
+            // 
+            this.TabPageSettings.BackColor = System.Drawing.SystemColors.Control;
+            this.TabPageSettings.Controls.Add(this.СheckedListBoxSettings);
+            this.TabPageSettings.Controls.Add(this.TextBoxAccuracy);
+            this.TabPageSettings.Controls.Add(this.LabelAccuracy);
+            this.TabPageSettings.Controls.Add(this.TextBoxXAreaSize);
+            this.TabPageSettings.Controls.Add(this.TextBoxYAreaSize);
+            this.TabPageSettings.Controls.Add(this.TextBoxEarthSize);
+            this.TabPageSettings.Controls.Add(this.LabelEarthSize);
+            this.TabPageSettings.Controls.Add(this.LabelYAreaSize);
+            this.TabPageSettings.Controls.Add(this.LabelXAreaSize);
+            this.TabPageSettings.Location = new System.Drawing.Point(4, 22);
+            this.TabPageSettings.Name = "TabPageSettings";
+            this.TabPageSettings.Size = new System.Drawing.Size(246, 425);
+            this.TabPageSettings.TabIndex = 2;
+            this.TabPageSettings.Text = "Настройки";
+            // 
+            // СheckedListBoxSettings
+            // 
+            this.СheckedListBoxSettings.BackColor = System.Drawing.SystemColors.Control;
+            this.СheckedListBoxSettings.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.СheckedListBoxSettings.FormattingEnabled = true;
+            this.СheckedListBoxSettings.Items.AddRange(new object[] {
+            "Сетка",
+            "Разметка"});
+            this.СheckedListBoxSettings.Location = new System.Drawing.Point(4, 148);
+            this.СheckedListBoxSettings.Name = "СheckedListBoxSettings";
+            this.СheckedListBoxSettings.Size = new System.Drawing.Size(78, 30);
+            this.СheckedListBoxSettings.TabIndex = 8;
+            this.СheckedListBoxSettings.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.СheckedListBoxSettings_ItemCheck);
+            // 
+            // TextBoxAccuracy
+            // 
+            this.TextBoxAccuracy.Location = new System.Drawing.Point(126, 6);
+            this.TextBoxAccuracy.MaxLength = 2;
+            this.TextBoxAccuracy.Name = "TextBoxAccuracy";
+            this.TextBoxAccuracy.Size = new System.Drawing.Size(100, 20);
+            this.TextBoxAccuracy.TabIndex = 7;
+            this.TextBoxAccuracy.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TextBoxAccuracy_KeyPress);
+            this.TextBoxAccuracy.Validating += new System.ComponentModel.CancelEventHandler(this.TextBoxAccuracy_Validating);
+            this.TextBoxAccuracy.Validated += new System.EventHandler(this.TextBoxAccuracy_Validated);
+            // 
+            // LabelAccuracy
+            // 
+            this.LabelAccuracy.AutoSize = true;
+            this.LabelAccuracy.Location = new System.Drawing.Point(4, 6);
+            this.LabelAccuracy.Name = "LabelAccuracy";
+            this.LabelAccuracy.Size = new System.Drawing.Size(84, 13);
+            this.LabelAccuracy.TabIndex = 6;
+            this.LabelAccuracy.Text = "Точность (0-15)";
+            // 
+            // TextBoxXAreaSize
+            // 
+            this.TextBoxXAreaSize.Enabled = false;
+            this.TextBoxXAreaSize.Location = new System.Drawing.Point(126, 42);
+            this.TextBoxXAreaSize.Name = "TextBoxXAreaSize";
+            this.TextBoxXAreaSize.Size = new System.Drawing.Size(100, 20);
+            this.TextBoxXAreaSize.TabIndex = 5;
+            this.TextBoxXAreaSize.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TextBoxXAreaSize_KeyPress);
+            this.TextBoxXAreaSize.Validating += new System.ComponentModel.CancelEventHandler(this.TextBoxXAreaSize_Validating);
+            this.TextBoxXAreaSize.Validated += new System.EventHandler(this.TextBoxXAreaSize_Validated);
+            // 
+            // TextBoxYAreaSize
+            // 
+            this.TextBoxYAreaSize.Enabled = false;
+            this.TextBoxYAreaSize.Location = new System.Drawing.Point(127, 100);
+            this.TextBoxYAreaSize.Name = "TextBoxYAreaSize";
+            this.TextBoxYAreaSize.Size = new System.Drawing.Size(100, 20);
+            this.TextBoxYAreaSize.TabIndex = 4;
+            this.TextBoxYAreaSize.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TextBoxYAreaSize_KeyPress);
+            this.TextBoxYAreaSize.Validating += new System.ComponentModel.CancelEventHandler(this.TextBoxYAreaSize_Validating);
+            this.TextBoxYAreaSize.Validated += new System.EventHandler(this.TextBoxYAreaSize_Validated);
+            // 
+            // TextBoxEarthSize
+            // 
+            this.TextBoxEarthSize.Enabled = false;
+            this.TextBoxEarthSize.Location = new System.Drawing.Point(126, 71);
+            this.TextBoxEarthSize.Name = "TextBoxEarthSize";
+            this.TextBoxEarthSize.Size = new System.Drawing.Size(100, 20);
+            this.TextBoxEarthSize.TabIndex = 3;
+            this.TextBoxEarthSize.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TextBoxEarthSize_KeyPress);
+            this.TextBoxEarthSize.Validating += new System.ComponentModel.CancelEventHandler(this.TextBoxEarthSize_Validating);
+            this.TextBoxEarthSize.Validated += new System.EventHandler(this.TextBoxEarthSize_Validated);
+            // 
+            // LabelEarthSize
+            // 
+            this.LabelEarthSize.AutoSize = true;
+            this.LabelEarthSize.Location = new System.Drawing.Point(4, 71);
+            this.LabelEarthSize.Name = "LabelEarthSize";
+            this.LabelEarthSize.Size = new System.Drawing.Size(115, 26);
+            this.LabelEarthSize.TabIndex = 2;
+            this.LabelEarthSize.Text = "Высота над уровнем \r\nземли, м\r\n";
+            // 
+            // LabelYAreaSize
+            // 
+            this.LabelYAreaSize.AutoSize = true;
+            this.LabelYAreaSize.Location = new System.Drawing.Point(4, 100);
+            this.LabelYAreaSize.Name = "LabelYAreaSize";
+            this.LabelYAreaSize.Size = new System.Drawing.Size(92, 26);
+            this.LabelYAreaSize.TabIndex = 1;
+            this.LabelYAreaSize.Text = "Высота рабочей \r\nобласти, м\r\n";
+            // 
+            // LabelXAreaSize
+            // 
+            this.LabelXAreaSize.AutoSize = true;
+            this.LabelXAreaSize.Location = new System.Drawing.Point(4, 42);
+            this.LabelXAreaSize.Name = "LabelXAreaSize";
+            this.LabelXAreaSize.Size = new System.Drawing.Size(93, 26);
+            this.LabelXAreaSize.TabIndex = 0;
+            this.LabelXAreaSize.Text = "Ширина рабочей \r\nобласти, м\r\n";
             // 
             // TabPageSpline
             // 
@@ -193,7 +323,7 @@
             this.TabPageSpline.Location = new System.Drawing.Point(4, 22);
             this.TabPageSpline.Name = "TabPageSpline";
             this.TabPageSpline.Padding = new System.Windows.Forms.Padding(3);
-            this.TabPageSpline.Size = new System.Drawing.Size(246, 500);
+            this.TabPageSpline.Size = new System.Drawing.Size(246, 425);
             this.TabPageSpline.TabIndex = 0;
             this.TabPageSpline.Text = "Почва";
             // 
@@ -211,9 +341,8 @@
             this.СheckedListBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.СheckedListBox.FormattingEnabled = true;
             this.СheckedListBox.Items.AddRange(new object[] {
-            "Сетка.",
-            "Разметка.",
-            "Опорные линии."});
+            "Опорные линии.",
+            "BSpline."});
             this.СheckedListBox.Location = new System.Drawing.Point(4, 367);
             this.СheckedListBox.Name = "СheckedListBox";
             this.СheckedListBox.Size = new System.Drawing.Size(109, 45);
@@ -424,7 +553,7 @@
             this.TabPageMKE.Location = new System.Drawing.Point(4, 22);
             this.TabPageMKE.Name = "TabPageMKE";
             this.TabPageMKE.Padding = new System.Windows.Forms.Padding(3);
-            this.TabPageMKE.Size = new System.Drawing.Size(246, 500);
+            this.TabPageMKE.Size = new System.Drawing.Size(246, 425);
             this.TabPageMKE.TabIndex = 1;
             this.TabPageMKE.Text = "МКЭ";
             // 
@@ -436,7 +565,28 @@
             this.DeletePointToolStripMenuItem,
             this.DeleteLayersMainPaint});
             this.СontextMenuMainPaint.Name = "СontextMenuStrip";
-            this.СontextMenuMainPaint.Size = new System.Drawing.Size(165, 114);
+            this.СontextMenuMainPaint.Size = new System.Drawing.Size(165, 92);
+            // 
+            // AddValueToolStripMenuItem
+            // 
+            this.AddValueToolStripMenuItem.Name = "AddValueToolStripMenuItem";
+            this.AddValueToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+            this.AddValueToolStripMenuItem.Text = "Задать значение";
+            this.AddValueToolStripMenuItem.Click += new System.EventHandler(this.AddValueToolStripMenuItem_Click);
+            // 
+            // AddPointToolStripMenuItem
+            // 
+            this.AddPointToolStripMenuItem.Name = "AddPointToolStripMenuItem";
+            this.AddPointToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+            this.AddPointToolStripMenuItem.Text = "Добавить точку";
+            this.AddPointToolStripMenuItem.Click += new System.EventHandler(this.AddPointToolStripMenuItem_Click);
+            // 
+            // DeletePointToolStripMenuItem
+            // 
+            this.DeletePointToolStripMenuItem.Name = "DeletePointToolStripMenuItem";
+            this.DeletePointToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+            this.DeletePointToolStripMenuItem.Text = "Удалить точку";
+            this.DeletePointToolStripMenuItem.Click += new System.EventHandler(this.DeletePointToolStripMenuItem_Click);
             // 
             // DeleteLayersMainPaint
             // 
@@ -465,39 +615,69 @@
             this.DeleteLayersDataGridViewLayers.Text = "Удалить";
             this.DeleteLayersDataGridViewLayers.Click += new System.EventHandler(this.DeleteLayersDataGridViewLayers_Click);
             // 
-            // AddPointToolStripMenuItem
+            // groupBox1
             // 
-            this.AddPointToolStripMenuItem.Name = "AddPointToolStripMenuItem";
-            this.AddPointToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
-            this.AddPointToolStripMenuItem.Text = "Добавить точку";
-            this.AddPointToolStripMenuItem.Click += new System.EventHandler(this.AddPointToolStripMenuItem_Click);
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.Controls.Add(this.TextBoxYCoordinate);
+            this.groupBox1.Controls.Add(this.TextBoxXCoordinate);
+            this.groupBox1.Controls.Add(this.LabelYCoordiante);
+            this.groupBox1.Controls.Add(this.LabelXCoordinate);
+            this.groupBox1.Location = new System.Drawing.Point(618, 32);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(254, 69);
+            this.groupBox1.TabIndex = 11;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Координаты";
             // 
-            // DeletePointToolStripMenuItem
+            // TextBoxYCoordinate
             // 
-            this.DeletePointToolStripMenuItem.Name = "DeletePointToolStripMenuItem";
-            this.DeletePointToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
-            this.DeletePointToolStripMenuItem.Text = "Удалить точку";
-            this.DeletePointToolStripMenuItem.Click += new System.EventHandler(this.DeletePointToolStripMenuItem_Click);
+            this.TextBoxYCoordinate.Location = new System.Drawing.Point(30, 44);
+            this.TextBoxYCoordinate.Name = "TextBoxYCoordinate";
+            this.TextBoxYCoordinate.ReadOnly = true;
+            this.TextBoxYCoordinate.Size = new System.Drawing.Size(122, 20);
+            this.TextBoxYCoordinate.TabIndex = 3;
             // 
-            // AddValueToolStripMenuItem
+            // TextBoxXCoordinate
             // 
-            this.AddValueToolStripMenuItem.Name = "AddValueToolStripMenuItem";
-            this.AddValueToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
-            this.AddValueToolStripMenuItem.Text = "Задать значение";
-            this.AddValueToolStripMenuItem.Click += new System.EventHandler(this.AddValueToolStripMenuItem_Click);
+            this.TextBoxXCoordinate.Location = new System.Drawing.Point(30, 19);
+            this.TextBoxXCoordinate.Name = "TextBoxXCoordinate";
+            this.TextBoxXCoordinate.ReadOnly = true;
+            this.TextBoxXCoordinate.Size = new System.Drawing.Size(122, 20);
+            this.TextBoxXCoordinate.TabIndex = 2;
+            // 
+            // LabelYCoordiante
+            // 
+            this.LabelYCoordiante.AutoSize = true;
+            this.LabelYCoordiante.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.LabelYCoordiante.Location = new System.Drawing.Point(7, 44);
+            this.LabelYCoordiante.Name = "LabelYCoordiante";
+            this.LabelYCoordiante.Size = new System.Drawing.Size(24, 20);
+            this.LabelYCoordiante.TabIndex = 1;
+            this.LabelYCoordiante.Text = "Y:";
+            // 
+            // LabelXCoordinate
+            // 
+            this.LabelXCoordinate.AutoSize = true;
+            this.LabelXCoordinate.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.LabelXCoordinate.Location = new System.Drawing.Point(7, 19);
+            this.LabelXCoordinate.Name = "LabelXCoordinate";
+            this.LabelXCoordinate.Size = new System.Drawing.Size(24, 20);
+            this.LabelXCoordinate.TabIndex = 0;
+            this.LabelXCoordinate.Text = "X:";
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(884, 582);
+            this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.TabControl);
             this.Controls.Add(this.MainPaint_HScroll);
             this.Controls.Add(this.MainPaint_VScroll);
             this.Controls.Add(this.MainPaint);
             this.Controls.Add(this.MenuStrip);
             this.MainMenuStrip = this.MenuStrip;
-            this.MinimumSize = new System.Drawing.Size(800, 600);
+            this.MinimumSize = new System.Drawing.Size(900, 620);
             this.Name = "MainForm";
             this.Text = "Задание геологических структур для программного комплекса решения задач геоэлектр" +
     "ики";
@@ -505,12 +685,16 @@
             this.MenuStrip.ResumeLayout(false);
             this.MenuStrip.PerformLayout();
             this.TabControl.ResumeLayout(false);
+            this.TabPageSettings.ResumeLayout(false);
+            this.TabPageSettings.PerformLayout();
             this.TabPageSpline.ResumeLayout(false);
             this.TabPageSpline.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DataGridViewMinerals)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.DataGridViewLayers)).EndInit();
             this.СontextMenuMainPaint.ResumeLayout(false);
             this.ContextMenuDataGridViewLayers.ResumeLayout(false);
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -522,12 +706,6 @@
         private System.Windows.Forms.Timer RenderTimer;
         private System.Windows.Forms.VScrollBar MainPaint_VScroll;
         private System.Windows.Forms.HScrollBar MainPaint_HScroll;
-        //private System.Windows.Forms.Button FirstStartButton;
-        //private System.Windows.Forms.Label FirstLabelMain;
-        //private System.Windows.Forms.TextBox TextBoxWidthArea;
-        //private System.Windows.Forms.TextBox TextBoxHeightEarth;
-        //private System.Windows.Forms.Label LabelWidthArea;
-        //private System.Windows.Forms.Label LabelHeightEarth;
         private System.Windows.Forms.MenuStrip MenuStrip;
         private System.Windows.Forms.ToolStripMenuItem FileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem CloseToolStripMenuItem;
@@ -563,6 +741,21 @@
         private System.Windows.Forms.ToolStripMenuItem AddValueToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem AddPointToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem DeletePointToolStripMenuItem;
+        private System.Windows.Forms.TabPage TabPageSettings;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.Label LabelYCoordiante;
+        private System.Windows.Forms.Label LabelXCoordinate;
+        private System.Windows.Forms.TextBox TextBoxYCoordinate;
+        private System.Windows.Forms.TextBox TextBoxXCoordinate;
+        private System.Windows.Forms.Label LabelXAreaSize;
+        private System.Windows.Forms.TextBox TextBoxXAreaSize;
+        private System.Windows.Forms.TextBox TextBoxYAreaSize;
+        private System.Windows.Forms.TextBox TextBoxEarthSize;
+        private System.Windows.Forms.Label LabelEarthSize;
+        private System.Windows.Forms.Label LabelYAreaSize;
+        private System.Windows.Forms.Label LabelAccuracy;
+        private System.Windows.Forms.TextBox TextBoxAccuracy;
+        private System.Windows.Forms.CheckedListBox СheckedListBoxSettings;
     }
 }
 
