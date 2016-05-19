@@ -64,6 +64,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GlobalConst.cs" />
+    <Compile Include="Material.cs" />
+    <Compile Include="Mineral.cs" />
+    <Compile Include="MyScroll.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Paint.cs" />
     <Compile Include="MForm.cs">
       <SubType>Form</SubType>
@@ -75,6 +80,12 @@
     <Compile Include="PointSpline.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SetValue.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SetValue.Designer.cs">
+      <DependentUpon>SetValue.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="MForm.resx">
       <DependentUpon>MForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -87,6 +98,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="SetValue.resx">
+      <DependentUpon>SetValue.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

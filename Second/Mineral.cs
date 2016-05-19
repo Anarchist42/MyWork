@@ -4,7 +4,7 @@ using System.Drawing;
 
 namespace Second
 {
-    class Layer
+    class Mineral
     {
         #region Поля класса
         /// <summary>
@@ -30,22 +30,9 @@ namespace Second
         #endregion
 
         #region Конструктор
-        /// <summary>
-        /// Конструктор.
-        /// </summary>
-        /// <param name="XAreaSize"> Ширина рабочей области. </param>
-        /// <param name="LayerHeight"> Глубина слоя. </param>
-        /// <param name="NumberOfPoints"> Количество опорных точек. </param>
-        /// <param name="Material"> Материал. </param>
-        public Layer(double XAreaSize, double LayerHeight, int NumberOfPoints, Material Material)
+        public Mineral(Material Material)
         {
-            double Step = (XAreaSize) / (NumberOfPoints - 1) > 0 ? (XAreaSize) / (NumberOfPoints - 1) : 1;
-            for (int i = 0; i < NumberOfPoints; i++)
-                this.Points.Add(new PointSpline(i * Step, LayerHeight));
             this.Material = Material;
-            Random rand = new Random(Convert.ToInt32(LayerHeight));
-            this.Colors = Color.FromArgb(rand.Next(0, 255), rand.Next(0, 255), rand.Next(0, 255));
-            BSpline();
         }
         #endregion
 
@@ -115,6 +102,20 @@ namespace Second
                 if (Max < Points[i].Y) Max = Points[i].Y;
             return Max;
         }
+        /// <summary>
+        /// Смещение точек вправо.
+        /// </summary>
+        /// <param name="ChangeX"> На сколько смещать. </param>
+        public void ChangeXPoints(double ChangeX)
+        {
+            int i;
+            for (i = 0; i < Points.Count; i++)
+                Points[i].X += ChangeX;
+            /*Добавляем точку в начало*/
+            Points.Insert(0, new PointSpline(0, Points[0].Y));
+            /*Перестраиваем массив*/
+            BSpline();
+        }
 
 
 
@@ -135,6 +136,8 @@ namespace Second
         {
             /*Очищаем массив*/
             BSplinePoints.Clear();
+            /*Добавляем самую первую точку*/
+            Points.Add(Points[0]);
             /*Необходимо добавить несколько точек, что бы рисовал до самого конца*/
             Points.Add(Points[Points.Count - 1]);
             Points.Add(Points[Points.Count - 1]);
@@ -162,45 +165,18 @@ namespace Second
                 }
             }
             /*Удаляем добавленные точки*/
-            Points.RemoveRange(Points.Count - 3, 3);
+            Points.RemoveRange(Points.Count - 4, 4);
         }
 
 
 
 
-
-
-        /*Смещение точек вправо*/
-        /*Параметры: ChangeX - величина смещение*/
-        public void ChangeXPoints(double ChangeX)
-        {
-            int i;
-            for (i = 0; i < Points.Count; i++)
-                Points[i].X += ChangeX;
-            /*Добавляем точку в начало*/
-            Points.Insert(0, new PointSpline(0, Points[0].Y));
-            /*Перестраиваем массив*/
-            BSpline();
-        }
 
         /*Добавление опорной точки*/
         /*Параметры: Add - координаты точки которую хотим добавить*/
         public void AddPoint(PointSpline Add)
         {
-            int i;
-            /*Ищем куда вставить*/
-            for (i = 1; i < Points.Count; i++)
-                if (Points[i].X > Add.X)
-                {
-                    /*Вставляем элементы*/
-                    Points.Insert(i, Add);
-                    /*Перестраиваем массив*/
-                    BSpline();
-                    return;
-                }
-            /*если не нашли и он больше последнего*/
-            if (Add.X > Points[Points.Count - 1].X)
-                Points.Add(Add);
+            Points.Add(Add);
             /*Перестраиваем массив*/
             BSpline();
         }
@@ -209,10 +185,12 @@ namespace Second
         /*Параметры: Delete - индекс удаляемой точки в массиве*/
         public void DeletePoint(int Delete)
         {
-            if (Delete > 0 && Delete < Points.Count - 1)
+            if (Points.Count > 3)
+            {
                 Points.RemoveAt(Delete);
-            /*Перестраиваем массив*/
-            BSpline();
+                /*Перестраиваем массив*/
+                BSpline();
+            }
         }
 
         /*Удаление опорных точек меньше рабочей зоны*/

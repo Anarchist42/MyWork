@@ -9,14 +9,22 @@ namespace Second
     public class GlobalConst
     {
         #region Константы
-        /*Размер бардюра у GlControl*/
+        /// <summary>
+        /// Размер бордюра OpenGlControl.
+        /// </summary>
         public static int Difference;
-        /*Шаг для прокрутки*/
-        public static double ZoomWheel;
-        /*Минимальный зум для окна*/
+        /// <summary>
+        /// Минимальный зум для MainPaint.
+        /// </summary>
         public static double MinZoom;
-        /*Точность(сколько знаков после запятой*/
+        /// <summary>
+        /// Точность(Знаков после запятой).
+        /// </summary>
         public static int Accuracy;
+        /// <summary>
+        /// Буфер.
+        /// </summary>
+        public static string[] Buffer = new string[2];
         #endregion
     }
 }

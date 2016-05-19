@@ -7,14 +7,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Numerics;
-using System.Text.RegularExpressions;
 
 using Tao.DevIl;
 using Tao.OpenGl;           // для работы с библиотекой OpenGL 
 using Tao.FreeGlut;         // для работы с библиотекой FreeGLUT 
 using Tao.Platform.Windows; // для работы с элементом управления SimpleOpenGLControl 
 
+
+using System.Numerics;
 
 
 namespace Second
@@ -23,24 +23,52 @@ namespace Second
     public partial class MainForm : Form
     {
         #region Поля класса
-        /*Переменная для отрисовки*/
+        /// <summary>
+        /// Переменная для отисовки.
+        /// </summary>
         private Paint Draw;
-        /*Исходный размер окна*/
-        private Point SizeForm;
-        /*Исходный размер GlControl*/
-        private Point SizeGlControl;
-        /*Флаг находился ли мышка на GlControl*/
+        /// <summary>
+        /// Находится ли мышь на OpenGlControl.
+        /// </summary>
         private bool FlagMouseGlControl;
-        /*Флаг нажата ли левая кнопка мышки*/
+        /// <summary>
+        /// Нажата ли левая кнопка мыши.
+        /// </summary>
         private bool MouseDownLeft;
-        /*Позиция нажатия мышки*/
+        /// <summary>
+        /// Позиция нажатия мыши.
+        /// </summary>
         private Point MouseDownPosition;
-        /*Попала ли мышка на опорную точку*/
+        /// <summary>
+        /// Массив [0] - 0(нету),1(слой),2(минерал); 
+        ///        [1] - номер слоя\минерала;
+        ///        [2] - номер опорной точки.
+        /// </summary>
         private int[] CheckControlPoint;
-        /*Флаг нажата ли кнопка "Нарисовать" слой почвы*/
+        /// <summary>
+        /// Нажата ли кнопка "Нарисовать" слой.
+        /// </summary>
         private bool DrawLayers;
-        /*Флаг нажата ли кнопка "Добавить точку" в контексном меню*/
+        /// <summary>
+        /// Нажата ли кнопка "Нарисовать" минерал.
+        /// </summary>
+        private bool DrawMineral;
+        /// <summary>
+        /// Нажата ли кнопка "Добавить точку" в контексном меню.
+        /// </summary>
         private bool AddPointLayers;
+        /// <summary>
+        /// Выбрали слои или минералы (1 - слои, 2 - минералы).
+        /// </summary>
+        private int LayerMinerals;
+        /// <summary>
+        /// Массив материалов слоя.
+        /// </summary>
+        private List<Material> MaterialsLayer;
+        /// <summary>
+        /// Массив материалов минералов.
+        /// </summary>
+        private List<Material> MaterialsMineral;
         #endregion
 
         #region Меню
@@ -58,29 +86,31 @@ namespace Second
             MainPaint.InitializeContexts();
             /*Создаем объект класса отрисовки*/
             Draw = new Paint(MainPaint);
-            SizeForm = new Point(this.Width, this.Height);
-            SizeGlControl = new Point(MainPaint.Width, MainPaint.Height);
             FlagMouseGlControl = false;
             MouseDownLeft = false;
+            DrawLayers = false;
+            DrawMineral = false;
             CheckControlPoint = new int[3];
             AddPointLayers = false;
+            LayerMinerals = 0;
             GlobalConst.Difference = 5;
             GlobalConst.Accuracy = -1;
-            GlobalConst.ZoomWheel = 0.01;
-            
-
-            ///*Аля чек*/
-            //MainPaint_HScroll.LargeChange = Convert.ToInt32(Draw.XAREASIZE + 1);
-            //MainPaint_HScroll.Maximum = Convert.ToInt32(Draw.XAREASIZE);
-            //MainPaint_VScroll.LargeChange = Convert.ToInt32(Draw.YAREASIZE + 1);
-            //MainPaint_VScroll.Maximum = Convert.ToInt32(Draw.YAREASIZE);
-            ////Draw.EARTHSIZE = 999;
-            ////Draw.XAREASIZE = 999999;
-            //DrawLayers = false;
-
-            ////MainPaint.Enabled = true;
+            /*Создаем и заполняем материалы*/
+            MaterialsLayer = new List<Material>();
+            MaterialsLayer.Add(new Material("Земля", 0));
+            MaterialsLayer.Add(new Material("Грунт", 1));
+            MaterialsLayer.Add(new Material("Грязь", 2));
+            for (int i = 0; i < MaterialsLayer.Count; i++)
+                СomboBoxLayerMaterial.Items.Add(MaterialsLayer[i].NAME);
+            СomboBoxLayerMaterial.SelectedIndex = 0;
+            MaterialsMineral = new List<Material>();
+            MaterialsMineral.Add(new Material("Земля", 0));
+            MaterialsMineral.Add(new Material("Грунт", 1));
+            MaterialsMineral.Add(new Material("Грязь", 2));
+            for (int i = 0; i < MaterialsLayer.Count; i++)
+                ComboBoxMineralMaterial.Items.Add(MaterialsMineral[i].NAME);
+            ComboBoxMineralMaterial.SelectedIndex = 0;
         }
-
         private void MainPaint_Load(object sender, EventArgs e)
         {
             /*устанавливаем положение плоскости отображения*/
@@ -104,10 +134,7 @@ namespace Second
             /*очищаем экран*/
             Gl.glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
             Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);
-            //Запуск таймера
-            //RenderTimer.Start();
         }
-
         private void RenderTimer_Tick(object sender, EventArgs e)
         {
             if (MainPaint_VScroll.LargeChange == MainPaint_VScroll.Maximum + 1)
@@ -119,45 +146,111 @@ namespace Second
             Draw.Draw();
         }
 
+        /*Изменяем ползунки*/
+        private void ChangeScrollBars()
+        {
+            MainPaint_VScroll.LargeChange = Convert.ToInt32(Draw.YAREASIZE + 1);
+            MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
+            MainPaint_VScroll.Value = Draw.ScrollValue(0);
+            MainPaint_HScroll.LargeChange = Convert.ToInt32(Draw.XAREASIZE + 1);
+            MainPaint_HScroll.Maximum = Draw.ScrollMaximum(1);
+            MainPaint_HScroll.Value = Draw.ScrollValue(1);
+        }
+        /*Изменение таблицы слоев*/
+        private void ChangeDataGridViewLayers()
+        {
+            int i;
+            Color color = new Color();
+            string LayerPosition = "";
+            string Material;
+            for (i = 0; i < DataGridViewLayers.Rows.Count - 1; i++)
+            {
+                Draw.ReturnInformation(0, i, out color, out LayerPosition, out Material);
+                DataGridViewLayers.Rows[i].Cells[0].Value = i + 1;
+                DataGridViewLayers.Rows[i].Cells[1].Style.BackColor = color;
+                DataGridViewLayers.Rows[i].Cells[2].Value = LayerPosition;
+                DataGridViewLayers.Rows[i].Cells[3].Value = Material;
+            }
+        }
+        /*Изменение таблицы минералов*/
+        private void ChangeDataGridViewMinerals()
+        {
+            int i;
+            Color color = new Color();
+            string LayerPosition = "";
+            string Material;
+            for (i = 0; i < DataGridViewLayers.Rows.Count - 1; i++)
+            {
+                Draw.ReturnInformation(1, i, out color, out LayerPosition, out Material);
+                DataGridViewMinerals.Rows[i].Cells[0].Value = i + 1;
+                DataGridViewMinerals.Rows[i].Cells[1].Style.BackColor = color;
+                DataGridViewMinerals.Rows[i].Cells[2].Value = LayerPosition;
+                DataGridViewMinerals.Rows[i].Cells[3].Value = Material;
+            }
+        }
+
         #region Работа с MainPaint
+
+
+
 
         #region Контексное меню
         private void AddValueToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            SetValue Set = new SetValue();
+            Set.ShowDialog();
+            if(GlobalConst.Buffer[0]!="" && GlobalConst.Buffer[1]!="")
+                Draw.ChangePoint(CheckControlPoint, new PointSpline(GlobalConst.Buffer[0], GlobalConst.Buffer[1]));
+            if (CheckControlPoint[0] == 1)
+                ChangeDataGridViewLayers();
+            else
+                ChangeDataGridViewMinerals();
         }
-
+        private void ChangeColorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ColorDialog.ShowDialog();
+            if (!Draw.SetLayerColor(ColorDialog.Color, CheckControlPoint))
+                MessageBox.Show("Цвет уже занят");
+            else
+            {
+                if (CheckControlPoint[0] == 1)
+                    ChangeDataGridViewLayers();
+                else
+                    ChangeDataGridViewMinerals();
+            }
+        }
         private void AddPointToolStripMenuItem_Click(object sender, EventArgs e)
         {
             AddPointLayers = true;
         }
-
         private void DeletePointToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            int[] CountIndex = Draw.DeletePointLayers(CheckControlPoint);
-            DataGridViewLayers.Rows[CountIndex[1] - 1].Cells[3].Value = CountIndex[0];
+            Draw.DeletePoint(CheckControlPoint);
         }
-
-        private void DeleteLayersMainPaint_Click(object sender, EventArgs e)
+        private void DeleteLayersMainPaintToolStripMenuItem_Click(object sender, EventArgs e)
         {
             int i,
-            /*Удаляем слой*/
-            IndexNumber = Draw.DeleteLayersNumber(CheckControlPoint[1]),
             /*Старое значение максимального значения ползунка*/
             MaximumScroll = MainPaint_VScroll.Maximum;
+            /*Удаляем слой*/
+            Draw.DeleteSplineForm(CheckControlPoint);
             /*Изменяем ползунки*/
             MainPaint_VScroll.LargeChange = Convert.ToInt32(Draw.YAREASIZE + 1);            
             MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
             Draw.YOFFSET += (MaximumScroll - MainPaint_VScroll.Maximum ) * Draw.ZOOM;
             MainPaint_VScroll.Value = Draw.ScrollValue(0);
-            /*Удаляем строку в таблице*/
-            DataGridViewLayers.Rows.RemoveAt(IndexNumber);
-            /*Уменьшаем индекс в таблице*/
-            for (i = IndexNumber; i < DataGridViewLayers.Rows.Count - 1; i++)
-                DataGridViewLayers.Rows[i].Cells[0].Value = Convert.ToInt32(DataGridViewLayers.Rows[i].Cells[0].Value) - 1;
+            if (LayerMinerals == 1)
+            {
+                DataGridViewLayers.Rows.RemoveAt(0);
+                ChangeDataGridViewLayers();
+            }
+            if (LayerMinerals == 2)
+            {
+                DataGridViewMinerals.Rows.RemoveAt(0);
+                ChangeDataGridViewMinerals();
+            }
         }
         #endregion
-
         private void MainForm_SizeChanged(object sender, EventArgs e)
         {
             if (this.WindowState != FormWindowState.Minimized)
@@ -166,21 +259,21 @@ namespace Second
                 Draw.XOFFSET = 0.0;
                 Draw.YOFFSET = 0.0;
                 /*Изменяем размеры GlControl*/
-                MainPaint.Width = this.Width - SizeForm.X + SizeGlControl.X;
-                MainPaint.Height = this.Height - SizeForm.Y + SizeGlControl.Y;              
+                MainPaint.Width = this.Width - this.MinimumSize.Width + MainPaint.MinimumSize.Width;
+                MainPaint.Height = this.Height - this.MinimumSize.Height + MainPaint.MinimumSize.Height;
                 /*Настраиваем зум*/
-                if (Convert.ToDouble(MainPaint.Width) / Convert.ToDouble(SizeGlControl.X)
-                    > Convert.ToDouble(MainPaint.Height) / Convert.ToDouble(SizeGlControl.Y))
+                if (Convert.ToDouble(MainPaint.Width) / Convert.ToDouble(MainPaint.MinimumSize.Width)
+                    > Convert.ToDouble(MainPaint.Height) / Convert.ToDouble(MainPaint.MinimumSize.Height))
                 {
                     Draw.MINZOOM = GlobalConst.MinZoom * Convert.ToDouble(MainPaint.Width - GlobalConst.Difference)
-                        / Convert.ToDouble(SizeGlControl.X - GlobalConst.Difference);
+                        / Convert.ToDouble(MainPaint.MinimumSize.Width - GlobalConst.Difference);
                     MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
                     MainPaint_HScroll.Maximum = Convert.ToInt32(Draw.XAREASIZE);
                 }
                 else
                 {
                     Draw.MINZOOM = GlobalConst.MinZoom * Convert.ToDouble(MainPaint.Height - GlobalConst.Difference)
-                        / Convert.ToDouble(SizeGlControl.Y - GlobalConst.Difference);
+                        / Convert.ToDouble(MainPaint.MinimumSize.Height - GlobalConst.Difference);
                     MainPaint_HScroll.Maximum = Draw.ScrollMaximum(1);
                     MainPaint_VScroll.Maximum = Convert.ToInt32(Draw.YAREASIZE);
                 }
@@ -193,7 +286,7 @@ namespace Second
                 MainPaint_HScroll.LargeChange = Convert.ToInt32(Draw.XAREASIZE + 1);
                 MainPaint_HScroll.Value = (MainPaint_HScroll.Maximum - MainPaint_HScroll.LargeChange) / 2 + 1;
                 /*Настраиваем панель с параметрами*/
-                TabControl.Size = new Size(TabControl.Size.Width, MainPaint.Height);             
+                TabControl.Size = new Size(TabControl.Size.Width, MainPaint.Height);
                 /*Настраиваем отображение "нового" окна для функций Gl*/
                 Gl.glViewport(0, 0, MainPaint.Width, MainPaint.Height);
                 Gl.glMatrixMode(Gl.GL_PROJECTION);
@@ -202,7 +295,33 @@ namespace Second
                 Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);
             }
         }
+        private void MainPaint_MouseEnter(object sender, EventArgs e)
+        {
+            MainPaint.Focus();
+        }
+        private void MainPaint_MouseLeave(object sender, EventArgs e)
+        {
+            UnFocus.Focus();
+        }
+        private void MainPaint_VScroll_Scroll(object sender, ScrollEventArgs e)
+        {
+            Draw.YOFFSET += (e.NewValue - e.OldValue) * Draw.ScrollStep(0, MainPaint_VScroll.Maximum - MainPaint_VScroll.LargeChange + 1);
+        }
+        private void MainPaint_HScroll_Scroll(object sender, ScrollEventArgs e)
+        {
+            Draw.XOFFSET += (e.OldValue - e.NewValue) * Draw.ScrollStep(1, MainPaint_HScroll.Maximum - MainPaint_HScroll.LargeChange + 1);
+        }
+        #region СДЕЛАТЬ!!!!
 
+        private void MainPaint_VScroll_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+        private void MainPaint_HScroll_ValueChanged(object sender, EventArgs e)
+        {
+            
+        }
+        #endregion
         private void MainPaint_MouseWheel(object sender, System.Windows.Forms.MouseEventArgs e)
         {
             /*Проверяем находится ли мышь на рабочей области*/
@@ -210,19 +329,14 @@ namespace Second
             {
                 /*Масштабирование*/
                 if (e.Delta > 0)
-                {
-                    /*Изменяем зум*/
-                    Draw.ZOOM += GlobalConst.ZoomWheel;
                     /*Изменяем смещение по осям с фиксированием точки приближения*/
                     Draw.ChangeOffsetZoomIn();
-                }
                 else
-                {
-                    /*Изменяем зум*/
-                    Draw.ZOOM -= GlobalConst.ZoomWheel;
                     /*Изменяем смещение по осям с фиксированием точки приближения*/
                     Draw.ChangeOffsetZoomOut();
-                }
+                /*Выводим координаты*/
+                TextBoxXCoordinate.Text = Draw.GetCoordinate(0).ToString();
+                TextBoxYCoordinate.Text = Draw.GetCoordinate(1).ToString();
                 /*Изменяем ползунки*/
                 MainPaint_VScroll.LargeChange = Convert.ToInt32(Draw.YAREASIZE + 1);
                 MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
@@ -232,19 +346,9 @@ namespace Second
                 MainPaint_HScroll.Value = Draw.ScrollValue(1);
             }
         }
-
-        private void MainPaint_VScroll_Scroll(object sender, ScrollEventArgs e)
-        {
-            Draw.YOFFSET += (e.NewValue - e.OldValue) * Draw.ScrollStep(0, MainPaint_VScroll.Maximum - MainPaint_VScroll.LargeChange - 1);
-        }
-
-        private void MainPaint_HScroll_Scroll(object sender, ScrollEventArgs e)
-        {
-            Draw.XOFFSET += (e.OldValue - e.NewValue) * Draw.ScrollStep(1, MainPaint_HScroll.Maximum - MainPaint_HScroll.LargeChange - 1);
-        }
-
         private void MainPaint_MouseMove(object sender, MouseEventArgs e)
         {
+            /*Проверяем находится ли мышь на OpenGlControl*/
             if (e.Y < 0 || e.Y > MainPaint.Height - GlobalConst.Difference || e.X < 0 || e.X > MainPaint.Width - GlobalConst.Difference)
                 FlagMouseGlControl = false;
             else
@@ -256,13 +360,22 @@ namespace Second
                 /*Выводим координаты*/
                 TextBoxXCoordinate.Text = Draw.GetCoordinate(0).ToString();
                 TextBoxYCoordinate.Text = Draw.GetCoordinate(1).ToString();
-                /*Если нажата кнопка нарисовать слой (нельзя двигать)*/
-                if (DrawLayers == true)
+                /*Если нажата кнопка нарисовать слой или минерал (нельзя двигать)*/
+                if (DrawLayers == true || DrawMineral == true)
                     return;
                 if (MouseDownLeft)
                 {
-                    if (CheckControlPoint[0] == 1)
-                        Draw.ChangePoint(MouseDownPosition, CheckControlPoint);
+                    if (CheckControlPoint[0] != 0)
+                    {
+                        Draw.ChangePoint(CheckControlPoint,new PointSpline(Draw.GetCoordinate(0),Draw.GetCoordinate(1)));
+                        TextBoxYAreaSize.Text = Draw.YAREASIZE.ToString();
+                        MainPaint_VScroll.LargeChange = Convert.ToInt32(Draw.YAREASIZE + 1);
+                        MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
+                        MainPaint_VScroll.Value = Draw.ScrollValue(0);
+                        MainPaint_HScroll.LargeChange = Convert.ToInt32(Draw.XAREASIZE + 1);
+                        MainPaint_HScroll.Maximum = Draw.ScrollMaximum(1);
+                        MainPaint_HScroll.Value = Draw.ScrollValue(1);
+                    }
                     else
                     {
                         /*Изменяем смещение по осям с фиксированием точки*/
@@ -275,17 +388,10 @@ namespace Second
                 }
             }
         }
-
         private void MainPaint_MouseUp(object sender, MouseEventArgs e)
         {
             MouseDownLeft = false;
         }
-
-        private void MainPaint_MouseEnter(object sender, EventArgs e)
-        {
-            MainPaint.Focus();
-        }
-
         private void MainPaint_MouseDown(object sender, MouseEventArgs e)
         {
             /*Убираем выделение в таблице Слоев*/
@@ -299,8 +405,7 @@ namespace Second
                 /*Если выбранно "Добавить точку" в контексном меню слоя*/
                 if(AddPointLayers)
                 {
-                    int[] CountIndex = Draw.AddPointLayers(CheckControlPoint[1]);
-                    DataGridViewLayers.Rows[CountIndex[1] - 1].Cells[3].Value = CountIndex[0];
+                    Draw.AddPoint(CheckControlPoint);
                     AddPointLayers = false;
                     MouseDownLeft = false;
                     return;
@@ -308,44 +413,43 @@ namespace Second
                 /*Если кнопка "Нарисовать" новый слой "включена"*/
                 if (DrawLayers)
                 {
-                    /*Рисуем новый слой*/
-                    Draw.AddLayers(Draw.GetLayerHeight(), Convert.ToInt32(TextBoxLayerNumberOfPoints.Text));
+                    Draw.AddLayers(Draw.GetCoordinate(1), Convert.ToInt32(TextBoxLayerNumberOfPoints.Text), MaterialsLayer[СomboBoxLayerMaterial.SelectedIndex]);
+                    /*Изменяем высоту в настройках*/
+                    TextBoxYAreaSize.Text = Draw.GetMaxPointLayers().ToString();
+                    /*Изменяем ползунки*/
+                    MainPaint_VScroll.LargeChange = Convert.ToInt32(Draw.YAREASIZE + 1);
+                    MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
+                    MainPaint_VScroll.Value = Draw.ScrollValue(0);
                     /*Заполняем таблицу*/
-                    if (DataGridViewLayers.Rows.Count == 1)
-                    {
-                        DataGridViewLayers.Rows.Add(1, "", Draw.GetLayerHeight(), Convert.ToInt32(TextBoxLayerNumberOfPoints.Text));
-                        DataGridViewLayers.Rows[0].Cells[1].Style.BackColor = Draw.GetLayerColor(Convert.ToInt32(DataGridViewLayers.Rows[0].Cells[0].Value));
-                    }
-                    else
-                    {
-                        DataGridViewLayers.Rows.Add(DataGridViewLayers.Rows.Count, "", Draw.GetLayerHeight(), Convert.ToInt32(TextBoxLayerNumberOfPoints.Text));
-                        DataGridViewLayers.Rows[DataGridViewLayers.Rows.Count - 2].Cells[1].Style.BackColor = Draw.GetLayerColor(Convert.ToInt32(DataGridViewLayers.Rows[DataGridViewLayers.Rows.Count - 2].Cells[0].Value));
-                    }
+                    DataGridViewLayers.Rows.Add(0, "", 0, 0);
+                    ChangeDataGridViewLayers();
                     MouseDownLeft = false;
                     return;
                 }
+                /*Если кнопка "Нарисовать" минерал "включена"*/
+                if(DrawMineral)
+                {
+                    Draw.AddPointMinerals();
+                }
             }
             /*Проверяем попали ли мы на опорную точку*/
-            CheckControlPoint = Draw.CheckPoint(new Point(e.X, e.Y));
+            Draw.CheckPoint(new Point(e.X, e.Y), out CheckControlPoint);
             /*Если попали и нажата правая кнопка мыши, то вызываем контексное меню*/
-            if (CheckControlPoint[0] == 1 && e.Button == System.Windows.Forms.MouseButtons.Right)
+            if (CheckControlPoint[0] != 0 && e.Button == System.Windows.Forms.MouseButtons.Right)
                 СontextMenuMainPaint.Show(Cursor.Position);
         }
-
         #endregion
 
-
-
-
-
-
-
-
-
-
+        #region TabControl
 
 
         #region Настройки
+        /*Снимаем фокус*/
+        private void TabPageSettings_MouseClick(object sender, MouseEventArgs e)
+        {
+            UnFocus.Focus();
+        }
+
         private void TextBoxAccuracy_KeyPress(object sender, KeyPressEventArgs e)
         {
             /*Можно вводить только числа и бэкспейс*/
@@ -353,15 +457,12 @@ namespace Second
                 e.Handled = true;
             /*Если нажат энтер*/
             if (e.KeyChar == 13)
-            {
-                TextBoxAccuracy.Enabled = false;
-                TextBoxAccuracy.Enabled = true;
-            }
+                UnFocus.Focus();
         }
         private void TextBoxAccuracy_Validating(object sender, CancelEventArgs e)
         {
             /*Если число меньше 16*/
-            if (TextBoxAccuracy.TextLength > 0 && Convert.ToInt32(TextBoxAccuracy.Text) < 16)
+            if (TextBoxAccuracy.TextLength > 0 && Convert.ToInt32(TextBoxAccuracy.Text) < 13)
                 e.Cancel = false;
             else
             {
@@ -369,95 +470,130 @@ namespace Second
                     TextBoxAccuracy.Text = "";
                 else
                     TextBoxAccuracy.Text = GlobalConst.Accuracy.ToString();
-                MessageBox.Show("Введите число от 0 до 15");
+                MessageBox.Show("Введите число от 0 до 12");
             }
         }
         private void TextBoxAccuracy_Validated(object sender, EventArgs e)
         {
-            if (TextBoxAccuracy.TextLength > 0)
+            /*Если ввели данные и старая и новая точность не совпадают, то*/
+            if (TextBoxAccuracy.TextLength > 0 && Convert.ToInt32(TextBoxAccuracy.Text) != GlobalConst.Accuracy)
             {
                 GlobalConst.Accuracy = Convert.ToInt32(TextBoxAccuracy.Text);
                 if (TextBoxXAreaSize.TextLength == 0)
                 {
-                    TextBoxXAreaSize.Text = (582 / Math.Pow(10, GlobalConst.Accuracy)).ToString();
-                    TextBoxXAreaSize.Enabled = true;
-                    TextBoxEarthSize.Enabled = true;
-                    TextBoxYAreaSize.Enabled = true;
+                    /*Заносим данные по дефолту*/
+                    TextBoxXAreaSize.Text = "10";
                     Draw.XAREASIZE = Convert.ToDouble(TextBoxXAreaSize.Text);
+                    TextBoxXAreaSize.Text = Draw.XAREASIZE.ToString();
                     TextBoxYAreaSize.Text = Draw.YAREASIZE.ToString();
                     TextBoxEarthSize.Text = "0";
                     Draw.EARTHSIZE = Convert.ToDouble(TextBoxEarthSize.Text);
-                    /*Делаем активным окно с сеткой*/
+                    TextBoxChangeXMoveSpline.Text = "0";
+                    /*Делаем активным окно с сеткой и поля с кнопками*/
                     MainPaint.Enabled = true;
+                    TextBoxXAreaSize.Enabled = true;
+                    TextBoxEarthSize.Enabled = true;
+                    TextBoxYAreaSize.Enabled = true;
+                    DrawSplineLayers.Enabled = true;
+                    AddSplineLayers.Enabled = true;
+                    DrawSplineMinerals.Enabled = true;
+                    СheckedListBoxSpline.Enabled = true;
+                    СheckedListBoxSettings.Enabled = true;
+                    TextBoxChangeXMoveSpline.Enabled = true;
+                    ButtonChangeXMoveSpline.Enabled = true;
+                    /*Разрешаем менять окно*/
+                    this.MaximumSize = SystemInformation.PrimaryMonitorSize;
+                    this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Sizable;
                     /*Меняем ползунки*/
-                    MainPaint_HScroll.LargeChange = Convert.ToInt32(Draw.XAREASIZE + 1);
-                    MainPaint_HScroll.Maximum = Convert.ToInt32(Draw.XAREASIZE);
-                    MainPaint_VScroll.LargeChange = Convert.ToInt32(Draw.YAREASIZE + 1);
-                    MainPaint_VScroll.Maximum = Convert.ToInt32(Draw.YAREASIZE);
+                    ChangeScrollBars();
+                    /*Добавляем "Землю" 0 сплайн*/
+                    Draw.AddLayers(0, 2, new Material("Non", 0));
                     /*Запускаем отрисовку*/
                     RenderTimer.Start();
                 }
                 else
                 {
+                    /*Меняем данные(точность этих данных)*/
                     Draw.XAREASIZE = Convert.ToDouble(TextBoxXAreaSize.Text);
                     Draw.EARTHSIZE = Convert.ToDouble(TextBoxEarthSize.Text);
-                    TextBoxEarthSize.Text = Draw.EARTHSIZE.ToString();
+                    /*Изменяем точность слпайнов*/
+                    Draw.ChangeAccuracy();
+                    /*Если новое значение больше предыдущего то добавляем точку*/
+                    if (Draw.XAREASIZE > Convert.ToDouble(TextBoxXAreaSize.Text))
+                    {
+                        Draw.XAREASIZE = Convert.ToDouble(TextBoxXAreaSize.Text);
+                        Draw.AddLastPoint();
+                    }
+                    /*Если новое значение меньше предыдущего то убираем точки и добавляем 1 в конец*/
+                    if (Draw.XAREASIZE < Convert.ToDouble(TextBoxXAreaSize.Text))
+                    {
+                        Draw.XAREASIZE = Convert.ToDouble(TextBoxXAreaSize.Text);
+                        Draw.DeletePoints();
+                    }
+                    /*Выводим на форму данные*/
                     TextBoxXAreaSize.Text = Draw.XAREASIZE.ToString();
                     TextBoxYAreaSize.Text = Draw.YAREASIZE.ToString();
+                    TextBoxEarthSize.Text = Draw.EARTHSIZE.ToString();
                     /*Изменяем ползунки*/
-                    MainPaint_VScroll.LargeChange = Convert.ToInt32(Draw.YAREASIZE + 1);
-                    MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
-                    MainPaint_VScroll.Value = Draw.ScrollValue(0);
-                    MainPaint_HScroll.LargeChange = Convert.ToInt32(Draw.XAREASIZE + 1);
-                    MainPaint_HScroll.Maximum = Draw.ScrollMaximum(1);
-                    MainPaint_HScroll.Value = Draw.ScrollValue(1);
+                    ChangeScrollBars();             
                 }
             }
         }
 
         private void TextBoxXAreaSize_KeyPress(object sender, KeyPressEventArgs e)
-        {       
+        {
             /*Можно вводить только числа, бэкспейс и запятая */
-            if (!Char.IsDigit(e.KeyChar) && e.KeyChar != 8 
-                && (e.KeyChar != 44 || TextBoxXAreaSize.Text.IndexOf(",")>-1 ))
+            if (!Char.IsDigit(e.KeyChar) && e.KeyChar != 8
+                && (e.KeyChar != 44 || TextBoxXAreaSize.Text.IndexOf(",") > -1))
                 e.Handled = true;
             /*Если нажат энтер*/
             if (e.KeyChar == 13)
-            {
-                TextBoxXAreaSize.Enabled = false;
-                TextBoxXAreaSize.Enabled = true;
-            }
+                UnFocus.Focus();
+            /*Запятую первой ставить нельзя*/
             if (TextBoxXAreaSize.TextLength == 0 && e.KeyChar == 44)
                 e.Handled = true;
         }
         private void TextBoxXAreaSize_Validating(object sender, CancelEventArgs e)
         {
-            if(TextBoxXAreaSize.TextLength == 0)
-                TextBoxXAreaSize.Text = (582 / Math.Pow(10, GlobalConst.Accuracy)).ToString();
-            if(Convert.ToDouble(TextBoxXAreaSize.Text)>1000000)
+            if (TextBoxXAreaSize.TextLength == 0)
+                TextBoxXAreaSize.Text = "10";
+            if (Convert.ToDouble(TextBoxXAreaSize.Text) > 10000000)
             {
-                TextBoxXAreaSize.Text = "1000000";
-                MessageBox.Show("Ширина области должна быть меньше 1000км");
+                TextBoxXAreaSize.Text = "10000000";
+                MessageBox.Show("Ширина области должна быть меньше 10000км");
             }
-            if (Convert.ToDouble(TextBoxXAreaSize.Text) < 582 / Math.Pow(10,GlobalConst.Accuracy))
+            double Min = (582 / Math.Pow(10, GlobalConst.Accuracy) > 10)
+                ? 582 / Math.Pow(10, GlobalConst.Accuracy)
+                : 10;
+            if (Convert.ToDouble(TextBoxXAreaSize.Text) < Min)
             {
-                TextBoxXAreaSize.Text = (582 / Math.Pow(10, GlobalConst.Accuracy)).ToString();
-                MessageBox.Show("Ширина области должна быть больше чем " + (582 / Math.Pow(10, GlobalConst.Accuracy)).ToString()+"м");
+                TextBoxXAreaSize.Text = Min.ToString();
+                MessageBox.Show("Ширина области должна быть больше чем " + Min + " м");
             }
         }
         private void TextBoxXAreaSize_Validated(object sender, EventArgs e)
         {
+            /*Если введенное число не совпадает с заданной точностью, то*/
+            if (Draw.XAREASIZE != Math.Round(Convert.ToDouble(TextBoxXAreaSize.Text),GlobalConst.Accuracy))
+            {
+                /*Если старое число меньше введенного. добавляем точку в конец*/
+                if (Draw.XAREASIZE < Convert.ToDouble(TextBoxXAreaSize.Text))
+                {
+                    Draw.XAREASIZE = Convert.ToDouble(TextBoxXAreaSize.Text);
+                    Draw.AddLastPoint();
+                }
+                /*Если старое число больше введенного, удаляем точки и добавляем 1 в конец*/
+                else
+                {
+                    Draw.XAREASIZE = Convert.ToDouble(TextBoxXAreaSize.Text);
+                    Draw.DeletePoints();
+                }
+            }
             /*Записываем данные*/
-            Draw.XAREASIZE = Convert.ToDouble(TextBoxXAreaSize.Text);
             TextBoxXAreaSize.Text = Draw.XAREASIZE.ToString();
             TextBoxYAreaSize.Text = Draw.YAREASIZE.ToString();
             /*Изменяем ползунки*/
-            MainPaint_VScroll.LargeChange = Convert.ToInt32(Draw.YAREASIZE + 1);
-            MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
-            MainPaint_VScroll.Value = Draw.ScrollValue(0);
-            MainPaint_HScroll.LargeChange = Convert.ToInt32(Draw.XAREASIZE + 1);
-            MainPaint_HScroll.Maximum = Draw.ScrollMaximum(1);
-            MainPaint_HScroll.Value = Draw.ScrollValue(1);
+            ChangeScrollBars();
             /*Запускаем отрисовку*/
             RenderTimer.Start();
         }
@@ -470,10 +606,8 @@ namespace Second
                 e.Handled = true;
             /*Если нажат энтер*/
             if (e.KeyChar == 13)
-            {
-                TextBoxEarthSize.Enabled = false;
-                TextBoxEarthSize.Enabled = true;
-            }
+                UnFocus.Focus();
+            /*Запятую первой ставить нельзя*/
             if (TextBoxEarthSize.TextLength == 0 && e.KeyChar == 44)
                 e.Handled = true;
         }
@@ -489,9 +623,22 @@ namespace Second
         }
         private void TextBoxEarthSize_Validated(object sender, EventArgs e)
         {
+            /*Если введенное число не совпадает с заданной точностью, то*/
+            if (Draw.EARTHSIZE != Math.Round(Convert.ToDouble(TextBoxEarthSize.Text), GlobalConst.Accuracy))
+            {
+                /*Записываем данные*/
+                Draw.EARTHSIZE = Convert.ToDouble(TextBoxEarthSize.Text);
+                TextBoxYAreaSize.Text = (Convert.ToDouble(TextBoxYAreaSize.Text) > Draw.GetMaxPointLayers())
+                    ? Convert.ToDouble(TextBoxYAreaSize.Text).ToString()
+                    : Draw.GetMaxPointLayers().ToString();
+                Draw.YAREASIZE = Convert.ToDouble(TextBoxYAreaSize.Text);
+                Draw.XOFFSET = 0.0;
+                Draw.YOFFSET = 0.0;               
+            }
             /*Записываем данные*/
-            Draw.EARTHSIZE = Convert.ToDouble(TextBoxEarthSize.Text);
             TextBoxEarthSize.Text = Draw.EARTHSIZE.ToString();
+            /*Изменяем ползунки*/
+            ChangeScrollBars();
         }
 
         private void TextBoxYAreaSize_KeyPress(object sender, KeyPressEventArgs e)
@@ -502,10 +649,8 @@ namespace Second
                 e.Handled = true;
             /*Если нажат энтер*/
             if (e.KeyChar == 13)
-            {
-                TextBoxYAreaSize.Enabled = false;
-                TextBoxYAreaSize.Enabled = true;
-            }
+                UnFocus.Focus();
+            /*Запятую первой ставить нельзя*/
             if (TextBoxYAreaSize.TextLength == 0 && e.KeyChar == 44)
                 e.Handled = true;
         }
@@ -518,36 +663,30 @@ namespace Second
                 TextBoxYAreaSize.Text = "1000000";
                 MessageBox.Show("Высота области должна быть меньше 1000км");
             }
-            if (Convert.ToDouble(TextBoxYAreaSize.Text)  < Draw.DEFYAREASIZE)
+            if (Convert.ToDouble(TextBoxYAreaSize.Text) < Draw.GetMaxPointLayers())
             {
-                TextBoxYAreaSize.Text = Draw.YAREASIZE.ToString();
-                MessageBox.Show("Высота области должна быть больше чем " + Draw.DEFYAREASIZE.ToString() + "м");
+                TextBoxYAreaSize.Text = Draw.GetMaxPointLayers().ToString();
+                MessageBox.Show("Высота области должна быть больше чем " + Draw.GetMaxPointLayers().ToString() + "м");
             }
-            //if(Convert.ToDouble(TextBoxYAreaSize.Text) < Draw.GetMaxPointLayers())
-            //{
-            //    TextBoxYAreaSize.Text = Draw.YAREASIZE.ToString();
-            //    MessageBox.Show("Высота области должна быть больше чем " + Draw.GetMaxPointLayers().ToString() + "м");
-            //}
         }
         private void TextBoxYAreaSize_Validated(object sender, EventArgs e)
         {
+            if (Draw.YAREASIZE != Math.Round(Convert.ToDouble(TextBoxYAreaSize.Text), GlobalConst.Accuracy))
+            {
+                /*Записываем данные*/
+                Draw.YAREASIZE = Convert.ToDouble(TextBoxYAreaSize.Text);
+                Draw.XOFFSET = 0.0;
+                Draw.YOFFSET = 0.0;             
+                
+            }
             /*Записываем данные*/
-            Draw.YAREASIZE = Convert.ToDouble(TextBoxYAreaSize.Text);
             TextBoxYAreaSize.Text = Draw.YAREASIZE.ToString();
             /*Изменяем ползунки*/
-            MainPaint_VScroll.LargeChange = Convert.ToInt32(Draw.YAREASIZE + 1);
-            MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
-            MainPaint_VScroll.Value = Draw.ScrollValue(0);
-            MainPaint_HScroll.LargeChange = Convert.ToInt32(Draw.XAREASIZE + 1);
-            MainPaint_HScroll.Maximum = Draw.ScrollMaximum(1);
-            MainPaint_HScroll.Value = Draw.ScrollValue(1);
+            ChangeScrollBars();
         }
 
         private void СheckedListBoxSettings_ItemCheck(object sender, ItemCheckEventArgs e)
         {
-            /*Если область не задана*/
-            if (Draw.XAREASIZE != 0)
-            {
                 /*Если нажата Сетка*/
                 if (e.Index == 0)
                 {
@@ -562,24 +701,60 @@ namespace Second
                         Draw.MARKING = true;
                     else Draw.MARKING = false;
                 }
-            }
-            else
-                e.NewValue = e.CurrentValue;
         }
 
+        private void TextBoxChangeXMoveSpline_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            /*Можно вводить только числа, бэкспейс и запятая */
+            if (!Char.IsDigit(e.KeyChar) && e.KeyChar != 8
+                && (e.KeyChar != 44 || TextBoxChangeXMoveSpline.Text.IndexOf(",") > -1))
+                e.Handled = true;
+            /*Если нажат энтер*/
+            if (e.KeyChar == 13)
+                UnFocus.Focus();
+            /*Запятую первой ставить нельзя*/
+            if (TextBoxChangeXMoveSpline.TextLength == 0 && e.KeyChar == 44)
+                e.Handled = true;
+        }
+        private void TextBoxChangeXMoveSpline_Validating(object sender, CancelEventArgs e)
+        {
+            /*Суммарные изменения должны не выходим за максимальные рамки (1000км)*/
+            if(Math.Round(Convert.ToDouble(TextBoxChangeXMoveSpline.Text),GlobalConst.Accuracy)+Draw.XAREASIZE > 1000000)
+            {
+                TextBoxChangeXMoveSpline.Text = (1000000.0 - Math.Round(Convert.ToDouble(TextBoxChangeXMoveSpline.Text), GlobalConst.Accuracy)).ToString();
+                MessageBox.Show("Смещение области должно быть меньше чем " + TextBoxChangeXMoveSpline.Text + "м");
+            }
+        }
+        private void TextBoxChangeXMoveSpline_Validated(object sender, EventArgs e)
+        {
+            TextBoxChangeXMoveSpline.Text = Math.Round(Convert.ToDouble(TextBoxChangeXMoveSpline.Text), GlobalConst.Accuracy).ToString();
+        }
 
+        private void ButtonChangeXMoveSpline_Click(object sender, EventArgs e)
+        {
+            if (Convert.ToDouble(TextBoxChangeXMoveSpline.Text) > 0)
+            {
+                double ChangeX = Convert.ToDouble(TextBoxChangeXMoveSpline.Text);
+                TextBoxXAreaSize.Text = (Draw.XAREASIZE + ChangeX).ToString();
+                Draw.XAREASIZE = Convert.ToDouble(TextBoxXAreaSize.Text);
+                TextBoxYAreaSize.Text = Draw.YAREASIZE.ToString();
+                ChangeScrollBars();
+                Draw.MoveSpline(Convert.ToDouble(TextBoxChangeXMoveSpline.Text));
+            }
+        }
         #endregion
 
         #region Почва
 
-        #region Контекстное меню
-        private void DeleteLayersDataGridViewLayers_Click(object sender, EventArgs e)
+        #region Слои и Минералы контекстное меню(общие)
+        #region Таблица
+        private void DeleteSplineDataGridViewToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            int i,
+            int i;
             /*Старое значение максимального значения ползунка*/
-            MaximumScroll = MainPaint_VScroll.Maximum;
+            int MaximumScroll = MainPaint_VScroll.Maximum;
             /*Удаляем слой*/
-            Draw.DeleteLayersIndex(CheckControlPoint[1]);           
+            Draw.DeleteSplineGrid(LayerMinerals, CheckControlPoint[1]);
             /*Изменяем ползунки*/
             MainPaint_VScroll.LargeChange = Convert.ToInt32(Draw.YAREASIZE + 1);
             MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
@@ -594,7 +769,62 @@ namespace Second
             DataGridViewLayers.ClearSelection();
         }
         #endregion
+        #region Материал
+        private void AddMaterialToolStripMenuItem_Click(object sender, EventArgs e)
+        {
 
+        }
+        #endregion
+        #endregion
+
+        #region Слои
+        private void TextBoxLayerNumberOfPoints_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            /*Можно вводить только числа и бэкспейс*/
+            if (!Char.IsDigit(e.KeyChar) && e.KeyChar != 8)
+                e.Handled = true;
+            /*Если нажат энтер*/
+            if (e.KeyChar == 13)
+            {
+                TextBoxLayerNumberOfPoints.Enabled = false;
+                TextBoxLayerNumberOfPoints.Enabled = true;
+            }
+        }
+        private void TextBoxLayerNumberOfPoints_Validating(object sender, CancelEventArgs e)
+        {
+            if(TextBoxLayerNumberOfPoints.TextLength==0)
+            {
+                TextBoxLayerNumberOfPoints.Text = "2";
+                MessageBox.Show("Количество опорных точек должно быть больше 1");
+            }
+            double X = Draw.XAREASIZE;
+            if(Convert.ToDouble(TextBoxLayerNumberOfPoints.Text) > X * Math.Pow(10, GlobalConst.Accuracy)) 
+            {
+                TextBoxLayerNumberOfPoints.Text = X.ToString();
+                MessageBox.Show("Количество опорных точек должно быть меньше " + X.ToString() + ".");
+            }
+        }
+        private void TextBoxLayerNumberOfPoints_Validated(object sender, EventArgs e)
+        {
+            /*При изменение значений делаем кнопку "Выключенной", в целях проверки введенного числа*/
+            DrawLayers = false;
+            DrawSplineLayers.BackColor = System.Drawing.SystemColors.Control;
+        }
+        private void TextBoxLayerHeight_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            /*Можно вводить только числа, бэкспейс, запятая и минус*/
+            if (!Char.IsDigit(e.KeyChar) && e.KeyChar != 8
+                && (e.KeyChar != 44 || TextBoxXCoordinate.Text.IndexOf(",") > -1))
+                e.Handled = true;
+            /*Если нажат энтер*/
+            if (e.KeyChar == 13)
+            {
+                TextBoxXCoordinate.Enabled = false;
+                TextBoxXCoordinate.Enabled = true;
+            }
+            if (TextBoxXCoordinate.TextLength == 0 && e.KeyChar == 44)
+                e.Handled = true;
+        }
         private void DrawSplineLayers_Click(object sender, EventArgs e)
         {
             /*Проверка количества опорных точек*/
@@ -609,7 +839,9 @@ namespace Second
             {
                 DrawLayers = true;
                 DrawSplineLayers.BackColor = System.Drawing.SystemColors.Highlight;
-                LabelLayerHeight.Focus();
+                DrawMineral = false;
+                DrawSplineMinerals.BackColor = System.Drawing.SystemColors.Control;
+                UnFocus.Focus();
             }
             else
             {
@@ -618,11 +850,10 @@ namespace Second
                 LabelLayerHeight.Focus();
             }
         }
-
         private void AddSplineLayers_Click(object sender, EventArgs e)
         {
             /*Рисуем новый слой*/
-            Draw.AddLayers(Convert.ToInt32(TextBoxLayerHeight.Text), Convert.ToInt32(TextBoxLayerNumberOfPoints.Text));
+            Draw.AddLayers(Convert.ToInt32(TextBoxLayerHeight.Text), Convert.ToInt32(TextBoxLayerNumberOfPoints.Text),new Material());
             /*Изменяем ползунки*/
             MainPaint_VScroll.LargeChange = Convert.ToInt32(Draw.YAREASIZE + 1);
             MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
@@ -630,91 +861,102 @@ namespace Second
             /*Заполняем таблицу*/
             if (DataGridViewLayers.Rows.Count == 1)
             {
-                DataGridViewLayers.Rows.Add(1, "", Convert.ToInt32(TextBoxLayerHeight.Text), Convert.ToInt32(TextBoxLayerNumberOfPoints.Text));
-                DataGridViewLayers.Rows[0].Cells[1].Style.BackColor = Draw.GetLayerColor(Convert.ToInt32(DataGridViewLayers.Rows[0].Cells[0].Value));
+                //DataGridViewLayers.Rows.Add(1, "", Convert.ToInt32(TextBoxLayerHeight.Text), Convert.ToInt32(TextBoxLayerNumberOfPoints.Text));
+                //DataGridViewLayers.Rows[0].Cells[1].Style.BackColor = Draw.GetLayerColor(Convert.ToInt32(DataGridViewLayers.Rows[0].Cells[0].Value));
             }
             else
             {
-                DataGridViewLayers.Rows.Add(DataGridViewLayers.Rows.Count, "", Convert.ToInt32(TextBoxLayerHeight.Text), Convert.ToInt32(TextBoxLayerNumberOfPoints.Text));
-                DataGridViewLayers.Rows[DataGridViewLayers.Rows.Count - 2].Cells[1].Style.BackColor = Draw.GetLayerColor(Convert.ToInt32(DataGridViewLayers.Rows[DataGridViewLayers.Rows.Count - 2].Cells[0].Value));
+                //DataGridViewLayers.Rows.Add(DataGridViewLayers.Rows.Count, "", Convert.ToInt32(TextBoxLayerHeight.Text), Convert.ToInt32(TextBoxLayerNumberOfPoints.Text));
+                //DataGridViewLayers.Rows[DataGridViewLayers.Rows.Count - 2].Cells[1].Style.BackColor = Draw.GetLayerColor(Convert.ToInt32(DataGridViewLayers.Rows[DataGridViewLayers.Rows.Count - 2].Cells[0].Value));
             }
         }
 
-        private void TextBoxLayerNumberOfPoints_KeyPress(object sender, KeyPressEventArgs e)
+
+        private void СomboBoxLayerMaterial_SelectedIndexChanged(object sender, EventArgs e)
         {
-            /*Можно вводить только числа и бэкспейс*/
-            if (!Char.IsDigit(e.KeyChar) && e.KeyChar != 8)
-                e.Handled = true;
-            /*При изменение значений делаем кнопку "Выключенной", в целях проверки введенного числа*/
-            DrawLayers = false;
-            DrawSplineLayers.BackColor = System.Drawing.SystemColors.Control;
+            
+        }
+        private void СomboBoxLayerMaterial_MouseClick(object sender, MouseEventArgs e)
+        {
+            //if (e.Button == MouseButtons.Right)
+            //    ContextMenuMaterials.Show();
         }
 
-        private void TextBoxLayerHeight_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            /*Можно вводить только числа и бэкспейс*/
-            if (!Char.IsDigit(e.KeyChar) && e.KeyChar != 8)
-                e.Handled = true;
-        }
 
+        private void СomboBoxLayerMaterial_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+                ContextMenuMaterials.Show();
+        }
         private void DataGridViewLayers_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right && e.RowIndex != DataGridViewLayers.Rows.Count - 1)
             {
+                LayerMinerals = 1;
                 DataGridViewLayers.Rows[e.RowIndex].Selected = true;
-                CheckControlPoint[1] =  e.RowIndex;
-                ContextMenuDataGridViewLayers.Show(Cursor.Position);
+                CheckControlPoint[1] = e.RowIndex;
+                ContextMenuDataGridView.Show(Cursor.Position);
             }
         }
-
-        private void DataGridViewLayers_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
+        private void СheckedListBoxSpline_ItemCheck(object sender, ItemCheckEventArgs e)
         {
-            DataGridViewLayers.Rows[e.RowIndex].ErrorText = "";
-            int newInteger;
-            if (DataGridViewLayers.Rows[e.RowIndex].IsNewRow)
-                return;
-            if (DataGridViewLayers.CurrentCell.ColumnIndex == 2)
-            {
-                if (!int.TryParse(e.FormattedValue.ToString(), out newInteger) || newInteger >= 0)
-                {
-                    e.Cancel = true;
-                    DataGridViewLayers.Rows[e.RowIndex].ErrorText = "Значение должно быть меньше или равно 0";
-                }
-                return;
-            }
-            if (DataGridViewLayers.CurrentCell.ColumnIndex == 3)
-            {
-                if (!int.TryParse(e.FormattedValue.ToString(), out newInteger) || newInteger >= Draw.XAREASIZE)
-                {
-                    e.Cancel = true;
-                    DataGridViewLayers.Rows[e.RowIndex].ErrorText = "Количество опорных точек должно быть меньше или равно размеру области";
-                }
-                return;
-            }
-        }
-
-        private void СheckedListBox_ItemCheck(object sender, ItemCheckEventArgs e)
-        {
-            /*Если нажата Опорные линии*/
+            /*Если нажата "Опорные линии"*/
             if (e.Index == 0)
             {
                 if (e.NewValue == CheckState.Checked)
                     Draw.SUPPORTLINE = true;
                 else Draw.SUPPORTLINE = false;
             }
+            /*Если нажата "BSpline"*/
+            if (e.Index == 1)
+            {
+                if (e.NewValue == CheckState.Checked)
+                {
+                    Draw.BSPLINE = true;
+                    Draw.CSPLINE = false;
+                    СheckedListBoxSpline.SetItemChecked(2, false);
+                }
+                Draw.BSPLINE = false;
+            }
+            /*Если нажата "CSpline"*/
+            if (e.Index == 2)
+            {
+                if (e.NewValue == CheckState.Checked)
+                {
+                    Draw.CSPLINE = true;
+                    Draw.BSPLINE = false;
+                    СheckedListBoxSpline.SetItemChecked(1, false);
+                }
+                Draw.CSPLINE = false;
+            }
         }
-
         #endregion
-
-
-
-
 
         #region Минералы
 
+
+
         private void DrawSplineMinerals_Click(object sender, EventArgs e)
         {
-
+            /*"Включаем" кнопку, теперь можно рисовать несколько слоев с заданным количеством*/
+            /*опорных точек*/
+            if (DrawMineral == false)
+            {
+                DrawMineral = true;
+                DrawSplineMinerals.BackColor = System.Drawing.SystemColors.Highlight;
+                DrawLayers = false;
+                DrawSplineLayers.BackColor = System.Drawing.SystemColors.Control;
+                Draw.NewMinerals(MaterialsLayer[ComboBoxMineralMaterial.SelectedIndex]);
+                UnFocus.Focus();
+            }
+            else
+            {
+                DrawMineral = false;
+                DrawSplineMinerals.BackColor = System.Drawing.SystemColors.Control;
+                if(!Draw.CheckPointsMinerals())
+                    MessageBox.Show("Должно быть минимум 3 точки, точки удалены.");
+                UnFocus.Focus();
+            }
         }
 
 
@@ -723,6 +965,14 @@ namespace Second
 
 
 
+
+
+
+
+
+        #endregion
+
+        #endregion
 
         #endregion
 
