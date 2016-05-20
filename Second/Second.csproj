@@ -63,10 +63,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GlobalConst.cs" />
-    <Compile Include="Material.cs" />
-    <Compile Include="Mineral.cs" />
-    <Compile Include="MyScroll.cs">
+    <Compile Include="Дочерние формы\AddMaterial.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Дочерние формы\AddMaterial.Designer.cs">
+      <DependentUpon>AddMaterial.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Малые классы\GlobalConst.cs" />
+    <Compile Include="Малые классы\Material.cs" />
+    <Compile Include="Сплайны\Mineral.cs" />
+    <Compile Include="Кастомный скролл\MyScroll.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Paint.cs" />
@@ -76,16 +82,19 @@
     <Compile Include="MForm.Designer.cs">
       <DependentUpon>MForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Layer.cs" />
-    <Compile Include="PointSpline.cs" />
+    <Compile Include="Сплайны\Layer.cs" />
+    <Compile Include="Малые классы\PointSpline.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SetValue.cs">
+    <Compile Include="Дочерние формы\SetValue.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="SetValue.Designer.cs">
+    <Compile Include="Дочерние формы\SetValue.Designer.cs">
       <DependentUpon>SetValue.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="Дочерние формы\AddMaterial.resx">
+      <DependentUpon>AddMaterial.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MForm.resx">
       <DependentUpon>MForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -98,7 +107,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="SetValue.resx">
+    <EmbeddedResource Include="Дочерние формы\SetValue.resx">
       <DependentUpon>SetValue.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
@@ -114,6 +123,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

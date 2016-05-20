@@ -490,17 +490,27 @@ namespace Second
         /// <returns></returns>
         public bool SetLayerColor(Color Color, int[] FIJ)
         {
-            int i;
-            for (i = 0; i < Layers.Count; i++)
-                if (Layers[i].COLOR == Color)
-                    return false;
-            for (i = 0; i < Minerals.Count; i++)
-                if (Minerals[i].COLOR == Color)
-                    return false;
-            if (FIJ[0] == 1)
-                Layers[FIJ[1]].COLOR = Color;
-            else
-                Minerals[FIJ[1]].COLOR = Color;
+            try
+            {
+                int i;
+                //Проверяем есть ли такой цвет в слоях.
+                for (i = 0; i < Layers.Count; i++)
+                    if (Layers[i].COLOR == Color)
+                        return false;
+                //Проверяем есть ли такой цвет в минералах.
+                for (i = 0; i < Minerals.Count; i++)
+                    if (Minerals[i].COLOR == Color)
+                        return false;
+                //Если нету, то меняем цвем.
+                if (FIJ[0] == 1)
+                    Layers[FIJ[1]].COLOR = Color;
+                else
+                    Minerals[FIJ[1]].COLOR = Color;
+            }
+            catch
+            {
+                return false;
+            }
             return true;
         }
         /// <summary>
@@ -508,10 +518,10 @@ namespace Second
         /// </summary>
         /// <returns></returns>
         public bool ChangeAccuracy()
-        {
-            int i;
+        {          
             try
             {
+                int i;
                 for (i = 0; i < Layers.Count; i++)
                     Layers[i].ChangeAccuracy();
                 for (i = 0; i < Minerals.Count; i++)
@@ -639,6 +649,12 @@ namespace Second
             }
             return true;
         }
+
+        private bool CheckSpline(PointSpline Point)
+        {
+
+            return true;
+        }
         /// <summary>
         /// Изменяем позицию опорной точки.
         /// </summary>
@@ -668,26 +684,31 @@ namespace Second
                             {
                                 /*Если пересек - сохраняем старое значение и выходим*/
                                 Points[FIJ[2]] = PrefPoint;
-                                return true;
+                                return false;
                             }
-                    if (Math.Abs(Points[FIJ[2]].Y) + XAreaSize / 10 + EarthSize > YAreaSize)
-                        YAreaSize += XAreaSize;
+                    if (Math.Abs(Points[FIJ[2]].Y) + XAreaSize / 100 + EarthSize > YAreaSize)
+                    {
+                        YAreaSize += XAreaSize / 100;
+                        YOffset += XAreaSize / 100;
+                    }
                     Layers[FIJ[1]].BSpline();
                 }
                 else
                 {
                     Points = Minerals[FIJ[1]].POINT;
+                    Points.Add(Points[Points.Count - 1]);
                     PrefPoint = Points[FIJ[2]];
                     Points[FIJ[2]] = new PointSpline(Point.X, Point.Y);
                     /*Проверка на самопересечение*/
                     for (int i = 0; i < Points.Count - 1; i++)
-                        for (int j = i + 2; j < Points.Count - 1; j++)
+                        for (int j = i + 1; j < Points.Count - 1; j++)
                             if (IntersectParts(Points[i], Points[i + 1], Points[j], Points[j + 1]))
                             {
                                 /*Если пересек - сохраняем старое значение и выходим*/
                                 Points[FIJ[2]] = PrefPoint;
-                                return true;
+                                return false;
                             }
+                    Points.RemoveAt(Points.Count - 1);
                     Minerals[FIJ[1]].BSpline();
                 }
             }
@@ -706,13 +727,14 @@ namespace Second
         /// <returns></returns>
         public bool DeleteSplineForm(int[] FIJ)
         {
-            int i;
             try
             {
                 if (FIJ[0] == 1)
                 {
-                    if(FIJ[1]!=0)
+                    if(Layers.Count > 1)
                         Layers.RemoveAt(FIJ[1]);
+                    else
+                        return false;
                 }
                 else
                     Minerals.RemoveAt(FIJ[1]);
@@ -771,11 +793,11 @@ namespace Second
         /// <summary>
         /// Возвращем значение в таблицу.
         /// </summary>
-        /// <param name="NumberGrid"></param>
-        /// <param name="PositionNumber"></param>
-        /// <param name="Color"></param>
-        /// <param name="LayerPosition"></param>
-        /// <param name="Material"></param>
+        /// <param name="NumberGrid"> Номер таблицы (0 - слои, 1 - минералы). </param>
+        /// <param name="PositionNumber"> Позиция в таблице. </param>
+        /// <param name="Color"> Цвет. </param>
+        /// <param name="LayerPosition"> Максимальная и минимальная высота. </param>
+        /// <param name="Material"> Материал. </param>
         /// <returns></returns>
         public bool ReturnInformation(int NumberGrid,int PositionNumber, out Color Color, out string LayerPosition, out string Material)
         {
@@ -795,7 +817,7 @@ namespace Second
                 else
                 {
                     Color = Minerals[PositionNumber].COLOR;
-                    LayerPosition = Minerals[PositionNumber].ReturnMaxY().ToString() + "\n" + Minerals[PositionNumber + 1].ReturnMinY().ToString();
+                    LayerPosition = Minerals[PositionNumber].ReturnMaxY().ToString() + "\n" + Minerals[PositionNumber].ReturnMinY().ToString();
                     Material = Minerals[PositionNumber].MATERIAL.NAME;
                 }
             }
@@ -805,6 +827,86 @@ namespace Second
             }
             return true;
         }
+        /// <summary>
+        /// Изменение материала.
+        /// </summary>
+        /// <param name="FIJ"> Массив [0] - 0(нету),1(слой),2(минерал); 
+        ///                           [1] - номер слоя\минерала;
+        ///                           [2] - номер опорной точки.</param>
+        /// <param name="Material"> Материал. </param>
+        /// <returns></returns>
+        public bool ChangeMaterial(int[] FIJ,Material Material)
+        {
+            try
+            {
+                if (FIJ[0] == 1)
+                    Layers[FIJ[1]].MATERIAL = Material;
+                else
+                    Minerals[FIJ[1]].MATERIAL = Material;
+            }
+            catch
+            {
+                return false;
+            }
+            return true;
+        }
+        /// <summary>
+        /// Возвращает материал слоя или минерала.
+        /// </summary>
+        /// <param name="FIJ"> Массив [0] - 0(нету),1(слой),2(минерал); 
+        ///                           [1] - номер слоя\минерала;
+        ///                           [2] - номер опорной точки.</param>
+        /// <param name="Material"> Материал. </param>
+        /// <returns></returns>
+        public bool ReturnMaterial(int[] FIJ,out Material Material)
+        {
+            Material = new Material();
+            try
+            {
+                if (FIJ[0] == 1)
+                    Material = Layers[FIJ[1]].MATERIAL;
+                else
+                    Material = Minerals[FIJ[1]].MATERIAL;
+            }
+            catch
+            {
+                return false;
+            }
+            return true;
+        }
+        /// <summary>
+        /// Проверка есть ли материал.
+        /// </summary>
+        /// <param name="NumberGrid"> Номер таблицы (0 - слои, 1 - минералы). </param>
+        /// <param name="Material"> Материал. </param>
+        /// <param name="Number"> Массив найденных совпадений. </param>
+        /// <returns></returns>
+        public bool CheckMaterial(int NumberGrid,Material Material, out List<int> Number)
+        {
+            Number = new List<int>();
+            int i;
+            try
+            {
+                if(NumberGrid==0)
+                {
+                    for (i = 0; i < Layers.Count - 1; i++)
+                        if (Layers[i].MATERIAL == Material)
+                            Number.Add(i + 1);
+                }
+                else
+                {
+                    for (i = 0; i < Minerals.Count; i++)
+                        if (Minerals[i].MATERIAL == Material)
+                            Number.Add(i + 1);
+                }
+            }
+            catch
+            {
+                return false;
+            }
+            return Number.Count==0;
+        }
+        
         #endregion
 
 
@@ -861,7 +963,11 @@ namespace Second
 
 
         #region Работа с минералами
-
+        /// <summary>
+        /// Добавление нового минерала.
+        /// </summary>
+        /// <param name="Material"> Тип материала. </param>
+        /// <returns></returns>
         public bool NewMinerals(Material Material)
         {
             try
@@ -875,7 +981,10 @@ namespace Second
             }
             return true;
         }
-
+        /// <summary>
+        /// Проверка количества точек минерала.
+        /// </summary>
+        /// <returns></returns>
         public bool CheckPointsMinerals()
         {
             if (Minerals[Minerals.Count - 1].POINT.Count > 2)
@@ -883,11 +992,14 @@ namespace Second
             Minerals.RemoveAt(Minerals.Count - 1);
             return false;
         }
-
+        /// <summary>
+        /// Добавление точек минерала.
+        /// </summary>
+        /// <returns></returns>
         public bool AddPointMinerals()
         {
             try
-            {
+            {   
                 Minerals[Minerals.Count - 1].AddPoint(new PointSpline(GetCoordinate(0), GetCoordinate(1)));
             }
             catch
@@ -897,6 +1009,7 @@ namespace Second
             return true;
         }
         #endregion
+
 
 
         /// <summary>
@@ -981,10 +1094,11 @@ namespace Second
             Gl.glEnd();
             Gl.glPopMatrix();
         }
-
         #endregion
 
-        /*Основной метод класса, вызывает отрисовку*/
+        /// <summary>
+        /// Основной метод класса.
+        /// </summary>
         public void Draw()
         {
             Gl.glClearColor(1.0f, 1.0f, 1.0f, 0.0f);

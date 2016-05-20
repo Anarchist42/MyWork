@@ -85,7 +85,7 @@
             // 
             // ButtonCancel
             // 
-            this.ButtonCancel.Location = new System.Drawing.Point(166, 64);
+            this.ButtonCancel.Location = new System.Drawing.Point(187, 64);
             this.ButtonCancel.Name = "ButtonCancel";
             this.ButtonCancel.Size = new System.Drawing.Size(75, 23);
             this.ButtonCancel.TabIndex = 5;
@@ -106,7 +106,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(253, 99);
+            this.ClientSize = new System.Drawing.Size(274, 99);
             this.Controls.Add(this.UnFocus);
             this.Controls.Add(this.ButtonCancel);
             this.Controls.Add(this.ButtonAccept);
@@ -114,10 +114,10 @@
             this.Controls.Add(this.TextBoxXCoordinate);
             this.Controls.Add(this.LabelYCoordinate);
             this.Controls.Add(this.LabelXCoordinate);
-            this.MaximumSize = new System.Drawing.Size(269, 137);
-            this.MinimumSize = new System.Drawing.Size(269, 137);
+            this.MaximumSize = new System.Drawing.Size(290, 137);
+            this.MinimumSize = new System.Drawing.Size(290, 137);
             this.Name = "SetValue";
-            this.Text = "Задать значение точки";
+            this.Text = "Изменение позиции точки";
             this.ResumeLayout(false);
             this.PerformLayout();
 

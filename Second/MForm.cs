@@ -64,11 +64,11 @@ namespace Second
         /// <summary>
         /// Массив материалов слоя.
         /// </summary>
-        private List<Material> MaterialsLayer;
+        private List<Material> MaterialLayer;
         /// <summary>
         /// Массив материалов минералов.
         /// </summary>
-        private List<Material> MaterialsMineral;
+        private List<Material> MaterialMineral;
         #endregion
 
         #region Меню
@@ -77,7 +77,6 @@ namespace Second
             Close();
         }
         #endregion
-
 
         public MainForm()
         {
@@ -96,19 +95,20 @@ namespace Second
             GlobalConst.Difference = 5;
             GlobalConst.Accuracy = -1;
             /*Создаем и заполняем материалы*/
-            MaterialsLayer = new List<Material>();
-            MaterialsLayer.Add(new Material("Земля", 0));
-            MaterialsLayer.Add(new Material("Грунт", 1));
-            MaterialsLayer.Add(new Material("Грязь", 2));
-            for (int i = 0; i < MaterialsLayer.Count; i++)
-                СomboBoxLayerMaterial.Items.Add(MaterialsLayer[i].NAME);
+            MaterialLayer = new List<Material>();
+            MaterialLayer.Add(new Material("Земля", 0));
+            MaterialLayer.Add(new Material("Грунт", 1));
+            MaterialLayer.Add(new Material("Грязь", 2));
+            for (int i = 0; i < MaterialLayer.Count; i++)
+                СomboBoxLayerMaterial.Items.Add(MaterialLayer[i].NAME);
             СomboBoxLayerMaterial.SelectedIndex = 0;
-            MaterialsMineral = new List<Material>();
-            MaterialsMineral.Add(new Material("Земля", 0));
-            MaterialsMineral.Add(new Material("Грунт", 1));
-            MaterialsMineral.Add(new Material("Грязь", 2));
-            for (int i = 0; i < MaterialsLayer.Count; i++)
-                ComboBoxMineralMaterial.Items.Add(MaterialsMineral[i].NAME);
+
+            MaterialMineral = new List<Material>();
+            MaterialMineral.Add(new Material("Земля", 0));
+            MaterialMineral.Add(new Material("Грунт", 1));
+            MaterialMineral.Add(new Material("Грязь", 2));
+            for (int i = 0; i < MaterialLayer.Count; i++)
+                ComboBoxMineralMaterial.Items.Add(MaterialMineral[i].NAME);
             ComboBoxMineralMaterial.SelectedIndex = 0;
         }
         private void MainPaint_Load(object sender, EventArgs e)
@@ -179,7 +179,7 @@ namespace Second
             Color color = new Color();
             string LayerPosition = "";
             string Material;
-            for (i = 0; i < DataGridViewLayers.Rows.Count - 1; i++)
+            for (i = 0; i < DataGridViewMinerals.Rows.Count - 1; i++)
             {
                 Draw.ReturnInformation(1, i, out color, out LayerPosition, out Material);
                 DataGridViewMinerals.Rows[i].Cells[0].Value = i + 1;
@@ -188,23 +188,83 @@ namespace Second
                 DataGridViewMinerals.Rows[i].Cells[3].Value = Material;
             }
         }
+        /*Изменение контексного меню, вкладки Материалы*/
+        private void ChangeMaterialsToolStripMenuItem()
+        {
+            int i;
+            Material Material;
+            ToolStripMenuItem AddItem;
+            ChangeMaterialToolStripMenuItem.DropDownItems.Clear();
+            if (CheckControlPoint[0]==1)
+            {               
+                Draw.ReturnMaterial(CheckControlPoint,out Material);
+                for (i=0;i< MaterialLayer.Count;i++)
+                {
+                    AddItem = new ToolStripMenuItem(MaterialLayer[i].NAME);
+                    AddItem.Click += new EventHandler(ChangeMaterialToolStripMenuItem_Click);
+                    if (Material.NAME == MaterialLayer[i].NAME)
+                        AddItem.Checked = true;
+                    ChangeMaterialToolStripMenuItem.DropDownItems.Add(AddItem);
+                }
+            }
+            else
+            {
+                Draw.ReturnMaterial(CheckControlPoint, out Material);
+                for (i = 0; i < MaterialMineral.Count; i++)
+                {
+                    AddItem = new ToolStripMenuItem(MaterialMineral[i].NAME);
+                    AddItem.Click += new EventHandler(ChangeMaterialToolStripMenuItem_Click);
+                    if (Material.NAME == MaterialLayer[i].NAME)
+                        AddItem.Checked = true;
+                    ChangeMaterialToolStripMenuItem.DropDownItems.Add(AddItem);
+                }
+            }
+        }
 
         #region Работа с MainPaint
-
-
-
-
         #region Контексное меню
-        private void AddValueToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ChangeValueToolStripMenuItem_Click(object sender, EventArgs e)
         {
             SetValue Set = new SetValue();
             Set.ShowDialog();
-            if(GlobalConst.Buffer[0]!="" && GlobalConst.Buffer[1]!="")
-                Draw.ChangePoint(CheckControlPoint, new PointSpline(GlobalConst.Buffer[0], GlobalConst.Buffer[1]));
-            if (CheckControlPoint[0] == 1)
-                ChangeDataGridViewLayers();
-            else
-                ChangeDataGridViewMinerals();
+            if (GlobalConst.Buffer[0] != "" && GlobalConst.Buffer[1] != "")
+            {
+                double X = Math.Round(Convert.ToDouble(GlobalConst.Buffer[0]));
+                double Y = Math.Round(Convert.ToDouble(GlobalConst.Buffer[1]));
+                if (X > Draw.XAREASIZE)
+                    MessageBox.Show("Абсцисса точки должна быть меньше "+X.ToString());
+                if (Y < -1000000 + Draw.EARTHSIZE)
+                    MessageBox.Show("Ордината точки должна быть меньше " + (-1000000 + Draw.EARTHSIZE).ToString());
+                else
+                {
+                    Draw.ChangePoint(CheckControlPoint, new PointSpline(GlobalConst.Buffer[0], GlobalConst.Buffer[1]));
+                    if (CheckControlPoint[0] == 1)
+                        ChangeDataGridViewLayers();
+                    else
+                        ChangeDataGridViewMinerals();
+                }
+            }
+        }
+        private void ChangeMaterialToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            int i = 0;
+            foreach (ToolStripMenuItem Item in ChangeMaterialToolStripMenuItem.DropDownItems)
+            {
+                if ((ToolStripMenuItem)sender == Item)
+                {
+                    if (CheckControlPoint[0] == 1)
+                    {
+                        Draw.ChangeMaterial(CheckControlPoint, MaterialLayer[i]);
+                        ChangeDataGridViewLayers();
+                    }
+                    else
+                    {
+                        Draw.ChangeMaterial(CheckControlPoint, MaterialMineral[i]);
+                        ChangeDataGridViewMinerals();
+                    }
+                }
+                i++;
+            }
         }
         private void ChangeColorToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -229,28 +289,30 @@ namespace Second
         }
         private void DeleteLayersMainPaintToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            int i,
             /*Старое значение максимального значения ползунка*/
-            MaximumScroll = MainPaint_VScroll.Maximum;
+            int MaximumScroll = MainPaint_VScroll.Maximum;
             /*Удаляем слой*/
-            Draw.DeleteSplineForm(CheckControlPoint);
+            if (Draw.DeleteSplineForm(CheckControlPoint))
+            {
+                if (CheckControlPoint[0] == 1)
+                {
+                    DataGridViewLayers.Rows.RemoveAt(0);
+                    ChangeDataGridViewLayers();
+                }
+                if (CheckControlPoint[0] == 2)
+                {
+                    DataGridViewMinerals.Rows.RemoveAt(0);
+                    ChangeDataGridViewMinerals();
+                }
+            }
             /*Изменяем ползунки*/
             MainPaint_VScroll.LargeChange = Convert.ToInt32(Draw.YAREASIZE + 1);            
             MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
             Draw.YOFFSET += (MaximumScroll - MainPaint_VScroll.Maximum ) * Draw.ZOOM;
             MainPaint_VScroll.Value = Draw.ScrollValue(0);
-            if (LayerMinerals == 1)
-            {
-                DataGridViewLayers.Rows.RemoveAt(0);
-                ChangeDataGridViewLayers();
-            }
-            if (LayerMinerals == 2)
-            {
-                DataGridViewMinerals.Rows.RemoveAt(0);
-                ChangeDataGridViewMinerals();
-            }
         }
         #endregion
+
         private void MainForm_SizeChanged(object sender, EventArgs e)
         {
             if (this.WindowState != FormWindowState.Minimized)
@@ -367,7 +429,7 @@ namespace Second
                 {
                     if (CheckControlPoint[0] != 0)
                     {
-                        Draw.ChangePoint(CheckControlPoint,new PointSpline(Draw.GetCoordinate(0),Draw.GetCoordinate(1)));
+                        Draw.ChangePoint(CheckControlPoint, new PointSpline(Draw.GetCoordinate(0), Draw.GetCoordinate(1)));
                         TextBoxYAreaSize.Text = Draw.YAREASIZE.ToString();
                         MainPaint_VScroll.LargeChange = Convert.ToInt32(Draw.YAREASIZE + 1);
                         MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
@@ -375,6 +437,10 @@ namespace Second
                         MainPaint_HScroll.LargeChange = Convert.ToInt32(Draw.XAREASIZE + 1);
                         MainPaint_HScroll.Maximum = Draw.ScrollMaximum(1);
                         MainPaint_HScroll.Value = Draw.ScrollValue(1);
+                        if (CheckControlPoint[0] == 1)
+                            ChangeDataGridViewLayers();
+                        else
+                            ChangeDataGridViewMinerals();
                     }
                     else
                     {
@@ -403,17 +469,17 @@ namespace Second
                 MouseDownPosition = new Point(e.X, e.Y);
                 Draw.MOUSEPOSITION = new Point(e.X, e.Y);
                 /*Если выбранно "Добавить точку" в контексном меню слоя*/
-                if(AddPointLayers)
+                if (AddPointLayers)
                 {
                     Draw.AddPoint(CheckControlPoint);
                     AddPointLayers = false;
                     MouseDownLeft = false;
                     return;
-                }            
+                }
                 /*Если кнопка "Нарисовать" новый слой "включена"*/
                 if (DrawLayers)
                 {
-                    Draw.AddLayers(Draw.GetCoordinate(1), Convert.ToInt32(TextBoxLayerNumberOfPoints.Text), MaterialsLayer[СomboBoxLayerMaterial.SelectedIndex]);
+                    Draw.AddLayers(Draw.GetCoordinate(1), Convert.ToInt32(TextBoxLayerNumberOfPoints.Text), MaterialLayer[СomboBoxLayerMaterial.SelectedIndex]);
                     /*Изменяем высоту в настройках*/
                     TextBoxYAreaSize.Text = Draw.GetMaxPointLayers().ToString();
                     /*Изменяем ползунки*/
@@ -427,7 +493,7 @@ namespace Second
                     return;
                 }
                 /*Если кнопка "Нарисовать" минерал "включена"*/
-                if(DrawMineral)
+                if (DrawMineral)
                 {
                     Draw.AddPointMinerals();
                 }
@@ -436,13 +502,14 @@ namespace Second
             Draw.CheckPoint(new Point(e.X, e.Y), out CheckControlPoint);
             /*Если попали и нажата правая кнопка мыши, то вызываем контексное меню*/
             if (CheckControlPoint[0] != 0 && e.Button == System.Windows.Forms.MouseButtons.Right)
+            {
+                ChangeMaterialsToolStripMenuItem();
                 СontextMenuMainPaint.Show(Cursor.Position);
+            }
         }
         #endregion
 
         #region TabControl
-
-
         #region Настройки
         /*Снимаем фокус*/
         private void TabPageSettings_MouseClick(object sender, MouseEventArgs e)
@@ -557,10 +624,10 @@ namespace Second
         {
             if (TextBoxXAreaSize.TextLength == 0)
                 TextBoxXAreaSize.Text = "10";
-            if (Convert.ToDouble(TextBoxXAreaSize.Text) > 10000000)
+            if (Convert.ToDouble(TextBoxXAreaSize.Text) > 1000000)
             {
-                TextBoxXAreaSize.Text = "10000000";
-                MessageBox.Show("Ширина области должна быть меньше 10000км");
+                TextBoxXAreaSize.Text = "1000000";
+                MessageBox.Show("Ширина области должна быть меньше 1000км");
             }
             double Min = (582 / Math.Pow(10, GlobalConst.Accuracy) > 10)
                 ? 582 / Math.Pow(10, GlobalConst.Accuracy)
@@ -666,7 +733,7 @@ namespace Second
             if (Convert.ToDouble(TextBoxYAreaSize.Text) < Draw.GetMaxPointLayers())
             {
                 TextBoxYAreaSize.Text = Draw.GetMaxPointLayers().ToString();
-                MessageBox.Show("Высота области должна быть больше чем " + Draw.GetMaxPointLayers().ToString() + "м");
+                MessageBox.Show("Высота области должна быть больше чем " + TextBoxYAreaSize.Text + "м");
             }
         }
         private void TextBoxYAreaSize_Validated(object sender, EventArgs e)
@@ -687,20 +754,33 @@ namespace Second
 
         private void СheckedListBoxSettings_ItemCheck(object sender, ItemCheckEventArgs e)
         {
-                /*Если нажата Сетка*/
-                if (e.Index == 0)
-                {
-                    if (e.NewValue == CheckState.Checked)
-                        Draw.GRID = true;
-                    else Draw.GRID = false;
-                }
-                /*Если нажата Разметка*/
-                if (e.Index == 1)
-                {
-                    if (e.NewValue == CheckState.Checked)
-                        Draw.MARKING = true;
-                    else Draw.MARKING = false;
-                }
+            /*Если нажата Сетка*/
+            if (e.Index == 0)
+            {
+                if (e.NewValue == CheckState.Checked)
+                    Draw.GRID = true;
+                else Draw.GRID = false;
+            }
+            /*Если нажата Разметка*/
+            if (e.Index == 1)
+            {
+                if (e.NewValue == CheckState.Checked)
+                    Draw.MARKING = true;
+                else Draw.MARKING = false;
+            }
+            UnFocus.Focus();
+        }
+        private void СheckedListBoxSettings_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            switch(СheckedListBoxSettings.SelectedIndex)
+            {
+                case 0: ToolTip.Show("Отображение сетки", СheckedListBoxSettings); break;
+                case 1: ToolTip.Show("Отображение разметки.", СheckedListBoxSettings); break;
+            }
+        }
+        private void СheckedListBoxSettings_MouseLeave(object sender, EventArgs e)
+        {
+            СheckedListBoxSettings.SelectedIndex = -1;
         }
 
         private void TextBoxChangeXMoveSpline_KeyPress(object sender, KeyPressEventArgs e)
@@ -745,12 +825,15 @@ namespace Second
         #endregion
 
         #region Почва
+        private void TabPageSpline_Click(object sender, EventArgs e)
+        {
+            UnFocus.Focus();
+        }
 
-        #region Слои и Минералы контекстное меню(общие)
+        #region Контекстное меню
         #region Таблица
         private void DeleteSplineDataGridViewToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            int i;
             /*Старое значение максимального значения ползунка*/
             int MaximumScroll = MainPaint_VScroll.Maximum;
             /*Удаляем слой*/
@@ -760,21 +843,139 @@ namespace Second
             MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
             Draw.YOFFSET += (MaximumScroll - MainPaint_VScroll.Maximum) * Draw.ZOOM;
             MainPaint_VScroll.Value = Draw.ScrollValue(0);
-            /*Удаляем строку в таблице*/
-            DataGridViewLayers.Rows.RemoveAt(CheckControlPoint[1]);
-            /*Уменьшаем индекс таблице*/
-            for (i = CheckControlPoint[1]; i < DataGridViewLayers.Rows.Count - 1; i++)
-                DataGridViewLayers.Rows[i].Cells[0].Value = Convert.ToInt32(DataGridViewLayers.Rows[i].Cells[0].Value) - 1;
-            /*Убираем выделение в таблице Слоев*/
-            DataGridViewLayers.ClearSelection();
-        }
-        #endregion
-        #region Материал
-        private void AddMaterialToolStripMenuItem_Click(object sender, EventArgs e)
-        {
+            if (LayerMinerals == 1)
+            {
+                DataGridViewLayers.Rows.RemoveAt(0);
+                ChangeDataGridViewLayers();
+                DataGridViewLayers.ClearSelection();
+            }
+            if (LayerMinerals == 2)
+            {
+                DataGridViewMinerals.Rows.RemoveAt(0);
+                ChangeDataGridViewMinerals();
+                DataGridViewMinerals.ClearSelection();
+            }
 
         }
         #endregion
+
+        #region Материал
+        private void AddMaterialToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AddMaterial Set = new AddMaterial();
+            Set.ShowDialog();
+            int i;
+            if (GlobalConst.Buffer[0] != "" && GlobalConst.Buffer[1] != "")
+            {
+                ToolStripMenuItem AddItem;
+                if (LayerMinerals==0)
+                {
+                    for(i=0;i< MaterialLayer.Count;i++)
+                        if(MaterialLayer[i].NAME == GlobalConst.Buffer[0])
+                        {
+                            MessageBox.Show("Данное название уже используется.");
+                            return;
+                        }
+                    MaterialLayer.Add(new Material(GlobalConst.Buffer[0], Convert.ToDouble(GlobalConst.Buffer[1])));
+                    AddItem = new ToolStripMenuItem(MaterialLayer[MaterialLayer.Count-1].NAME);
+                    AddItem.Click += new EventHandler(ChangeMaterialToolStripMenuItem_Click);
+                    ChangeMaterialToolStripMenuItem.DropDownItems.Add(AddItem);
+                    СomboBoxLayerMaterial.Items.Add(MaterialLayer[MaterialLayer.Count - 1].NAME);
+                }
+                else
+                {
+                    for (i = 0; i < MaterialMineral.Count; i++)
+                        if (MaterialMineral[i].NAME == GlobalConst.Buffer[0])
+                        {
+                            MessageBox.Show("Данное название уже используется.");
+                            return;
+                        }
+                    MaterialMineral.Add(new Material(GlobalConst.Buffer[0], Convert.ToDouble(GlobalConst.Buffer[1])));
+                    AddItem = new ToolStripMenuItem(MaterialMineral[MaterialMineral.Count - 1].NAME);
+                    AddItem.Click += new EventHandler(ChangeMaterialToolStripMenuItem_Click);
+                    ChangeMaterialToolStripMenuItem.DropDownItems.Add(AddItem);
+                    ComboBoxMineralMaterial.Items.Add(MaterialMineral[MaterialMineral.Count - 1].NAME);
+                }
+                    
+            }
+        }
+        private void ChangeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AddMaterial Set = new AddMaterial(MaterialLayer[СomboBoxLayerMaterial.SelectedIndex].NAME, MaterialLayer[СomboBoxLayerMaterial.SelectedIndex].RESISTANCE);
+            Set.ShowDialog();
+            List<int> Number;
+            int i;
+            string Out = "";
+            if (GlobalConst.Buffer[0] != "" && GlobalConst.Buffer[1] != "")
+            {
+                Material Material = new Material(GlobalConst.Buffer[0], Convert.ToDouble(GlobalConst.Buffer[1]));
+                if (LayerMinerals == 0)
+                {
+                    if (!Draw.CheckMaterial(LayerMinerals, MaterialLayer[СomboBoxLayerMaterial.SelectedIndex], out Number))
+                    {
+                        for (i = 0; i < Number.Count; i++)
+                        {
+                            Draw.ChangeMaterial(new int[2] { 1, Number[i] }, Material);
+                            Out += " " + Number[i];
+                        }
+                        MessageBox.Show("Изменены типы в " + Out + " слоях.");
+                    }
+                    MaterialLayer[СomboBoxLayerMaterial.SelectedIndex] = Material;
+                    СomboBoxLayerMaterial.SelectedText = Material.NAME;
+                }
+                else
+                {
+                    if (!Draw.CheckMaterial(LayerMinerals, MaterialMineral[ComboBoxMineralMaterial.SelectedIndex], out Number))
+                    {
+                        for (i = 0; i < Number.Count; i++)
+                        {
+                            Draw.ChangeMaterial(new int[2] { 1, Number[i] }, Material);
+                            Out += " " + Number[i];
+                        }
+                        MessageBox.Show("Изменены типы в " + Out + " слоях.");
+                    }
+                    MaterialMineral[ComboBoxMineralMaterial.SelectedIndex] = Material;
+                    ComboBoxMineralMaterial.SelectedText = Material.NAME;
+                }
+            }
+        }
+        private void DeleteMaterialToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            List<int> Number;
+            int i;
+            string Out="";
+            if (LayerMinerals == 0)
+                if(!Draw.CheckMaterial(LayerMinerals, MaterialLayer[СomboBoxLayerMaterial.SelectedIndex], out Number))
+                {
+                    for (i = 0; i < Number.Count; i++)
+                        Out += " "+Number[i];
+                    MessageBox.Show("Нельзя удалить материал, так как он использутся в"+Out+" слоях.");
+                }
+            else
+                {
+                    MaterialLayer.RemoveAt(СomboBoxLayerMaterial.SelectedIndex);
+                    СomboBoxLayerMaterial.Items.RemoveAt(СomboBoxLayerMaterial.SelectedIndex);
+                    СomboBoxLayerMaterial.SelectedIndex = 0;
+                }
+            else
+            {
+                if (!Draw.CheckMaterial(LayerMinerals, MaterialMineral[ComboBoxMineralMaterial.SelectedIndex], out Number))
+                {
+                    for (i = 0; i < Number.Count; i++)
+                        Out += " " + Number[i];                   
+                    MessageBox.Show("Нельзя удалить материал, так как он использутся в" + Out + " отложениях.");
+                }
+                else
+                {
+                    MaterialMineral.RemoveAt(ComboBoxMineralMaterial.SelectedIndex);
+                    ComboBoxMineralMaterial.Items.RemoveAt(ComboBoxMineralMaterial.SelectedIndex);
+                    ComboBoxMineralMaterial.SelectedIndex = 0;
+                }
+            }
+        }
+        #endregion
+
+
         #endregion
 
         #region Слои
@@ -785,14 +986,11 @@ namespace Second
                 e.Handled = true;
             /*Если нажат энтер*/
             if (e.KeyChar == 13)
-            {
-                TextBoxLayerNumberOfPoints.Enabled = false;
-                TextBoxLayerNumberOfPoints.Enabled = true;
-            }
+                UnFocus.Focus();
         }
         private void TextBoxLayerNumberOfPoints_Validating(object sender, CancelEventArgs e)
         {
-            if(TextBoxLayerNumberOfPoints.TextLength==0)
+            if(TextBoxLayerNumberOfPoints.TextLength==0 || Convert.ToInt32(TextBoxLayerNumberOfPoints.Text) < 2)
             {
                 TextBoxLayerNumberOfPoints.Text = "2";
                 MessageBox.Show("Количество опорных точек должно быть больше 1");
@@ -810,6 +1008,7 @@ namespace Second
             DrawLayers = false;
             DrawSplineLayers.BackColor = System.Drawing.SystemColors.Control;
         }
+
         private void TextBoxLayerHeight_KeyPress(object sender, KeyPressEventArgs e)
         {
             /*Можно вводить только числа, бэкспейс, запятая и минус*/
@@ -818,21 +1017,21 @@ namespace Second
                 e.Handled = true;
             /*Если нажат энтер*/
             if (e.KeyChar == 13)
-            {
-                TextBoxXCoordinate.Enabled = false;
-                TextBoxXCoordinate.Enabled = true;
-            }
+                UnFocus.Focus();
             if (TextBoxXCoordinate.TextLength == 0 && e.KeyChar == 44)
                 e.Handled = true;
         }
-        private void DrawSplineLayers_Click(object sender, EventArgs e)
+        private void TextBoxLayerHeight_Validating(object sender, CancelEventArgs e)
         {
-            /*Проверка количества опорных точек*/
-            if (TextBoxLayerNumberOfPoints.Text.Length == 0 || Convert.ToInt32(TextBoxLayerNumberOfPoints.Text) < 2)
+            if (Convert.ToDouble(TextBoxLayerHeight.Text) + Draw.EARTHSIZE > 1000000)
             {
-                MessageBox.Show("Должно быть минимум 2 опорных точки.");
-                return;
+                TextBoxLayerHeight.Text = (1000000.0-Draw.EARTHSIZE).ToString();
+                MessageBox.Show("Высота слоя должна быть меньше "+TextBoxYAreaSize.Text);
             }
+        }
+
+        private void DrawSplineLayers_Click(object sender, EventArgs e)
+        { 
             /*"Включаем" кнопку, теперь можно рисовать несколько слоев с заданным количеством*/
             /*опорных точек*/
             if (DrawLayers == false)
@@ -853,41 +1052,44 @@ namespace Second
         private void AddSplineLayers_Click(object sender, EventArgs e)
         {
             /*Рисуем новый слой*/
-            Draw.AddLayers(Convert.ToInt32(TextBoxLayerHeight.Text), Convert.ToInt32(TextBoxLayerNumberOfPoints.Text),new Material());
+            Draw.AddLayers(-Convert.ToInt32(TextBoxLayerHeight.Text), Convert.ToInt32(TextBoxLayerNumberOfPoints.Text), MaterialLayer[СomboBoxLayerMaterial.SelectedIndex]);
             /*Изменяем ползунки*/
             MainPaint_VScroll.LargeChange = Convert.ToInt32(Draw.YAREASIZE + 1);
             MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
             MainPaint_VScroll.Value = Draw.ScrollValue(0);
             /*Заполняем таблицу*/
-            if (DataGridViewLayers.Rows.Count == 1)
-            {
-                //DataGridViewLayers.Rows.Add(1, "", Convert.ToInt32(TextBoxLayerHeight.Text), Convert.ToInt32(TextBoxLayerNumberOfPoints.Text));
-                //DataGridViewLayers.Rows[0].Cells[1].Style.BackColor = Draw.GetLayerColor(Convert.ToInt32(DataGridViewLayers.Rows[0].Cells[0].Value));
-            }
-            else
-            {
-                //DataGridViewLayers.Rows.Add(DataGridViewLayers.Rows.Count, "", Convert.ToInt32(TextBoxLayerHeight.Text), Convert.ToInt32(TextBoxLayerNumberOfPoints.Text));
-                //DataGridViewLayers.Rows[DataGridViewLayers.Rows.Count - 2].Cells[1].Style.BackColor = Draw.GetLayerColor(Convert.ToInt32(DataGridViewLayers.Rows[DataGridViewLayers.Rows.Count - 2].Cells[0].Value));
-            }
+            DataGridViewLayers.Rows.Add(0, "", 0, 0);
+            ChangeDataGridViewLayers();
         }
-
-
-        private void СomboBoxLayerMaterial_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            
-        }
-        private void СomboBoxLayerMaterial_MouseClick(object sender, MouseEventArgs e)
-        {
-            //if (e.Button == MouseButtons.Right)
-            //    ContextMenuMaterials.Show();
-        }
-
 
         private void СomboBoxLayerMaterial_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right)
-                ContextMenuMaterials.Show();
+            {
+                LayerMinerals = 0;
+                ContextMenuMaterials.Show(Cursor.Position);
+            }
         }
+        private void СomboBoxLayerMaterial_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            if (e.Index < 0) { return; }
+            string text = "Сопротивление:" + MaterialLayer[e.Index].RESISTANCE.ToString();
+            e.DrawBackground();
+            using (SolidBrush br = new SolidBrush(e.ForeColor))
+            { e.Graphics.DrawString(СomboBoxLayerMaterial.GetItemText(СomboBoxLayerMaterial.Items[e.Index]), e.Font, br, e.Bounds); }
+            if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
+            {
+                ToolTip.Show(text, СomboBoxLayerMaterial, e.Bounds.Right, e.Bounds.Bottom);
+            }
+            e.DrawFocusRectangle();
+        }
+        private void СomboBoxLayerMaterial_DropDownClosed(object sender, EventArgs e)
+        {
+            ToolTip.Hide(СomboBoxLayerMaterial);
+            UnFocus.Focus();
+        }
+
+
         private void DataGridViewLayers_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right && e.RowIndex != DataGridViewLayers.Rows.Count - 1)
@@ -946,14 +1148,16 @@ namespace Second
                 DrawSplineMinerals.BackColor = System.Drawing.SystemColors.Highlight;
                 DrawLayers = false;
                 DrawSplineLayers.BackColor = System.Drawing.SystemColors.Control;
-                Draw.NewMinerals(MaterialsLayer[ComboBoxMineralMaterial.SelectedIndex]);
+                Draw.NewMinerals(MaterialLayer[ComboBoxMineralMaterial.SelectedIndex]);
                 UnFocus.Focus();
             }
             else
             {
                 DrawMineral = false;
                 DrawSplineMinerals.BackColor = System.Drawing.SystemColors.Control;
-                if(!Draw.CheckPointsMinerals())
+                DataGridViewMinerals.Rows.Add(0, "", 0, 0);
+                ChangeDataGridViewMinerals();
+                if (!Draw.CheckPointsMinerals())
                     MessageBox.Show("Должно быть минимум 3 точки, точки удалены.");
                 UnFocus.Focus();
             }
@@ -970,12 +1174,31 @@ namespace Second
 
 
 
+
+
         #endregion
 
         #endregion
 
         #endregion
 
+        
 
+
+        private void ComboBoxMineralMaterial_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            if (e.Index < 0) { return; }
+            string text = "Сопротивление:" + MaterialMineral[e.Index].RESISTANCE.ToString();
+            e.DrawBackground();
+            using (SolidBrush br = new SolidBrush(e.ForeColor))
+            { e.Graphics.DrawString(ComboBoxMineralMaterial.GetItemText(ComboBoxMineralMaterial.Items[e.Index]), e.Font, br, e.Bounds); }
+            if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
+            {
+                ToolTip.Show(text, ComboBoxMineralMaterial, e.Bounds.Right, e.Bounds.Bottom);
+            }
+            e.DrawFocusRectangle();
+        }
+
+        
     }
 }

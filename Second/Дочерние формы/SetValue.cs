@@ -5,7 +5,6 @@ namespace Second
 {
     public partial class SetValue : Form
     {
-        public string Text;
         public SetValue()
         {
             InitializeComponent();
@@ -15,7 +14,7 @@ namespace Second
         }
         private void TextBoxXCoordinate_KeyPress(object sender, KeyPressEventArgs e)
         {
-            /*Можно вводить только числа, бэкспейс, запятая и минус*/
+            /*Можно вводить только числа, бэкспейс, запятая*/
             if (!Char.IsDigit(e.KeyChar) && e.KeyChar != 8
                 && (e.KeyChar != 44 || TextBoxXCoordinate.Text.IndexOf(",") > -1))
                 e.Handled = true;

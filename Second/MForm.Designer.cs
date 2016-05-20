@@ -29,10 +29,11 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
             this.MainPaint = new Tao.Platform.Windows.SimpleOpenGlControl();
             this.RenderTimer = new System.Windows.Forms.Timer(this.components);
             this.MainPaint_VScroll = new System.Windows.Forms.VScrollBar();
@@ -57,9 +58,6 @@
             this.LabelXAreaSize = new System.Windows.Forms.Label();
             this.TabPageSpline = new System.Windows.Forms.TabPage();
             this.СomboBoxLayerMaterial = new System.Windows.Forms.ComboBox();
-            this.ContextMenuMaterials = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.AddMaterialToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.DeleteMaterialToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.label1 = new System.Windows.Forms.Label();
             this.ComboBoxMineralMaterial = new System.Windows.Forms.ComboBox();
             this.СheckedListBoxSpline = new System.Windows.Forms.CheckedListBox();
@@ -82,8 +80,13 @@
             this.LabelLayerNumberOfPoints = new System.Windows.Forms.Label();
             this.DrawSplineLayers = new System.Windows.Forms.Button();
             this.TabPageMKE = new System.Windows.Forms.TabPage();
+            this.ContextMenuMaterials = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.AddMaterialToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ChangeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.DeleteMaterialToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.СontextMenuMainPaint = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.AddValueToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ChangeValueToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ChangeMaterialToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ChangeColorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.AddPointToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.DeletePointToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -102,9 +105,9 @@
             this.TabControl.SuspendLayout();
             this.TabPageSettings.SuspendLayout();
             this.TabPageSpline.SuspendLayout();
-            this.ContextMenuMaterials.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DataGridViewMinerals)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DataGridViewLayers)).BeginInit();
+            this.ContextMenuMaterials.SuspendLayout();
             this.СontextMenuMainPaint.SuspendLayout();
             this.ContextMenuDataGridView.SuspendLayout();
             this.GroupBox.SuspendLayout();
@@ -279,6 +282,8 @@
             this.СheckedListBoxSettings.Size = new System.Drawing.Size(78, 30);
             this.СheckedListBoxSettings.TabIndex = 8;
             this.СheckedListBoxSettings.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.СheckedListBoxSettings_ItemCheck);
+            this.СheckedListBoxSettings.SelectedIndexChanged += new System.EventHandler(this.СheckedListBoxSettings_SelectedIndexChanged);
+            this.СheckedListBoxSettings.MouseLeave += new System.EventHandler(this.СheckedListBoxSettings_MouseLeave);
             // 
             // TextBoxAccuracy
             // 
@@ -384,40 +389,20 @@
             this.TabPageSpline.Size = new System.Drawing.Size(246, 425);
             this.TabPageSpline.TabIndex = 0;
             this.TabPageSpline.Text = "Почва";
+            this.TabPageSpline.Click += new System.EventHandler(this.TabPageSpline_Click);
             // 
             // СomboBoxLayerMaterial
             // 
-            this.СomboBoxLayerMaterial.ContextMenuStrip = this.ContextMenuMaterials;
+            this.СomboBoxLayerMaterial.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             this.СomboBoxLayerMaterial.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.СomboBoxLayerMaterial.FormattingEnabled = true;
             this.СomboBoxLayerMaterial.Location = new System.Drawing.Point(71, 35);
             this.СomboBoxLayerMaterial.Name = "СomboBoxLayerMaterial";
             this.СomboBoxLayerMaterial.Size = new System.Drawing.Size(89, 21);
             this.СomboBoxLayerMaterial.TabIndex = 13;
-            this.СomboBoxLayerMaterial.SelectedIndexChanged += new System.EventHandler(this.СomboBoxLayerMaterial_SelectedIndexChanged);
-            this.СomboBoxLayerMaterial.MouseClick += new System.Windows.Forms.MouseEventHandler(this.СomboBoxLayerMaterial_MouseClick);
+            this.СomboBoxLayerMaterial.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.СomboBoxLayerMaterial_DrawItem);
+            this.СomboBoxLayerMaterial.DropDownClosed += new System.EventHandler(this.СomboBoxLayerMaterial_DropDownClosed);
             this.СomboBoxLayerMaterial.MouseDown += new System.Windows.Forms.MouseEventHandler(this.СomboBoxLayerMaterial_MouseDown);
-            // 
-            // ContextMenuMaterials
-            // 
-            this.ContextMenuMaterials.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.AddMaterialToolStripMenuItem,
-            this.DeleteMaterialToolStripMenuItem});
-            this.ContextMenuMaterials.Name = "ContextMenuMaterials";
-            this.ContextMenuMaterials.Size = new System.Drawing.Size(127, 48);
-            // 
-            // AddMaterialToolStripMenuItem
-            // 
-            this.AddMaterialToolStripMenuItem.Name = "AddMaterialToolStripMenuItem";
-            this.AddMaterialToolStripMenuItem.Size = new System.Drawing.Size(126, 22);
-            this.AddMaterialToolStripMenuItem.Text = "Добавить";
-            this.AddMaterialToolStripMenuItem.Click += new System.EventHandler(this.AddMaterialToolStripMenuItem_Click);
-            // 
-            // DeleteMaterialToolStripMenuItem
-            // 
-            this.DeleteMaterialToolStripMenuItem.Name = "DeleteMaterialToolStripMenuItem";
-            this.DeleteMaterialToolStripMenuItem.Size = new System.Drawing.Size(126, 22);
-            this.DeleteMaterialToolStripMenuItem.Text = "Удалить";
             // 
             // label1
             // 
@@ -430,13 +415,14 @@
             // 
             // ComboBoxMineralMaterial
             // 
-            this.ComboBoxMineralMaterial.ContextMenuStrip = this.ContextMenuMaterials;
+            this.ComboBoxMineralMaterial.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             this.ComboBoxMineralMaterial.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ComboBoxMineralMaterial.FormattingEnabled = true;
             this.ComboBoxMineralMaterial.Location = new System.Drawing.Point(71, 200);
             this.ComboBoxMineralMaterial.Name = "ComboBoxMineralMaterial";
             this.ComboBoxMineralMaterial.Size = new System.Drawing.Size(89, 21);
             this.ComboBoxMineralMaterial.TabIndex = 11;
+            this.ComboBoxMineralMaterial.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.ComboBoxMineralMaterial_DrawItem);
             // 
             // СheckedListBoxSpline
             // 
@@ -480,6 +466,7 @@
             // 
             this.DataGridViewMinerals.AllowUserToResizeColumns = false;
             this.DataGridViewMinerals.AllowUserToResizeRows = false;
+            this.DataGridViewMinerals.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
             this.DataGridViewMinerals.BackgroundColor = System.Drawing.SystemColors.Control;
             this.DataGridViewMinerals.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.DataGridViewMinerals.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
@@ -487,6 +474,14 @@
             this.dataGridViewTextBoxColumn2,
             this.dataGridViewTextBoxColumn3,
             this.dataGridViewTextBoxColumn4});
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.DataGridViewMinerals.DefaultCellStyle = dataGridViewCellStyle3;
             this.DataGridViewMinerals.GridColor = System.Drawing.SystemColors.Control;
             this.DataGridViewMinerals.Location = new System.Drawing.Point(4, 229);
             this.DataGridViewMinerals.Name = "DataGridViewMinerals";
@@ -541,12 +536,12 @@
             // TextBoxLayerHeight
             // 
             this.TextBoxLayerHeight.Location = new System.Drawing.Point(117, 64);
-            this.TextBoxLayerHeight.MaxLength = 6;
             this.TextBoxLayerHeight.Name = "TextBoxLayerHeight";
             this.TextBoxLayerHeight.Size = new System.Drawing.Size(43, 20);
             this.TextBoxLayerHeight.TabIndex = 6;
             this.TextBoxLayerHeight.Text = "0";
             this.TextBoxLayerHeight.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TextBoxLayerHeight_KeyPress);
+            this.TextBoxLayerHeight.Validating += new System.ComponentModel.CancelEventHandler(this.TextBoxLayerHeight_Validating);
             // 
             // LabelLayerHeight
             // 
@@ -576,28 +571,28 @@
             this.DataGridViewLayers.AllowUserToResizeRows = false;
             this.DataGridViewLayers.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
             this.DataGridViewLayers.BackgroundColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.DataGridViewLayers.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.DataGridViewLayers.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle4;
             this.DataGridViewLayers.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.DataGridViewLayers.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.NumberLayer,
             this.ColorLayer,
             this.HeightLayer,
             this.Material});
-            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.DataGridViewLayers.DefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle5.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle5.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle5.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle5.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle5.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.DataGridViewLayers.DefaultCellStyle = dataGridViewCellStyle5;
             this.DataGridViewLayers.GridColor = System.Drawing.SystemColors.Control;
             this.DataGridViewLayers.Location = new System.Drawing.Point(5, 93);
             this.DataGridViewLayers.MultiSelect = false;
@@ -693,49 +688,86 @@
             this.TabPageMKE.TabIndex = 1;
             this.TabPageMKE.Text = "МКЭ";
             // 
+            // ContextMenuMaterials
+            // 
+            this.ContextMenuMaterials.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.AddMaterialToolStripMenuItem,
+            this.ChangeToolStripMenuItem,
+            this.DeleteMaterialToolStripMenuItem});
+            this.ContextMenuMaterials.Name = "ContextMenuMaterials";
+            this.ContextMenuMaterials.Size = new System.Drawing.Size(153, 92);
+            // 
+            // AddMaterialToolStripMenuItem
+            // 
+            this.AddMaterialToolStripMenuItem.Name = "AddMaterialToolStripMenuItem";
+            this.AddMaterialToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.AddMaterialToolStripMenuItem.Text = "Добавить";
+            this.AddMaterialToolStripMenuItem.Click += new System.EventHandler(this.AddMaterialToolStripMenuItem_Click);
+            // 
+            // ChangeToolStripMenuItem
+            // 
+            this.ChangeToolStripMenuItem.Name = "ChangeToolStripMenuItem";
+            this.ChangeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.ChangeToolStripMenuItem.Text = "Изменить";
+            this.ChangeToolStripMenuItem.Click += new System.EventHandler(this.ChangeToolStripMenuItem_Click);
+            // 
+            // DeleteMaterialToolStripMenuItem
+            // 
+            this.DeleteMaterialToolStripMenuItem.Name = "DeleteMaterialToolStripMenuItem";
+            this.DeleteMaterialToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.DeleteMaterialToolStripMenuItem.Text = "Удалить";
+            this.DeleteMaterialToolStripMenuItem.Click += new System.EventHandler(this.DeleteMaterialToolStripMenuItem_Click);
+            // 
             // СontextMenuMainPaint
             // 
             this.СontextMenuMainPaint.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.AddValueToolStripMenuItem,
+            this.ChangeValueToolStripMenuItem,
+            this.ChangeMaterialToolStripMenuItem,
             this.ChangeColorToolStripMenuItem,
             this.AddPointToolStripMenuItem,
             this.DeletePointToolStripMenuItem,
             this.DeleteLayersMainPaintToolStripMenuItem});
             this.СontextMenuMainPaint.Name = "СontextMenuStrip";
-            this.СontextMenuMainPaint.Size = new System.Drawing.Size(165, 114);
+            this.СontextMenuMainPaint.Size = new System.Drawing.Size(167, 136);
             // 
-            // AddValueToolStripMenuItem
+            // ChangeValueToolStripMenuItem
             // 
-            this.AddValueToolStripMenuItem.Name = "AddValueToolStripMenuItem";
-            this.AddValueToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
-            this.AddValueToolStripMenuItem.Text = "Задать значение";
-            this.AddValueToolStripMenuItem.Click += new System.EventHandler(this.AddValueToolStripMenuItem_Click);
+            this.ChangeValueToolStripMenuItem.Name = "ChangeValueToolStripMenuItem";
+            this.ChangeValueToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
+            this.ChangeValueToolStripMenuItem.Text = "Задать значение";
+            this.ChangeValueToolStripMenuItem.Click += new System.EventHandler(this.ChangeValueToolStripMenuItem_Click);
+            // 
+            // ChangeMaterialToolStripMenuItem
+            // 
+            this.ChangeMaterialToolStripMenuItem.Name = "ChangeMaterialToolStripMenuItem";
+            this.ChangeMaterialToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
+            this.ChangeMaterialToolStripMenuItem.Text = "Задать материал";
             // 
             // ChangeColorToolStripMenuItem
             // 
             this.ChangeColorToolStripMenuItem.Name = "ChangeColorToolStripMenuItem";
-            this.ChangeColorToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+            this.ChangeColorToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
             this.ChangeColorToolStripMenuItem.Text = "Поменять цвет";
             this.ChangeColorToolStripMenuItem.Click += new System.EventHandler(this.ChangeColorToolStripMenuItem_Click);
             // 
             // AddPointToolStripMenuItem
             // 
             this.AddPointToolStripMenuItem.Name = "AddPointToolStripMenuItem";
-            this.AddPointToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+            this.AddPointToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
             this.AddPointToolStripMenuItem.Text = "Добавить точку";
             this.AddPointToolStripMenuItem.Click += new System.EventHandler(this.AddPointToolStripMenuItem_Click);
             // 
             // DeletePointToolStripMenuItem
             // 
             this.DeletePointToolStripMenuItem.Name = "DeletePointToolStripMenuItem";
-            this.DeletePointToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+            this.DeletePointToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
             this.DeletePointToolStripMenuItem.Text = "Удалить точку";
             this.DeletePointToolStripMenuItem.Click += new System.EventHandler(this.DeletePointToolStripMenuItem_Click);
             // 
             // DeleteLayersMainPaintToolStripMenuItem
             // 
             this.DeleteLayersMainPaintToolStripMenuItem.Name = "DeleteLayersMainPaintToolStripMenuItem";
-            this.DeleteLayersMainPaintToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+            this.DeleteLayersMainPaintToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
             this.DeleteLayersMainPaintToolStripMenuItem.Text = "Удалить сплайн";
             this.DeleteLayersMainPaintToolStripMenuItem.Click += new System.EventHandler(this.DeleteLayersMainPaintToolStripMenuItem_Click);
             // 
@@ -845,9 +877,9 @@
             this.TabPageSettings.PerformLayout();
             this.TabPageSpline.ResumeLayout(false);
             this.TabPageSpline.PerformLayout();
-            this.ContextMenuMaterials.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.DataGridViewMinerals)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.DataGridViewLayers)).EndInit();
+            this.ContextMenuMaterials.ResumeLayout(false);
             this.СontextMenuMainPaint.ResumeLayout(false);
             this.ContextMenuDataGridView.ResumeLayout(false);
             this.GroupBox.ResumeLayout(false);
@@ -887,7 +919,7 @@
         private System.Windows.Forms.ComboBox ComboBoxMineralMaterial;
         private System.Windows.Forms.ContextMenuStrip ContextMenuDataGridView;
         private System.Windows.Forms.ToolStripMenuItem DeleteSplineDataGridViewToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem AddValueToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem ChangeValueToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem AddPointToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem DeletePointToolStripMenuItem;
         private System.Windows.Forms.TabPage TabPageSettings;
@@ -924,6 +956,8 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
         private System.Windows.Forms.Button UnFocus;
+        private System.Windows.Forms.ToolStripMenuItem ChangeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem ChangeMaterialToolStripMenuItem;
     }
 }
 
