@@ -7,9 +7,9 @@ namespace Second
 {
     public class MyScroll : Control
     {
-        private long @value;
+        private double @value;
 
-        public long Value
+        public double Value
         {
             get { return value; }
             set
@@ -22,15 +22,15 @@ namespace Second
             }
         }
 
-        private long maximum = 100;
-        public long Maximum
+        private double maximum = 100;
+        public double Maximum
         {
             get { return maximum; }
             set { maximum = value; Invalidate(); }
         }
 
-        private long largechange = 100;
-        public long LargeChange
+        private double largechange = 100;
+        public double LargeChange
         {
             get { return largechange; }
             set { largechange = value; Invalidate(); }
@@ -65,7 +65,7 @@ namespace Second
         }
 
         [DefaultValue(1)]
-        public long SmallStep { get; set; }
+        public double SmallStep { get; set; }
 
         [DefaultValue(true)]
         public bool ShowButtons { get; set; }

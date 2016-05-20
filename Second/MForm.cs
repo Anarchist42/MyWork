@@ -137,10 +137,10 @@ namespace Second
         }
         private void RenderTimer_Tick(object sender, EventArgs e)
         {
-            if (MainPaint_VScroll.LargeChange == MainPaint_VScroll.Maximum + 1)
+            if (MainPaint_VScroll.LargeChange == MainPaint_VScroll.Maximum)
                 MainPaint_VScroll.Visible = false;
             else MainPaint_VScroll.Visible = true;
-            if (MainPaint_HScroll.LargeChange == MainPaint_HScroll.Maximum + 1)
+            if (MainPaint_HScroll.LargeChange == MainPaint_HScroll.Maximum )
                 MainPaint_HScroll.Visible = false;
             else MainPaint_HScroll.Visible = true;
             Draw.Draw();
@@ -149,10 +149,10 @@ namespace Second
         /*Изменяем ползунки*/
         private void ChangeScrollBars()
         {
-            MainPaint_VScroll.LargeChange = Convert.ToInt32(Draw.YAREASIZE + 1);
+            MainPaint_VScroll.LargeChange = Draw.YAREASIZE;
             MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
             MainPaint_VScroll.Value = Draw.ScrollValue(0);
-            MainPaint_HScroll.LargeChange = Convert.ToInt32(Draw.XAREASIZE + 1);
+            MainPaint_HScroll.LargeChange = Draw.XAREASIZE;
             MainPaint_HScroll.Maximum = Draw.ScrollMaximum(1);
             MainPaint_HScroll.Value = Draw.ScrollValue(1);
         }
@@ -189,12 +189,12 @@ namespace Second
             }
         }
         /*Изменение контексного меню, вкладки Материалы*/
-        private void ChangeMaterialsToolStripMenuItem()
+        private void ChangeMaterialsToolStripMenuItem(ToolStripMenuItem MenuItem)
         {
             int i;
             Material Material;
             ToolStripMenuItem AddItem;
-            ChangeMaterialToolStripMenuItem.DropDownItems.Clear();
+            MenuItem.DropDownItems.Clear();
             if (CheckControlPoint[0]==1)
             {               
                 Draw.ReturnMaterial(CheckControlPoint,out Material);
@@ -204,7 +204,7 @@ namespace Second
                     AddItem.Click += new EventHandler(ChangeMaterialToolStripMenuItem_Click);
                     if (Material.NAME == MaterialLayer[i].NAME)
                         AddItem.Checked = true;
-                    ChangeMaterialToolStripMenuItem.DropDownItems.Add(AddItem);
+                    MenuItem.DropDownItems.Add(AddItem);
                 }
             }
             else
@@ -216,7 +216,7 @@ namespace Second
                     AddItem.Click += new EventHandler(ChangeMaterialToolStripMenuItem_Click);
                     if (Material.NAME == MaterialLayer[i].NAME)
                         AddItem.Checked = true;
-                    ChangeMaterialToolStripMenuItem.DropDownItems.Add(AddItem);
+                    MenuItem.DropDownItems.Add(AddItem);
                 }
             }
         }
@@ -290,7 +290,7 @@ namespace Second
         private void DeleteLayersMainPaintToolStripMenuItem_Click(object sender, EventArgs e)
         {
             /*Старое значение максимального значения ползунка*/
-            int MaximumScroll = MainPaint_VScroll.Maximum;
+            double MaximumScroll = MainPaint_VScroll.Maximum;
             /*Удаляем слой*/
             if (Draw.DeleteSplineForm(CheckControlPoint))
             {
@@ -312,7 +312,6 @@ namespace Second
             MainPaint_VScroll.Value = Draw.ScrollValue(0);
         }
         #endregion
-
         private void MainForm_SizeChanged(object sender, EventArgs e)
         {
             if (this.WindowState != FormWindowState.Minimized)
@@ -330,23 +329,23 @@ namespace Second
                     Draw.MINZOOM = GlobalConst.MinZoom * Convert.ToDouble(MainPaint.Width - GlobalConst.Difference)
                         / Convert.ToDouble(MainPaint.MinimumSize.Width - GlobalConst.Difference);
                     MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
-                    MainPaint_HScroll.Maximum = Convert.ToInt32(Draw.XAREASIZE);
+                    MainPaint_HScroll.Maximum = Draw.XAREASIZE;
                 }
                 else
                 {
                     Draw.MINZOOM = GlobalConst.MinZoom * Convert.ToDouble(MainPaint.Height - GlobalConst.Difference)
                         / Convert.ToDouble(MainPaint.MinimumSize.Height - GlobalConst.Difference);
                     MainPaint_HScroll.Maximum = Draw.ScrollMaximum(1);
-                    MainPaint_VScroll.Maximum = Convert.ToInt32(Draw.YAREASIZE);
+                    MainPaint_VScroll.Maximum = Draw.YAREASIZE;
                 }
                 /*Настраиваем вертикальный ползунок*/
                 MainPaint_VScroll.Size = new Size(MainPaint_VScroll.Size.Width, MainPaint.Height);
-                MainPaint_VScroll.LargeChange = Convert.ToInt32(Draw.YAREASIZE + 1);
-                MainPaint_VScroll.Value = (MainPaint_VScroll.Maximum - MainPaint_VScroll.LargeChange) / 2 + 1;
+                MainPaint_VScroll.LargeChange = Draw.YAREASIZE;
+                MainPaint_VScroll.Value = Draw.ScrollValue(0);
                 /*Настраиваем горизонтальный ползунок*/
                 MainPaint_HScroll.Size = new Size(MainPaint.Width, MainPaint_HScroll.Size.Height);
-                MainPaint_HScroll.LargeChange = Convert.ToInt32(Draw.XAREASIZE + 1);
-                MainPaint_HScroll.Value = (MainPaint_HScroll.Maximum - MainPaint_HScroll.LargeChange) / 2 + 1;
+                MainPaint_HScroll.LargeChange = Draw.XAREASIZE;
+                MainPaint_HScroll.Value = Draw.ScrollValue(1);
                 /*Настраиваем панель с параметрами*/
                 TabControl.Size = new Size(TabControl.Size.Width, MainPaint.Height);
                 /*Настраиваем отображение "нового" окна для функций Gl*/
@@ -365,25 +364,16 @@ namespace Second
         {
             UnFocus.Focus();
         }
-        private void MainPaint_VScroll_Scroll(object sender, ScrollEventArgs e)
-        {
-            Draw.YOFFSET += (e.NewValue - e.OldValue) * Draw.ScrollStep(0, MainPaint_VScroll.Maximum - MainPaint_VScroll.LargeChange + 1);
-        }
-        private void MainPaint_HScroll_Scroll(object sender, ScrollEventArgs e)
-        {
-            Draw.XOFFSET += (e.OldValue - e.NewValue) * Draw.ScrollStep(1, MainPaint_HScroll.Maximum - MainPaint_HScroll.LargeChange + 1);
-        }
-        #region СДЕЛАТЬ!!!!
-
         private void MainPaint_VScroll_ValueChanged(object sender, EventArgs e)
         {
-
+            var v = (sender as MyScroll).Value;
+            Draw.YOFFSET = (v - MainPaint_VScroll.Maximum / 2) * Draw.ZOOM;
         }
         private void MainPaint_HScroll_ValueChanged(object sender, EventArgs e)
         {
-            
+            var v = (sender as MyScroll).Value;
+            Draw.XOFFSET = (MainPaint_HScroll.Maximum / 2 - v) * Draw.ZOOM;
         }
-        #endregion
         private void MainPaint_MouseWheel(object sender, System.Windows.Forms.MouseEventArgs e)
         {
             /*Проверяем находится ли мышь на рабочей области*/
@@ -400,10 +390,10 @@ namespace Second
                 TextBoxXCoordinate.Text = Draw.GetCoordinate(0).ToString();
                 TextBoxYCoordinate.Text = Draw.GetCoordinate(1).ToString();
                 /*Изменяем ползунки*/
-                MainPaint_VScroll.LargeChange = Convert.ToInt32(Draw.YAREASIZE + 1);
+                MainPaint_VScroll.LargeChange = Draw.YAREASIZE;
                 MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
                 MainPaint_VScroll.Value = Draw.ScrollValue(0);
-                MainPaint_HScroll.LargeChange = Convert.ToInt32(Draw.XAREASIZE + 1);
+                MainPaint_HScroll.LargeChange = Draw.XAREASIZE;
                 MainPaint_HScroll.Maximum = Draw.ScrollMaximum(1);
                 MainPaint_HScroll.Value = Draw.ScrollValue(1);
             }
@@ -431,10 +421,10 @@ namespace Second
                     {
                         Draw.ChangePoint(CheckControlPoint, new PointSpline(Draw.GetCoordinate(0), Draw.GetCoordinate(1)));
                         TextBoxYAreaSize.Text = Draw.YAREASIZE.ToString();
-                        MainPaint_VScroll.LargeChange = Convert.ToInt32(Draw.YAREASIZE + 1);
+                        MainPaint_VScroll.LargeChange = Draw.YAREASIZE;
                         MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
                         MainPaint_VScroll.Value = Draw.ScrollValue(0);
-                        MainPaint_HScroll.LargeChange = Convert.ToInt32(Draw.XAREASIZE + 1);
+                        MainPaint_HScroll.LargeChange = Draw.XAREASIZE;
                         MainPaint_HScroll.Maximum = Draw.ScrollMaximum(1);
                         MainPaint_HScroll.Value = Draw.ScrollValue(1);
                         if (CheckControlPoint[0] == 1)
@@ -503,7 +493,7 @@ namespace Second
             /*Если попали и нажата правая кнопка мыши, то вызываем контексное меню*/
             if (CheckControlPoint[0] != 0 && e.Button == System.Windows.Forms.MouseButtons.Right)
             {
-                ChangeMaterialsToolStripMenuItem();
+                ChangeMaterialsToolStripMenuItem(ChangeMaterialToolStripMenuItem);
                 СontextMenuMainPaint.Show(Cursor.Position);
             }
         }
@@ -571,6 +561,9 @@ namespace Second
                     /*Разрешаем менять окно*/
                     this.MaximumSize = SystemInformation.PrimaryMonitorSize;
                     this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Sizable;
+                    /*Меняем точность в скроллбарах*/
+                    MainPaint_VScroll.SmallStep = 1.0 / Math.Pow(10, GlobalConst.Accuracy);
+                    MainPaint_HScroll.SmallStep = 1.0 / Math.Pow(10, GlobalConst.Accuracy);
                     /*Меняем ползунки*/
                     ChangeScrollBars();
                     /*Добавляем "Землю" 0 сплайн*/
@@ -585,6 +578,9 @@ namespace Second
                     Draw.EARTHSIZE = Convert.ToDouble(TextBoxEarthSize.Text);
                     /*Изменяем точность слпайнов*/
                     Draw.ChangeAccuracy();
+                    /*Меняем точность в скроллбарах*/
+                    MainPaint_VScroll.SmallStep = 1.0 / Math.Pow(10, GlobalConst.Accuracy);
+                    MainPaint_HScroll.SmallStep = 1.0 / Math.Pow(10, GlobalConst.Accuracy);
                     /*Если новое значение больше предыдущего то добавляем точку*/
                     if (Draw.XAREASIZE > Convert.ToDouble(TextBoxXAreaSize.Text))
                     {
@@ -835,7 +831,7 @@ namespace Second
         private void DeleteSplineDataGridViewToolStripMenuItem_Click(object sender, EventArgs e)
         {
             /*Старое значение максимального значения ползунка*/
-            int MaximumScroll = MainPaint_VScroll.Maximum;
+            double MaximumScroll = MainPaint_VScroll.Maximum;
             /*Удаляем слой*/
             Draw.DeleteSplineGrid(LayerMinerals, CheckControlPoint[1]);
             /*Изменяем ползунки*/
@@ -855,6 +851,15 @@ namespace Second
                 ChangeDataGridViewMinerals();
                 DataGridViewMinerals.ClearSelection();
             }
+
+        }
+        private void MaterialSplineDataGridViewToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void ChangeColorDataGridViewToolStripMenuItem_Click(object sender, EventArgs e)
+        {
 
         }
         #endregion
@@ -1094,9 +1099,10 @@ namespace Second
         {
             if (e.Button == MouseButtons.Right && e.RowIndex != DataGridViewLayers.Rows.Count - 1)
             {
-                LayerMinerals = 1;
                 DataGridViewLayers.Rows[e.RowIndex].Selected = true;
+                CheckControlPoint[0] = 1;
                 CheckControlPoint[1] = e.RowIndex;
+                ChangeMaterialsToolStripMenuItem(MaterialSplineDataGridViewToolStripMenuItem);
                 ContextMenuDataGridView.Show(Cursor.Position);
             }
         }
@@ -1162,18 +1168,6 @@ namespace Second
                 UnFocus.Focus();
             }
         }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
         #endregion

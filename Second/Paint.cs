@@ -357,34 +357,36 @@ namespace Second
         /*Вычисление максимального значения ползунка*/
         /*Параметры: TypeScroll - тип скролла ( 0 - для вертикального, 1 - для горизонтального)*/
         /*Возвращает: Максимальное значение искомого типа ползунка*/
-        public int ScrollMaximum(int TypeScroll)
+        public double ScrollMaximum(int TypeScroll)
         {
             if (TypeScroll == 0)
                 return
+                    Math.Round(
                     /*Исходный размер*/
-                    Convert.ToInt32(YAreaSize) +
+                    
                     /*Сколько вверх*/
-                    Convert.ToInt32(((YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 + YOffset) / Zoom) +
+                    ((YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 + YOffset) / Zoom +
                     /*Сколько вниз*/
-                    Convert.ToInt32(YAreaSize) - Convert.ToInt32(((YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 + YOffset + GLPaint.Height - GlobalConst.Difference) / Zoom);
+                    YAreaSize - ((YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 + YOffset + GLPaint.Height - GlobalConst.Difference) / Zoom,GlobalConst.Accuracy);
             else
                 return
+                    Math.Round(
                    /*Исодный размер*/
-                   Convert.ToInt32(XAreaSize) +
+                   
                    /*Сколько влево*/
-                   Convert.ToInt32(((XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2 - XOffset) / Zoom) +
+                   ((XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2 - XOffset) / Zoom +
                    /*Сколько вправо*/
-                   Convert.ToInt32(XAreaSize) - Convert.ToInt32(((XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2 - XOffset + GLPaint.Width - GlobalConst.Difference) / Zoom);
+                   XAreaSize - ((XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2 - XOffset + GLPaint.Width - GlobalConst.Difference) / Zoom, GlobalConst.Accuracy);
         }
         /*Вычисление значения ползунка*/
         /*Параметры: TypeScroll ( 0 - для вертикального, 1 - для горизонтального)*/
         /*Возвращает: Значение искомого типа ползунка*/
-        public int ScrollValue(int TypeScroll)
+        public double ScrollValue(int TypeScroll)
         {
             if (TypeScroll == 0)
-                return Convert.ToInt32(Math.Abs(((YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 + YOffset) / Zoom));
+                return Math.Round(Math.Abs(((YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 + YOffset) / Zoom),GlobalConst.Accuracy);
             else
-                return Convert.ToInt32(Math.Abs(((XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2 - XOffset) / Zoom));
+                return Math.Round(Math.Abs(((XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2 - XOffset) / Zoom),GlobalConst.Accuracy);
         }
         /*Вычисление шага ползунка*/
         /*Параметры: TypeScroll ( 0 - для вертикального, 1 - для горизонтального)*/
@@ -831,8 +833,7 @@ namespace Second
         /// Изменение материала.
         /// </summary>
         /// <param name="FIJ"> Массив [0] - 0(нету),1(слой),2(минерал); 
-        ///                           [1] - номер слоя\минерала;
-        ///                           [2] - номер опорной точки.</param>
+        ///                           [1] - номер слоя\минерала;</param>
         /// <param name="Material"> Материал. </param>
         /// <returns></returns>
         public bool ChangeMaterial(int[] FIJ,Material Material)
@@ -854,8 +855,7 @@ namespace Second
         /// Возвращает материал слоя или минерала.
         /// </summary>
         /// <param name="FIJ"> Массив [0] - 0(нету),1(слой),2(минерал); 
-        ///                           [1] - номер слоя\минерала;
-        ///                           [2] - номер опорной точки.</param>
+        ///                           [1] - номер слоя\минерала;</param>
         /// <param name="Material"> Материал. </param>
         /// <returns></returns>
         public bool ReturnMaterial(int[] FIJ,out Material Material)
