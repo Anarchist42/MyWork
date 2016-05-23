@@ -18,7 +18,7 @@ namespace Second
         /// <summary>
         /// Цвет слоя.
         /// </summary>
-        private Color Colors = new Color();
+        private Color Color = new Color();
         /// <summary>
         /// Количество точек разбиения BSpline.
         /// </summary>
@@ -37,14 +37,13 @@ namespace Second
         /// <param name="LayerHeight"> Глубина слоя. </param>
         /// <param name="NumberOfPoints"> Количество опорных точек. </param>
         /// <param name="Material"> Материал. </param>
-        public Layer(double XAreaSize, double LayerHeight, int NumberOfPoints, Material Material)
+        public Layer(double XAreaSize, double LayerHeight, int NumberOfPoints, Material Material, Color Color)
         {
             double Step = (XAreaSize) / (NumberOfPoints - 1) > 0 ? (XAreaSize) / (NumberOfPoints - 1) : 1;
             for (int i = 0; i < NumberOfPoints; i++)
                 this.Points.Add(new PointSpline(i * Step, LayerHeight));
             this.Material = Material;
-            Random rand = new Random(Convert.ToInt32(LayerHeight));
-            this.Colors = Color.FromArgb(rand.Next(0, 255), rand.Next(0, 255), rand.Next(0, 255));
+            this.Color = Color;
             BSpline();
         }
         #endregion
@@ -60,8 +59,8 @@ namespace Second
         }
         public Color COLOR
         {
-            set { this.Colors = value; }
-            get { return Colors; }
+            set { this.Color = value; }
+            get { return Color; }
         }
         public Material MATERIAL
         {

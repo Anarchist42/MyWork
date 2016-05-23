@@ -29,15 +29,13 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle8 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle9 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle10 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
             this.MainPaint = new Tao.Platform.Windows.SimpleOpenGlControl();
             this.RenderTimer = new System.Windows.Forms.Timer(this.components);
-            this.MainPaint_VScroll = new Second.MyScroll();
-            this.MainPaint_HScroll = new Second.MyScroll();
             this.MenuStrip = new System.Windows.Forms.MenuStrip();
             this.FileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CloseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -103,6 +101,8 @@
             this.UnFocus = new System.Windows.Forms.Button();
             this.ChangeColorDataGridViewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.MaterialSplineDataGridViewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.MainPaint_HScroll = new Second.MyScroll();
+            this.MainPaint_VScroll = new Second.MyScroll();
             this.MenuStrip.SuspendLayout();
             this.TabControl.SuspendLayout();
             this.TabPageSettings.SuspendLayout();
@@ -145,42 +145,6 @@
             // 
             this.RenderTimer.Interval = 30;
             this.RenderTimer.Tick += new System.EventHandler(this.RenderTimer_Tick);
-            // 
-            // MainPaint_VScroll
-            // 
-            this.MainPaint_VScroll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.MainPaint_VScroll.BorderColor = System.Drawing.Color.Silver;
-            this.MainPaint_VScroll.LargeChange = 527D;
-            this.MainPaint_VScroll.Location = new System.Drawing.Point(602, 32);
-            this.MainPaint_VScroll.Maximum = 526D;
-            this.MainPaint_VScroll.Name = "MainPaint_VScroll";
-            this.MainPaint_VScroll.Orientation = System.Windows.Forms.ScrollOrientation.VerticalScroll;
-            this.MainPaint_VScroll.Size = new System.Drawing.Size(12, 526);
-            this.MainPaint_VScroll.SmallStep = 1D;
-            this.MainPaint_VScroll.TabIndex = 1;
-            this.MainPaint_VScroll.ThumbColor = System.Drawing.Color.Gray;
-            this.MainPaint_VScroll.ThumbSize = 10;
-            this.MainPaint_VScroll.Value = 0D;
-            this.MainPaint_VScroll.Visible = false;
-            this.MainPaint_VScroll.ValueChanged += new System.EventHandler(this.MainPaint_VScroll_ValueChanged);
-            // 
-            // MainPaint_HScroll
-            // 
-            this.MainPaint_HScroll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.MainPaint_HScroll.BorderColor = System.Drawing.Color.Silver;
-            this.MainPaint_HScroll.LargeChange = 588D;
-            this.MainPaint_HScroll.Location = new System.Drawing.Point(12, 561);
-            this.MainPaint_HScroll.Maximum = 587D;
-            this.MainPaint_HScroll.Name = "MainPaint_HScroll";
-            this.MainPaint_HScroll.Orientation = System.Windows.Forms.ScrollOrientation.HorizontalScroll;
-            this.MainPaint_HScroll.Size = new System.Drawing.Size(587, 12);
-            this.MainPaint_HScroll.SmallStep = 1D;
-            this.MainPaint_HScroll.TabIndex = 2;
-            this.MainPaint_HScroll.ThumbColor = System.Drawing.Color.Gray;
-            this.MainPaint_HScroll.ThumbSize = 10;
-            this.MainPaint_HScroll.Value = 0D;
-            this.MainPaint_HScroll.Visible = false;
-            this.MainPaint_HScroll.ValueChanged += new System.EventHandler(this.MainPaint_HScroll_ValueChanged);
             // 
             // MenuStrip
             // 
@@ -435,6 +399,7 @@
             this.ComboBoxMineralMaterial.Size = new System.Drawing.Size(89, 21);
             this.ComboBoxMineralMaterial.TabIndex = 11;
             this.ComboBoxMineralMaterial.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.ComboBoxMineralMaterial_DrawItem);
+            this.ComboBoxMineralMaterial.DropDownClosed += new System.EventHandler(this.ComboBoxMineralMaterial_DropDownClosed);
             // 
             // СheckedListBoxSpline
             // 
@@ -486,14 +451,14 @@
             this.dataGridViewTextBoxColumn2,
             this.dataGridViewTextBoxColumn3,
             this.dataGridViewTextBoxColumn4});
-            dataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle8.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle8.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle8.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle8.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle8.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle8.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.DataGridViewMinerals.DefaultCellStyle = dataGridViewCellStyle8;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.DataGridViewMinerals.DefaultCellStyle = dataGridViewCellStyle3;
             this.DataGridViewMinerals.GridColor = System.Drawing.SystemColors.Control;
             this.DataGridViewMinerals.Location = new System.Drawing.Point(4, 229);
             this.DataGridViewMinerals.Name = "DataGridViewMinerals";
@@ -513,8 +478,8 @@
             // 
             // dataGridViewTextBoxColumn2
             // 
-            dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.dataGridViewTextBoxColumn2.DefaultCellStyle = dataGridViewCellStyle6;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.dataGridViewTextBoxColumn2.DefaultCellStyle = dataGridViewCellStyle1;
             this.dataGridViewTextBoxColumn2.HeaderText = "Цвет";
             this.dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
             this.dataGridViewTextBoxColumn2.ReadOnly = true;
@@ -525,8 +490,8 @@
             // 
             // dataGridViewTextBoxColumn3
             // 
-            dataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.dataGridViewTextBoxColumn3.DefaultCellStyle = dataGridViewCellStyle7;
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.dataGridViewTextBoxColumn3.DefaultCellStyle = dataGridViewCellStyle2;
             this.dataGridViewTextBoxColumn3.HeaderText = "Глубина";
             this.dataGridViewTextBoxColumn3.MaxInputLength = 6;
             this.dataGridViewTextBoxColumn3.Name = "dataGridViewTextBoxColumn3";
@@ -583,28 +548,28 @@
             this.DataGridViewLayers.AllowUserToResizeRows = false;
             this.DataGridViewLayers.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
             this.DataGridViewLayers.BackgroundColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle9.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle9.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle9.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle9.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle9.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle9.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle9.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.DataGridViewLayers.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle9;
+            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.DataGridViewLayers.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle4;
             this.DataGridViewLayers.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.DataGridViewLayers.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.NumberLayer,
             this.ColorLayer,
             this.HeightLayer,
             this.Material});
-            dataGridViewCellStyle10.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle10.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle10.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle10.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle10.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle10.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle10.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.DataGridViewLayers.DefaultCellStyle = dataGridViewCellStyle10;
+            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle5.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle5.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle5.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle5.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle5.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.DataGridViewLayers.DefaultCellStyle = dataGridViewCellStyle5;
             this.DataGridViewLayers.GridColor = System.Drawing.SystemColors.Control;
             this.DataGridViewLayers.Location = new System.Drawing.Point(5, 93);
             this.DataGridViewLayers.MultiSelect = false;
@@ -796,7 +761,7 @@
             this.ChangeColorDataGridViewToolStripMenuItem,
             this.DeleteSplineDataGridViewToolStripMenuItem});
             this.ContextMenuDataGridView.Name = "СontextMenuStrip";
-            this.ContextMenuDataGridView.Size = new System.Drawing.Size(167, 92);
+            this.ContextMenuDataGridView.Size = new System.Drawing.Size(167, 70);
             // 
             // DeleteSplineDataGridViewToolStripMenuItem
             // 
@@ -878,6 +843,42 @@
             this.MaterialSplineDataGridViewToolStripMenuItem.Text = "Задать материал";
             this.MaterialSplineDataGridViewToolStripMenuItem.Click += new System.EventHandler(this.MaterialSplineDataGridViewToolStripMenuItem_Click);
             // 
+            // MainPaint_HScroll
+            // 
+            this.MainPaint_HScroll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.MainPaint_HScroll.BorderColor = System.Drawing.Color.Silver;
+            this.MainPaint_HScroll.LargeChange = 588D;
+            this.MainPaint_HScroll.Location = new System.Drawing.Point(12, 561);
+            this.MainPaint_HScroll.Maximum = 587D;
+            this.MainPaint_HScroll.Name = "MainPaint_HScroll";
+            this.MainPaint_HScroll.Orientation = System.Windows.Forms.ScrollOrientation.HorizontalScroll;
+            this.MainPaint_HScroll.Size = new System.Drawing.Size(587, 12);
+            this.MainPaint_HScroll.SmallStep = 1D;
+            this.MainPaint_HScroll.TabIndex = 2;
+            this.MainPaint_HScroll.ThumbColor = System.Drawing.Color.Gray;
+            this.MainPaint_HScroll.ThumbSize = 10;
+            this.MainPaint_HScroll.Value = 0D;
+            this.MainPaint_HScroll.Visible = false;
+            this.MainPaint_HScroll.ValueChanged += new System.EventHandler(this.MainPaint_HScroll_ValueChanged);
+            // 
+            // MainPaint_VScroll
+            // 
+            this.MainPaint_VScroll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.MainPaint_VScroll.BorderColor = System.Drawing.Color.Silver;
+            this.MainPaint_VScroll.LargeChange = 527D;
+            this.MainPaint_VScroll.Location = new System.Drawing.Point(602, 32);
+            this.MainPaint_VScroll.Maximum = 526D;
+            this.MainPaint_VScroll.Name = "MainPaint_VScroll";
+            this.MainPaint_VScroll.Orientation = System.Windows.Forms.ScrollOrientation.VerticalScroll;
+            this.MainPaint_VScroll.Size = new System.Drawing.Size(12, 526);
+            this.MainPaint_VScroll.SmallStep = 1D;
+            this.MainPaint_VScroll.TabIndex = 1;
+            this.MainPaint_VScroll.ThumbColor = System.Drawing.Color.Gray;
+            this.MainPaint_VScroll.ThumbSize = 10;
+            this.MainPaint_VScroll.Value = 0D;
+            this.MainPaint_VScroll.Visible = false;
+            this.MainPaint_VScroll.ValueChanged += new System.EventHandler(this.MainPaint_VScroll_ValueChanged);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -892,7 +893,6 @@
             this.Controls.Add(this.MenuStrip);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MainMenuStrip = this.MenuStrip;
-            this.MaximumSize = new System.Drawing.Size(900, 620);
             this.MinimumSize = new System.Drawing.Size(900, 620);
             this.Name = "MainForm";
             this.Text = "Задание геологических структур для программного комплекса решения задач геоэлектр" +

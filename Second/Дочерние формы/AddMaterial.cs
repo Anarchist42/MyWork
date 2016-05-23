@@ -12,7 +12,6 @@ namespace Second
             GlobalConst.Buffer[0] = "";
             GlobalConst.Buffer[1] = "";
         }
-
         public AddMaterial(string Name,double Resistance)
         {
             InitializeComponent();
@@ -22,14 +21,12 @@ namespace Second
             TextBoxName.Text = Name;
             TextBoxResistance.Text = Resistance.ToString();
         }
-
         private void TextBoxName_KeyPress(object sender, KeyPressEventArgs e)
         {
             /*Если нажат энтер*/
             if (e.KeyChar == 13)
                 UnFocus.Focus();
         }
-
         private void TextBoxResistance_KeyPress(object sender, KeyPressEventArgs e)
         {
             /*Можно вводить только числа, бэкспейс, запятая*/
@@ -39,10 +36,10 @@ namespace Second
             /*Если нажат энтер*/
             if (e.KeyChar == 13)
                 UnFocus.Focus();
+            /*Нельзя вводить запятую первой*/
             if (TextBoxName.TextLength == 0 && e.KeyChar == 44)
                 e.Handled = true;
         }
-
         private void ButtonAccept_Click(object sender, EventArgs e)
         {
             /*Передаем данные в буфер*/
@@ -50,11 +47,9 @@ namespace Second
             GlobalConst.Buffer[1] = TextBoxResistance.Text;
             Close();
         }
-
         private void ButtonCancel_Click(object sender, EventArgs e)
         {
             Close();
         }
-
     }
 }

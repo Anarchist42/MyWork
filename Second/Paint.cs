@@ -98,7 +98,10 @@ namespace Second
         /// Сплайны миниралов.
         /// </summary>
         private List<Mineral> Minerals = new List<Mineral>();
-        
+        /// <summary>
+        /// Рандом для цвета.
+        /// </summary>
+        Random random = new Random();    
         #endregion
 
         bool flag = false;
@@ -145,14 +148,11 @@ namespace Second
                     this.MINZOOM = GlobalConst.MinZoom * Convert.ToDouble(GLPaint.Height - GlobalConst.Difference)
                         / Convert.ToDouble(GLPaint.MinimumSize.Height - GlobalConst.Difference);
                 this.MaxZoom = MinZoom * XAreaSize * Math.Pow(10, GlobalConst.Accuracy) / Convert.ToDouble(GLPaint.MinimumSize.Width - GlobalConst.Difference);
-                ZoomWheel = (MaxZoom - MinZoom) / 10;
+                ZoomWheel = (MaxZoom - MinZoom) / 150;
                 /*Высота области*/
                 this.DefYAreaSize = Math.Round(Convert.ToDouble(GLPaint.MinimumSize.Height - GlobalConst.Difference) / GlobalConst.MinZoom, GlobalConst.Accuracy);
                 if (this.YAreaSize < DefYAreaSize)
                     this.YAreaSize = DefYAreaSize;
-                /*Сбрасываем смещение*/
-                this.XOffset = 0.0;
-                this.YOffset = 0.0;
             }
         }
         public double YAREASIZE
@@ -354,16 +354,16 @@ namespace Second
             else
                 return Math.Round((EarthSize - ((YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 + YOffset + MousePosition.Y) / Zoom), GlobalConst.Accuracy);
         }
-        /*Вычисление максимального значения ползунка*/
-        /*Параметры: TypeScroll - тип скролла ( 0 - для вертикального, 1 - для горизонтального)*/
-        /*Возвращает: Максимальное значение искомого типа ползунка*/
+        /// <summary>
+        /// Максимальное значение смещений для ползунка.
+        /// </summary>
+        /// <param name="TypeScroll"> Тип скролла (0 - вертикальный, 1 - горизонтальный). </param>
+        /// <returns> Максимальное значение ползунка. </returns>
         public double ScrollMaximum(int TypeScroll)
         {
             if (TypeScroll == 0)
                 return
                     Math.Round(
-                    /*Исходный размер*/
-                    
                     /*Сколько вверх*/
                     ((YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 + YOffset) / Zoom +
                     /*Сколько вниз*/
@@ -371,16 +371,16 @@ namespace Second
             else
                 return
                     Math.Round(
-                   /*Исодный размер*/
-                   
                    /*Сколько влево*/
                    ((XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2 - XOffset) / Zoom +
                    /*Сколько вправо*/
                    XAreaSize - ((XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2 - XOffset + GLPaint.Width - GlobalConst.Difference) / Zoom, GlobalConst.Accuracy);
         }
-        /*Вычисление значения ползунка*/
-        /*Параметры: TypeScroll ( 0 - для вертикального, 1 - для горизонтального)*/
-        /*Возвращает: Значение искомого типа ползунка*/
+        /// <summary>
+        /// Вычисление значения ползунка.
+        /// </summary>
+        /// <param name="TypeScroll"> Тип скролла (0 - вертикальный, 1 - горизонтальный).</param>
+        /// <returns> Значение ползунка. </returns>
         public double ScrollValue(int TypeScroll)
         {
             if (TypeScroll == 0)
@@ -388,26 +388,9 @@ namespace Second
             else
                 return Math.Round(Math.Abs(((XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2 - XOffset) / Zoom),GlobalConst.Accuracy);
         }
-        /*Вычисление шага ползунка*/
-        /*Параметры: TypeScroll ( 0 - для вертикального, 1 - для горизонтального)*/
-        /*           MaximumScroll - сколько доступно значений для прокрутки*/
-        /*Возвращает: Значение шага искомого типа ползунка*/
-        public double ScrollStep(int TypeScroll, int MaximumScroll)
-        {
-            if (TypeScroll == 0)
-                return
-                    /*Сколько вверх*/
-                    (((YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 + YOffset) / Zoom +
-                    /*Сколько вниз*/
-                    YAreaSize - ((YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 + YOffset + GLPaint.Height - GlobalConst.Difference) / Zoom) / MaximumScroll * Zoom;
-            else
-                return
-                   /*Сколько влево*/
-                   (((XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2 - XOffset) / Zoom +
-                   /*Сколько вправо*/
-                   XAreaSize - ((XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2 - XOffset + GLPaint.Width - GlobalConst.Difference) / Zoom) / MaximumScroll * Zoom;
-        }
-        /*Изменение сдвига по осям (приближение)*/
+        /// <summary>
+        /// Изменение сдвига по осям (приближение).
+        /// </summary>
         public void ChangeOffsetZoomIn()
         {
             ZOOM += ZoomWheel;
@@ -423,7 +406,9 @@ namespace Second
             if (Zoom == MaxZoom - ZoomWheel)
                 flag = true;
         }
-        /*Изменение сдвига по осям (отдаление)*/
+        /// <summary>
+        /// Изменение сдвига по осям (отдаление).
+        /// </summary>
         public void ChangeOffsetZoomOut()
         {
             ZOOM -= ZoomWheel;
@@ -439,20 +424,284 @@ namespace Second
             }
             flag = false;
         }
-        /*Изменение сдвига по осям (мышка)*/
-        /*Параметры: MouseDownPosition - позиция нажатия левой кнопки мыши*/
+        /// <summary>
+        /// Изменение сдвига по осям (мышь). 
+        /// </summary>
+        /// <param name="MouseDownPosition"> Позиция нажатия мышкой. </param>
         public void ChangeOffsetZoomMouse(Point MouseDownPosition)
         {
-            //if (Zoom != MinZoom || YAreaSize * Zoom== GLPaint.Height + GlobalConst.Difference)
-            {
                 this.YOFFSET = (((YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 + YOffset + MouseDownPosition.Y) / Zoom) * Zoom
                        - (YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 - MousePosition.Y;
                 this.XOFFSET = (XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2 - (((XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2
                         - XOffset + MouseDownPosition.X) / Zoom) * Zoom + MousePosition.X;
-            }
         }
         #endregion
 
+
+        #region Слои и Минералы (общие функции)
+
+        #region SET'S
+        /// <summary>
+        /// Задаем цвет сплайна.
+        /// </summary>
+        /// <param name="Color"> Задаваемый цвет.</param>
+        /// <param name="FIJ"> Массив [0] - 0(нету),1(слой),2(минерал); 
+        ///                           [1] - номер слоя\минерала;
+        ///                           [2] - номер опорной точки.</param>
+        /// <returns> Выполнил или нет. </returns>
+        public bool SetSplineColor(Color Color, int[] FIJ)
+        {
+            try
+            {
+                //Если не используется, то меняем цвет.
+                if (!CheckSplineColor(Color))                
+                if (FIJ[0] == 1)
+                    Layers[FIJ[1]].COLOR = Color;
+                else
+                    Minerals[FIJ[1]].COLOR = Color;
+            }
+            catch
+            {
+                return false;
+            }
+            return true;
+        }
+        /// <summary>
+        /// Изменение точности сплайнов.
+        /// </summary>
+        /// <returns> Выполнил или нет. </returns>
+        public bool SetSplineAccuracy()
+        {          
+            try
+            {
+                int i;
+                for (i = 0; i < Layers.Count; i++)
+                    Layers[i].ChangeAccuracy();
+                for (i = 0; i < Minerals.Count; i++)
+                    Minerals[i].ChangeAccuracy();
+            }
+            catch
+            {
+                return false;
+            }
+            return true;
+        }
+        /// <summary>
+        /// Изменение материала.
+        /// </summary>
+        /// <param name="FIJ"> Массив [0] - 0(нету),1(слой),2(минерал); 
+        ///                           [1] - номер слоя\минерала;</param>
+        /// <param name="Material"> Материал. </param>
+        /// <returns></returns>
+        public bool SetSplineMaterial(int[] FIJ, Material Material)
+        {
+            try
+            {
+                if (FIJ[0] == 1)
+                    Layers[FIJ[1]].MATERIAL = Material;
+                else
+                    Minerals[FIJ[1]].MATERIAL = Material;
+            }
+            catch
+            {
+                return false;
+            }
+            return true;
+        }
+        #endregion
+
+        #region GET'S
+        /// <summary>
+        /// Возвращает материал слоя или минерала.
+        /// </summary>
+        /// <param name="FIJ"> Массив [0] - 0(нету),1(слой),2(минерал); 
+        ///                           [1] - номер слоя\минерала;</param>
+        /// <param name="Material"> Материал. </param>
+        /// <returns></returns>
+        public bool GetSplineMaterial(int[] FIJ, out Material Material)
+        {
+            Material = new Material();
+            try
+            {
+                if (FIJ[0] == 1)
+                    Material = Layers[FIJ[1]].MATERIAL;
+                else
+                    Material = Minerals[FIJ[1]].MATERIAL;
+            }
+            catch
+            {
+                return false;
+            }
+            return true;
+        }
+        /// <summary>
+        /// Возвращем значение в таблицу.
+        /// </summary>
+        /// <param name="NumberGrid"> Номер таблицы (0 - слои, 1 - минералы). </param>
+        /// <param name="PositionNumber"> Позиция в таблице. </param>
+        /// <param name="Color"> Цвет. </param>
+        /// <param name="LayerPosition"> Максимальная и минимальная высота. </param>
+        /// <param name="Material"> Материал. </param>
+        /// <returns></returns>
+        public bool GetSplineInformation(int NumberGrid, int PositionNumber, out Color Color, out string LayerPosition, out string Material)
+        {
+            Color = Color.White;
+            LayerPosition = "";
+            Material = "";
+            try
+            {
+                //Если слой
+                if (NumberGrid == 0)
+                {
+                    Color = Layers[PositionNumber].COLOR;
+                    LayerPosition = Layers[PositionNumber].ReturnMaxY().ToString() + "\n" + Layers[PositionNumber + 1].ReturnMinY().ToString();
+                    Material = Layers[PositionNumber].MATERIAL.NAME;
+                }
+                //Если минерал
+                else
+                {
+                    Color = Minerals[PositionNumber].COLOR;
+                    LayerPosition = Minerals[PositionNumber].ReturnMaxY().ToString() + "\n" + Minerals[PositionNumber].ReturnMinY().ToString();
+                    Material = Minerals[PositionNumber].MATERIAL.NAME;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+            return true;
+        }
+        /// <summary>
+        /// Получить рандомный цвет.
+        /// </summary>
+        /// <returns> Цвет. </returns>
+        public Color GetRandomColor()
+        {
+            Color Color = new Color();
+            Color = Color.FromArgb(random.Next(0, 255), random.Next(0, 255), random.Next(0, 255));
+            while (CheckSplineColor(Color))
+                Color = Color.FromArgb(random.Next(0, 255), random.Next(0, 255), random.Next(0, 255));
+            return Color;
+
+        }
+        #endregion
+
+        #region Изменение количества точек
+        /// <summary>
+        /// Добавление опорной точки.
+        /// </summary>
+        /// <param name="FIJ"> Массив [0] - 0(нету),1(слой),2(минерал); 
+        ///                           [1] - номер слоя\минерала;
+        ///                           [2] - номер опорной точки.</param>
+        /// <returns> Выполнил или нет. </returns>
+        public bool AddPoint(int[] FIJ)
+        {
+            try
+            {
+                if (FIJ[0] == 1)
+                    Layers[FIJ[1]].AddPoint(new PointSpline(GetCoordinate(0), GetCoordinate(1)));
+                else
+                    Minerals[FIJ[1]].AddPoint(new PointSpline(GetCoordinate(0), GetCoordinate(1)));
+            }
+            catch
+            {
+                return false;
+            }
+            return true;
+        }
+        /// <summary>
+        /// Удаление опорной точки.
+        /// </summary>
+        /// <param name="FIJ"> Массив [0] - 0(нету),1(слой),2(минерал); 
+        ///                           [1] - номер слоя\минерала;
+        ///                           [2] - номер опорной точки.</param>
+        /// <returns> Выполнил или нет. </returns>
+        public bool DeletePoint(int[] FIJ)
+        {
+            if (FIJ[0] == 1)
+                Layers[FIJ[1]].DeletePoint(FIJ[2]);
+            else
+                Minerals[FIJ[1]].DeletePoint(FIJ[2]);
+            return true;
+        }
+        /// <summary>
+        /// Удаляем все точки больше области.
+        /// </summary>
+        public bool DeletePoints()
+        {
+            int i;
+            try
+            {
+                for (i = 0; i < Layers.Count; i++)
+                    Layers[i].DeletePoint(XAreaSize);
+                for (i = 0; i < Minerals.Count; i++)
+                    Minerals[i].DeletePoint(XAreaSize);
+            }
+            catch
+            {
+                return false;
+            }
+            return true;
+        }
+        #endregion
+
+        #region Удаление сплайнов
+        /// <summary>
+        /// Удаление сплайна с формы.
+        /// </summary>
+        /// <param name="FIJ"> Массив [0] - 0(нету),1(слой),2(минерал); 
+        ///                           [1] - номер слоя\минерала;
+        ///                           [2] - номер опорной точки.</param>
+        /// <returns></returns>
+        public bool DeleteSpline(int[] FIJ)
+        {
+            try
+            {
+                if (FIJ[0] == 1)
+                {
+                    if (Layers.Count > 1)
+                        Layers.RemoveAt(FIJ[1]);
+                    else
+                        return false;
+                }
+                else
+                    Minerals.RemoveAt(FIJ[1]);
+                YAreaSize = GetMaxPointLayers();
+            }
+            catch
+            {
+                return false;
+            }
+            return true;
+        }
+        #endregion
+
+        #region Чеки сплайнов
+        /// <summary>
+        /// Используется ли данный цвет где-то.
+        /// </summary>
+        /// <param name="Color"> Цвет. </param>
+        /// <returns> Да\нет. </returns>
+        private bool CheckSplineColor(Color Color)
+        {
+            try
+            {
+                int i;
+                //Проверяем есть ли такой цвет в слоях.
+                for (i = 0; i < Layers.Count; i++)
+                    if (Layers[i].COLOR == Color)
+                        return true;
+                //Проверяем есть ли такой цвет в минералах.
+                for (i = 0; i < Minerals.Count; i++)
+                    if (Minerals[i].COLOR == Color)
+                        return true;
+            }
+            catch
+            {
+                return true;
+            }
+            return false;
+        }
 
         /// <summary>
         /// Площадь треугольника.
@@ -479,119 +728,13 @@ namespace Second
                 && AreaTriangle(C, D, A) * AreaTriangle(C, D, B) < 0;
         }
 
+        private bool CheckSplineSelfIntersection(int[] FIJ)
+        {
+            
+            return true;
+        }
 
 
-        #region Слои и Минералы (общие функции)
-        /// <summary>
-        /// Задаем цвет сплайна.
-        /// </summary>
-        /// <param name="Color"> Задаваемый цвет.</param>
-        /// <param name="FIJ"> Массив [0] - 0(нету),1(слой),2(минерал); 
-        ///                           [1] - номер слоя\минерала;
-        ///                           [2] - номер опорной точки.</param>
-        /// <returns></returns>
-        public bool SetLayerColor(Color Color, int[] FIJ)
-        {
-            try
-            {
-                int i;
-                //Проверяем есть ли такой цвет в слоях.
-                for (i = 0; i < Layers.Count; i++)
-                    if (Layers[i].COLOR == Color)
-                        return false;
-                //Проверяем есть ли такой цвет в минералах.
-                for (i = 0; i < Minerals.Count; i++)
-                    if (Minerals[i].COLOR == Color)
-                        return false;
-                //Если нету, то меняем цвем.
-                if (FIJ[0] == 1)
-                    Layers[FIJ[1]].COLOR = Color;
-                else
-                    Minerals[FIJ[1]].COLOR = Color;
-            }
-            catch
-            {
-                return false;
-            }
-            return true;
-        }
-        /// <summary>
-        /// Изменение точности сплайнов.
-        /// </summary>
-        /// <returns></returns>
-        public bool ChangeAccuracy()
-        {          
-            try
-            {
-                int i;
-                for (i = 0; i < Layers.Count; i++)
-                    Layers[i].ChangeAccuracy();
-                for (i = 0; i < Minerals.Count; i++)
-                    Minerals[i].ChangeAccuracy();
-            }
-            catch
-            {
-                return false;
-            }
-            return true;
-        }
-        /// <summary>
-        /// Добавление опорной точки.
-        /// </summary>
-        /// <param name="FIJ"> Массив [0] - 0(нету),1(слой),2(минерал); 
-        ///                           [1] - номер слоя\минерала;
-        ///                           [2] - номер опорной точки.</param>
-        /// <returns></returns>
-        public bool AddPoint(int[] FIJ)
-        {
-            try
-            {
-                if(FIJ[0]==1)
-                    Layers[FIJ[1]].AddPoint(new PointSpline(GetCoordinate(0), GetCoordinate(1)));
-                else
-                    Minerals[FIJ[1]].AddPoint(new PointSpline(GetCoordinate(0), GetCoordinate(1)));
-            }
-            catch
-            {
-                return false;
-            }
-            return true;
-        }
-        /// <summary>
-        /// Удаление опорной точки.
-        /// </summary>
-        /// <param name="FIJ"> Массив [0] - 0(нету),1(слой),2(минерал); 
-        ///                           [1] - номер слоя\минерала;
-        ///                           [2] - номер опорной точки.</param>
-        /// <returns></returns>
-        public bool DeletePoint(int[] FIJ)
-        {
-            if (FIJ[0] == 1)
-                Layers[FIJ[1]].DeletePoint(FIJ[2]);
-            else
-                Minerals[FIJ[1]].DeletePoint(FIJ[2]);
-            return true;
-        }
-        /// <summary>
-        /// Перемещение сплайнов(вправо) на заданное расстояние.
-        /// </summary>
-        /// <param name="ChangeX"> Расстояние на которое перемещаем. </param>
-        public bool MoveSpline(double ChangeX)
-        {
-            int i;
-            try
-            {
-                for (i = 0; i < Layers.Count; i++)
-                    Layers[i].ChangeXPoints(ChangeX);
-                for (i = 0; i < Minerals.Count; i++)
-                    Layers[i].ChangeXPoints(ChangeX);
-            }
-            catch
-            {
-                return false;
-            }
-            return true;
-        }
         /// <summary>
         /// Проверка попали ли на опорную точку.
         /// </summary>
@@ -599,7 +742,7 @@ namespace Second
         /// <param name="FIJ"> Массив [0] - 0(нету),1(слой),2(минерал); 
         ///                           [1] - номер слоя\минерала;
         ///                           [2] - номер опорной точки.</param>
-        /// <returns></returns>
+        /// <returns> Выполнил или нет. </returns>
         public bool CheckPoint(Point MouseDownPosition, out int[] FIJ)
         {
             FIJ = new int[3];
@@ -651,12 +794,11 @@ namespace Second
             }
             return true;
         }
+        
 
-        private bool CheckSpline(PointSpline Point)
-        {
+        #endregion
 
-            return true;
-        }
+        #region Перемещение сплайнов
         /// <summary>
         /// Изменяем позицию опорной точки.
         /// </summary>
@@ -675,19 +817,25 @@ namespace Second
                 {
                     Points = Layers[FIJ[1]].POINT;
                     PrefPoint = Points[FIJ[2]];
+                    //Если не первая либо последняя, то двигать можно и по Х и по Y
                     if (FIJ[2] != 0 && FIJ[2] != Points.Count - 1)
+                    {
                         Points[FIJ[2]] = new PointSpline(Point.X, Point.Y);
+                        /*Проверка на самопересечение*/
+                        for (int i = 0; i < Points.Count - 1; i++)
+                            for (int j = i + 2; j < Points.Count - 1; j++)
+                                if (IntersectParts(Points[i], Points[i + 1], Points[j], Points[j + 1]))
+                                {
+                                    /*Если пересек - сохраняем старое значение и выходим*/
+                                    Points[FIJ[2]] = PrefPoint;
+                                    return false;
+                                }
+                    }
+                    //Если первая либо последняя, то двигать можно только по Y
                     else
+                        if (CheckFirstAndLastLayerPoint(FIJ, Point.Y))
                         Points[FIJ[2]] = new PointSpline(Points[FIJ[2]].X, Point.Y);
-                    /*Проверка на самопересечение*/
-                    for (int i = 0; i < Points.Count - 1; i++)
-                        for (int j = i + 2; j < Points.Count - 1; j++)
-                            if (IntersectParts(Points[i], Points[i + 1], Points[j], Points[j + 1]))
-                            {
-                                /*Если пересек - сохраняем старое значение и выходим*/
-                                Points[FIJ[2]] = PrefPoint;
-                                return false;
-                            }
+                    /*Если сдвинули ниже максимума - добавить еще*/
                     if (Math.Abs(Points[FIJ[2]].Y) + XAreaSize / 100 + EarthSize > YAreaSize)
                     {
                         YAreaSize += XAreaSize / 100;
@@ -708,6 +856,7 @@ namespace Second
                             {
                                 /*Если пересек - сохраняем старое значение и выходим*/
                                 Points[FIJ[2]] = PrefPoint;
+                                Points.RemoveAt(Points.Count - 1);
                                 return false;
                             }
                     Points.RemoveAt(Points.Count - 1);
@@ -721,70 +870,19 @@ namespace Second
             return true;
         }
         /// <summary>
-        /// Удаление сплайна с формы.
+        /// Перемещение сплайнов(вправо) на заданное расстояние.
         /// </summary>
-        /// <param name="FIJ"> Массив [0] - 0(нету),1(слой),2(минерал); 
-        ///                           [1] - номер слоя\минерала;
-        ///                           [2] - номер опорной точки.</param>
-        /// <returns></returns>
-        public bool DeleteSplineForm(int[] FIJ)
-        {
-            try
-            {
-                if (FIJ[0] == 1)
-                {
-                    if(Layers.Count > 1)
-                        Layers.RemoveAt(FIJ[1]);
-                    else
-                        return false;
-                }
-                else
-                    Minerals.RemoveAt(FIJ[1]);
-                YAreaSize = GetMaxPointLayers();
-            }
-            catch
-            {
-                return false;
-            }
-            return true;
-        }
-        /// <summary>
-        /// Удаление сплайна с таблицы.
-        /// </summary>
-        /// <param name="NumberGrid"> Номер таблицы - 1\2 (слои\минералы). </param>
-        /// <param name="IndexNumber"></param>
-        /// <returns></returns>
-        public bool DeleteSplineGrid(int NumberGrid, int IndexNumber)
-        {
-            int i, k;
-            try
-            {
-                if (NumberGrid == 1)
-                {
-                    Layers.RemoveAt(IndexNumber+1);
-                    YAreaSize = GetMaxPointLayers();
-                }
-                else
-                    Minerals.RemoveAt(IndexNumber);
-            }
-            catch
-            {
-                return false;
-            }
-            return true;
-        }
-        /// <summary>
-        /// Удаляем все точки больше области.
-        /// </summary>
-        public bool DeletePoints()
+        /// <param name="ChangeX"> Расстояние на которое перемещаем. </param>
+        /// <returns> Выполнил или нет. </returns>
+        public bool MoveSpline(double ChangeX)
         {
             int i;
             try
             {
                 for (i = 0; i < Layers.Count; i++)
-                    Layers[i].DeletePoint(XAreaSize);
+                    Layers[i].ChangeXPoints(ChangeX);
                 for (i = 0; i < Minerals.Count; i++)
-                    Minerals[i].DeletePoint(XAreaSize);
+                    Layers[i].ChangeXPoints(ChangeX);
             }
             catch
             {
@@ -792,88 +890,16 @@ namespace Second
             }
             return true;
         }
-        /// <summary>
-        /// Возвращем значение в таблицу.
-        /// </summary>
-        /// <param name="NumberGrid"> Номер таблицы (0 - слои, 1 - минералы). </param>
-        /// <param name="PositionNumber"> Позиция в таблице. </param>
-        /// <param name="Color"> Цвет. </param>
-        /// <param name="LayerPosition"> Максимальная и минимальная высота. </param>
-        /// <param name="Material"> Материал. </param>
-        /// <returns></returns>
-        public bool ReturnInformation(int NumberGrid,int PositionNumber, out Color Color, out string LayerPosition, out string Material)
-        {
-            Color = Color.White;
-            LayerPosition = "";
-            Material = "";
-            try
-            {
-                //Если слой
-                if(NumberGrid==0)
-                {
-                    Color = Layers[PositionNumber].COLOR;
-                    LayerPosition = Layers[PositionNumber].ReturnMaxY().ToString() + "\n" + Layers[PositionNumber + 1].ReturnMinY().ToString();
-                    Material = Layers[PositionNumber].MATERIAL.NAME;
-                }
-                //Если минерал
-                else
-                {
-                    Color = Minerals[PositionNumber].COLOR;
-                    LayerPosition = Minerals[PositionNumber].ReturnMaxY().ToString() + "\n" + Minerals[PositionNumber].ReturnMinY().ToString();
-                    Material = Minerals[PositionNumber].MATERIAL.NAME;
-                }
-            }
-            catch
-            {
-                return false;
-            }
-            return true;
-        }
-        /// <summary>
-        /// Изменение материала.
-        /// </summary>
-        /// <param name="FIJ"> Массив [0] - 0(нету),1(слой),2(минерал); 
-        ///                           [1] - номер слоя\минерала;</param>
-        /// <param name="Material"> Материал. </param>
-        /// <returns></returns>
-        public bool ChangeMaterial(int[] FIJ,Material Material)
-        {
-            try
-            {
-                if (FIJ[0] == 1)
-                    Layers[FIJ[1]].MATERIAL = Material;
-                else
-                    Minerals[FIJ[1]].MATERIAL = Material;
-            }
-            catch
-            {
-                return false;
-            }
-            return true;
-        }
-        /// <summary>
-        /// Возвращает материал слоя или минерала.
-        /// </summary>
-        /// <param name="FIJ"> Массив [0] - 0(нету),1(слой),2(минерал); 
-        ///                           [1] - номер слоя\минерала;</param>
-        /// <param name="Material"> Материал. </param>
-        /// <returns></returns>
-        public bool ReturnMaterial(int[] FIJ,out Material Material)
-        {
-            Material = new Material();
-            try
-            {
-                if (FIJ[0] == 1)
-                    Material = Layers[FIJ[1]].MATERIAL;
-                else
-                    Material = Minerals[FIJ[1]].MATERIAL;
-            }
-            catch
-            {
-                return false;
-            }
-            return true;
-        }
+        #endregion
+
+
+
+
+
+
+
+
+
         /// <summary>
         /// Проверка есть ли материал.
         /// </summary>
@@ -906,11 +932,34 @@ namespace Second
             }
             return Number.Count==0;
         }
-        
+
         #endregion
 
 
         #region Работа со слоями
+        /// <summary>
+        /// Добавление сплайна.
+        /// </summary>
+        /// <param name="LayerHeight"></param>
+        /// <param name="NumberOfPoints"></param>
+        /// <param name="Material"></param>
+        public bool AddLayers(double LayerHeight, int NumberOfPoints, Material Material)
+        {
+            /*Если новый слой имеет глубину больше чем есть сейчас*/
+            if (Math.Abs(LayerHeight) + EarthSize + XAreaSize / 10 > YAreaSize)
+                this.YAREASIZE = Math.Abs(LayerHeight) + EarthSize + XAreaSize / 10;
+            if (Layers.Count == 1)
+                Layers[0].MATERIAL = Material;
+            /*Добавляем новый слой*/
+            Layer tmp = new Layer(XAreaSize, LayerHeight, NumberOfPoints, Material, GetRandomColor());
+            Layers.Add(tmp);
+            /*Сортируем по высоте*/
+            Layers.Sort(delegate (Layer x, Layer y)
+            {
+                return y.POINT[0].Y.CompareTo(x.POINT[0].Y);
+            });
+            return true;
+        }
         /// <summary>
         /// Минимальная высота области.
         /// </summary>
@@ -926,28 +975,40 @@ namespace Second
             }
         }
         /// <summary>
-        /// Добавление сплайна.
+        /// Проверяем первую и последнюю точку сплайна.
         /// </summary>
-        /// <param name="LayerHeight"></param>
-        /// <param name="NumberOfPoints"></param>
-        /// <param name="Material"></param>
-        public bool AddLayers(double LayerHeight, int NumberOfPoints, Material Material)
+        /// <param name="FIJ"> Массив [0] - 0(нету),1(слой),2(минерал); 
+        ///                           [1] - номер слоя\минерала;
+        ///                           [2] - номер опорной точки.</param>
+        /// <param name="PointY"> Позиция Y новой точки. </param>
+        /// <returns> Можно ли двигать. </returns>
+        private bool CheckFirstAndLastLayerPoint(int[] FIJ, double PointY)
         {
-            /*Если новый слой имеет глубину больше чем есть сейчас*/
-            if (Math.Abs(LayerHeight) + EarthSize + XAreaSize / 10 > YAreaSize)
-                this.YAREASIZE = Math.Abs(LayerHeight) + EarthSize + XAreaSize / 10;
-            if (Layers.Count == 1)
-                Layers[0].MATERIAL = Material;
-            /*Добавляем новый слой*/
-            Layer tmp = new Layer(XAreaSize, LayerHeight, NumberOfPoints, Material);
-            Layers.Add(tmp);
-            /*Сортируем по высоте*/
-            Layers.Sort(delegate (Layer x, Layer y)
+            try
             {
-                return y.POINT[0].Y.CompareTo(x.POINT[0].Y);
-            });
+                if (FIJ[2] == 0)
+                {
+                    if (Layers.Count > FIJ[1] + 1 && PointY < Layers[FIJ[1] + 1].POINT[0].Y)
+                        return false;
+                    else
+                            if (FIJ[1] != 0 && PointY > Layers[FIJ[1] - 1].POINT[0].Y)
+                        return false;
+                }
+                if (FIJ[2] == Layers[FIJ[1]].POINT.Count - 1)
+                {
+                    if (Layers.Count > FIJ[1] + 1 && PointY < Layers[FIJ[1] + 1].POINT[Layers[FIJ[1] + 1].POINT.Count - 1].Y)
+                        return false;
+                    else
+                            if (FIJ[1] != 0 && PointY > Layers[FIJ[1] - 1].POINT[Layers[FIJ[1] - 1].POINT.Count - 1].Y)
+                        return false;
+                }
+            }
+            catch
+            {
+                return false;
+            }
             return true;
-        }
+        }    
         /// <summary>
         /// Добавляем опорную точку в конец.
         /// </summary>
@@ -959,9 +1020,6 @@ namespace Second
         }
         #endregion
 
-
-
-
         #region Работа с минералами
         /// <summary>
         /// Добавление нового минерала.
@@ -972,7 +1030,7 @@ namespace Second
         {
             try
             {
-                Mineral tmp = new Mineral(Material);
+                Mineral tmp = new Mineral(Material, GetRandomColor());
                 Minerals.Add(tmp);
             }
             catch
@@ -1010,10 +1068,9 @@ namespace Second
         }
         #endregion
 
-
-
+        #region Отрисовка
         /// <summary>
-        /// Рисуем сплайны.
+        /// Рисуем.
         /// </summary>
         private void Drawing()
         {
@@ -1031,6 +1088,9 @@ namespace Second
                     point = Layers[i].POINT;
                     DrawingSupportLine(point, color);
                 }
+                else
+                    if(i!=Layers.Count-1)
+                    DrawingFilingLayers(Layers[i].BSPLINEPOINT, Layers[i + 1].BSPLINEPOINT, Layers[i].COLOR);
             }
             /*Рисуем минералы*/
             for (i = 0; i < Minerals.Count; i++)
@@ -1048,6 +1108,8 @@ namespace Second
                         point.RemoveAt(point.Count - 1);
                     }
                 }
+                else
+                    DrawingFilingMinerals(Minerals[i].BSPLINEPOINT, Minerals[i].COLOR);
             }
             Gl.glPopMatrix();
         }
@@ -1094,6 +1156,107 @@ namespace Second
             Gl.glEnd();
             Gl.glPopMatrix();
         }
+        /// <summary>
+        /// Заливка для слоев.
+        /// </summary>
+        /// <param name="FirstPoint"> Точки верхнего сплайна. </param>
+        /// <param name="SecondPoint"> Точки нижнего сплайна. </param>
+        /// <param name="Color"> Цвет слоя. </param>
+        private void DrawingFilingLayers(List<PointSpline> FirstPoint, List<PointSpline> SecondPoint, Color Color)
+        {
+            int i;
+            /*Вычисляем суммарое количество точек*/
+            int N = FirstPoint.Count + SecondPoint.Count;
+            /*Создаем массив для тесселяции*/
+            double[][] TessPoints = new double[N][];
+            /*Заполянем массив для тесселяции*/
+            for (i = 0; i < FirstPoint.Count; i++)
+            {
+                TessPoints[i] = new double[3];
+                TessPoints[i][0] = (FirstPoint[i].X - XAreaSize / 2) * Zoom + XOffset - 1;
+                TessPoints[i][1] = (YAreaSize / 2 - EarthSize + FirstPoint[i].Y) * Zoom + YOffset - 1;
+                TessPoints[i][2] = 0.0;
+            }
+            for (i = 0; i < SecondPoint.Count; i++)
+            {
+                TessPoints[i + FirstPoint.Count] = new double[3];
+                TessPoints[i + FirstPoint.Count][0] = (SecondPoint[SecondPoint.Count - 1 - i].X - XAreaSize / 2) * Zoom + XOffset - 1;
+                TessPoints[i + FirstPoint.Count][1] = (YAreaSize / 2 - EarthSize + SecondPoint[SecondPoint.Count - 1 - i].Y) * Zoom + YOffset - 1;
+                TessPoints[i + FirstPoint.Count][2] = 0.0;
+            }
+            Tesselator(TessPoints, N, Color);
+        }
+        /// <summary>
+        /// Заливка для минералов.
+        /// </summary>
+        /// <param name="Point"> Точки минерала. </param>
+        /// <param name="Color"> Цвет минерала. </param>
+        private void DrawingFilingMinerals(List<PointSpline> Point, Color Color)
+        {
+            int i;
+            /*Создаем массив для тесселяции*/
+            double[][] TessPoints = new double[Point.Count][];
+            /*Заполянем массив для тесселяции*/
+            for (i = 0; i < Point.Count; i++)
+            {
+                TessPoints[i] = new double[3];
+                TessPoints[i][0] = (Point[i].X - XAreaSize / 2) * Zoom + XOffset - 1;
+                TessPoints[i][1] = (YAreaSize / 2 - EarthSize + Point[i].Y) * Zoom + YOffset - 1;
+                TessPoints[i][2] = 0.0;
+            }
+            Tesselator(TessPoints, Point.Count, Color);
+        }
+        /// <summary>
+        /// Конвертируем double[3] в GLdouble.
+        /// </summary>
+        /// <param name="vertexData"> Массив с точками double[3]. </param>
+        private void MyVertex3dv(System.IntPtr vertexData)
+        {
+            double[] v = new double[3];
+            System.Runtime.InteropServices.Marshal.Copy(vertexData, v, 0, 3);
+            Gl.glVertex3dv(v);
+        }
+        /// <summary>
+        /// Тесселятор.
+        /// </summary>
+        /// <param name="TessPoints"> Массив точек тесселяции. </param>
+        /// <param name="N"> Количество точек. </param>
+        /// <param name="Color"> Цвет заливки. </param>
+        private void Tesselator(double[][] TessPoints, int N, Color Color)
+        {
+            int i;
+            /*Цвет*/
+            Gl.glColor3d(Color.R / 255.0, Color.G / 255.0, Color.B / 255.0);
+            /*Создаем объект тесселяции*/
+            Glu.GLUtesselator pTess = Glu.gluNewTess();
+            /*Заливка*/
+            Glu.gluTessProperty(pTess, Glu.GLU_TESS_BOUNDARY_ONLY, Gl.GL_FALSE);
+            /*Начало отрисовки*/
+            Glu.gluTessCallback(pTess, Glu.GLU_TESS_BEGIN, new Glu.TessBeginCallback(Gl.glBegin));
+            /*Конец отрисовки*/
+            Glu.gluTessCallback(pTess, Glu.GLU_TESS_END, new Glu.TessEndCallback(Gl.glEnd));
+            /*Передача координат*/
+            Glu.gluTessCallback(pTess, Glu.GLU_TESS_VERTEX, new Glu.TessVertexCallback(MyVertex3dv));
+
+            /*Начинаем тесселяцию*/
+            Glu.gluTessBeginPolygon(pTess, IntPtr.Zero);
+            /*Начинаем описание кривого полигона*/
+            Glu.gluTessBeginContour(pTess);
+
+            /*Заносим наши точки*/
+            for (i = 0; i < N; i++)
+                Glu.gluTessVertex(pTess, TessPoints[i], TessPoints[i]);
+
+            /*Конец описания кривого полигона*/
+            Glu.gluTessEndContour(pTess);
+            /*Конец тесселяции*/
+            Glu.gluTessEndPolygon(pTess);
+
+            /*Удаляем тесселятор*/
+            Glu.gluDeleteTess(pTess);
+        }
+        #endregion
+
         #endregion
 
         /// <summary>

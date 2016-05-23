@@ -18,21 +18,22 @@ namespace Second
         /// <summary>
         /// Цвет слоя.
         /// </summary>
-        private Color Colors = new Color();
-        /// <summary>
-        /// Количество точек разбиения BSpline.
-        /// </summary>
-        private int BSplineN = 15;
+        private Color Color = new Color();
         /// <summary>
         /// Материал слоя.
         /// </summary>
         private Material Material;
+        /// <summary>
+        /// Количество точек разбиения BSpline.
+        /// </summary>
+        private int BSplineN = 10;
         #endregion
 
         #region Конструктор
-        public Mineral(Material Material)
+        public Mineral(Material Material, Color Color)
         {
             this.Material = Material;
+            this.Color = Color;
         }
         #endregion
 
@@ -47,8 +48,8 @@ namespace Second
         }
         public Color COLOR
         {
-            set { this.Colors = value; }
-            get { return Colors; }
+            set { this.Color = value; }
+            get { return Color; }
         }
         public Material MATERIAL
         {
@@ -116,6 +117,68 @@ namespace Second
             /*Перестраиваем массив*/
             BSpline();
         }
+        /// <summary>
+        /// Добавление опорной точки.
+        /// </summary>
+        /// <param name="Add"> Добавляемая точка. </param>
+        public void AddPoint(PointSpline Add)
+        {
+            if (Points.Count < 2)
+            {
+                Points.Add(Add);
+            }
+            else
+            {
+                int k = Points.Count;
+                int i;
+                double Min;
+                Min = PointsLength(Add, Points[0], Points[Points.Count - 1]);
+                for (i = 0; i < Points.Count - 1; i++)
+                {
+                    if (Min > PointsLength(Add, Points[i], Points[i + 1]))
+                    {
+                        Min = PointsLength(Add, Points[i], Points[i + 1]);
+                        k = i + 1;
+                    }
+                }
+                Points.Insert(k, Add);
+                BSpline();
+            }
+        }
+        /// <summary>
+        /// Расстояние от точки до отрезка.
+        /// </summary>
+        /// <param name="A"> Точка. </param>
+        /// <param name="B"> Первая точка отрезка. </param>
+        /// <param name="C"> Вторая точка отрезка. </param>
+        /// <returns></returns>
+        private double PointsLength(PointSpline A, PointSpline B, PointSpline C)
+        {
+            PointSpline V = C - B;
+            PointSpline W = A - B;
+
+            double c1 = PointsLenght(W, V);
+            if (c1 <= 0)
+                return Math.Sqrt(PointsLenght(A - B, A - B));
+            
+            double c2 = PointsLenght(V, V);
+            if(c2<=c1)
+                return Math.Sqrt(PointsLenght(A - C, A - C));
+
+            double b = c1 / c2;
+            PointSpline Pb = B + V * b;
+            return Math.Sqrt(PointsLenght(A - Pb, A - Pb));
+        }
+        /// <summary>
+        /// Скалярное произведение векторов.
+        /// </summary>
+        /// <param name="A"> Первая точка. </param>
+        /// <param name="B"> Вторая точка. </param>
+        /// <returns></returns>
+        private double PointsLenght(PointSpline A, PointSpline B)
+        {
+            return A.X * B.X + A.Y * B.Y;
+        }
 
 
 
@@ -126,26 +189,20 @@ namespace Second
         private PointSpline GetPoint(int i, List<PointSpline> Points)
         {
             if (i < 0)
-                return Points[0];
+                return Points[Points.Count + i];
             if (i < Points.Count)
                 return Points[i];
-            return Points[Points.Count - 1];
+            return Points[i - Points.Count];
         }
         /*Заполняем массив BSpline*/
         public void BSpline()
         {
             /*Очищаем массив*/
             BSplinePoints.Clear();
-            /*Добавляем самую первую точку*/
-            //Points.Add(Points[0]);
-            /*Необходимо добавить несколько точек, что бы рисовал до самого конца*/
-            Points.Add(Points[Points.Count - 1]);
-            Points.Add(Points[Points.Count - 1]);
-            Points.Add(Points[Points.Count - 1]);
             /*Считаем нужное количество точек*/
             for (int start_cv = -3, j = 0; j != Points.Count; ++j, ++start_cv)
             {
-                for (int k = 0; k != BSplineN; ++k)
+                for (int k = 0; k != BSplineN + 1; ++k)
                 {
                     double t = (double)k / BSplineN;
                     double it = 1.0f - t;
@@ -164,22 +221,13 @@ namespace Second
                     BSplinePoints.Add(new PointSpline(x, y));
                 }
             }
-            /*Удаляем добавленные точки*/
-            Points.RemoveRange(Points.Count - 3, 3);
         }
 
 
 
 
 
-        /*Добавление опорной точки*/
-        /*Параметры: Add - координаты точки которую хотим добавить*/
-        public void AddPoint(PointSpline Add)
-        {
-            Points.Add(Add);
-            /*Перестраиваем массив*/
-            BSpline();
-        }
+        
 
         /*Удаление опорной точки*/
         /*Параметры: Delete - индекс удаляемой точки в массиве*/

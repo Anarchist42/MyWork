@@ -7,8 +7,47 @@ namespace Second
 {
     public class MyScroll : Control
     {
+        #region Поля класса
+        /// <summary>
+        /// Текущение значение скролла.
+        /// </summary>
         private double @value;
+        /// <summary>
+        /// Максимальное значение скролла.
+        /// </summary>
+        private double maximum = 100;
+        /// <summary>
+        /// Дефолтное значение скролла.
+        /// </summary>
+        private double largechange = 100;
+        /// <summary>
+        /// Размер ползунка.
+        /// </summary>
+        private int thumbSize = 10;
+        /// <summary>
+        /// Цвет пользунка.
+        /// </summary>
+        private Color thumbColor = Color.Gray;
+        /// <summary>
+        /// Цвет подложки.
+        /// </summary>
+        private Color borderColor = Color.Silver;
+        /// <summary>
+        /// Ориентация ползунка.
+        /// </summary>
+        private ScrollOrientation orientation;       
+        #endregion
 
+        #region Конструктор
+        public MyScroll()
+        {
+            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint, true);
+            SmallStep = 1;
+            ShowButtons = true;
+        }
+        #endregion
+
+        #region SETs and GETs
         public double Value
         {
             get { return value; }
@@ -21,86 +60,75 @@ namespace Second
                 OnScroll();
             }
         }
-
-        private double maximum = 100;
         public double Maximum
         {
             get { return maximum; }
             set { maximum = value; Invalidate(); }
         }
-
-        private double largechange = 100;
         public double LargeChange
         {
             get { return largechange; }
             set { largechange = value; Invalidate(); }
         }
-
-        private int thumbSize = 10;
         public int ThumbSize
         {
             get { return thumbSize; }
             set { thumbSize = value; Invalidate(); }
         }
-
-        private Color thumbColor = Color.Gray;
         public Color ThumbColor
         {
             get { return thumbColor; }
             set { thumbColor = value; Invalidate(); }
         }
-
-        private Color borderColor = Color.Silver;
         public Color BorderColor
         {
             get { return borderColor; }
             set { borderColor = value; Invalidate(); }
         }
-
-        private ScrollOrientation orientation;
         public ScrollOrientation Orientation
         {
             get { return orientation; }
             set { orientation = value; Invalidate(); }
         }
-
         [DefaultValue(1)]
         public double SmallStep { get; set; }
-
         [DefaultValue(true)]
-        public bool ShowButtons { get; set; }
+        public bool ShowButtons { get; set; }       
+        #endregion
 
-        private int ButtonPadding { get { return ShowButtons ? 9 : 0; } }
-
+        #region Методы
+        /// <summary>
+        /// Эвент изменения значения ползунка.
+        /// </summary>
         public event EventHandler ValueChanged;
-
-        public MyScroll()
-        {
-            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint, true);
-
-            SmallStep = 1;
-            ShowButtons = true;
-        }
-
+        /// <summary>
+        /// Переопределение функции нажатия мыши.
+        /// </summary>
+        /// <param name="e"></param>
         protected override void OnMouseDown(MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
                 MouseScroll(e);
             base.OnMouseDown(e);
         }
-
+        /// <summary>
+        /// Переопределение функции передвижения мыши.
+        /// </summary>
+        /// <param name="e"></param>
         protected override void OnMouseMove(MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
                 MouseScroll(e);
             base.OnMouseMove(e);
         }
-
+        /// <summary>
+        /// Изменение ползунка от скролла.
+        /// </summary>
+        /// <param name="e"></param>
         private void MouseScroll(MouseEventArgs e)
         {
             var v = Value;
             var pad = ButtonPadding;
-
             switch (Orientation)
             {
                 case ScrollOrientation.VerticalScroll:
@@ -118,23 +146,26 @@ namespace Second
             }
             Value = Math.Max(0, Math.Min(Maximum, v));
         }
-
+        /// <summary>
+        /// Виртуальная функция вызывающая эвент изменения значения.
+        /// </summary>
+        /// <param name="type"></param>
         public virtual void OnScroll(ScrollEventType type = ScrollEventType.ThumbPosition)
         {
             if (ValueChanged != null)
                 ValueChanged(this, EventArgs.Empty);
         }
-
+        /// <summary>
+        /// Переопределение функции отрисовки.
+        /// </summary>
+        /// <param name="e"></param>
         protected override void OnPaint(PaintEventArgs e)
         {
             if (Maximum <= 0)
                 return;
-
             var w = Width;
             var h = Height;
-
             Rectangle thumbRect = Rectangle.Empty;
-
             switch (Orientation)
             {
                 case ScrollOrientation.HorizontalScroll:
@@ -159,10 +190,8 @@ namespace Second
                         }
                     break;
             }
-
             using (var brush = new SolidBrush(thumbColor))
                 e.Graphics.FillRectangle(brush, thumbRect);
-
             using (var pen = new Pen(borderColor))
                 switch (Orientation)
                 {
@@ -174,5 +203,10 @@ namespace Second
                         break;
                 }
         }
+        /// <summary>
+        /// Попали ли на кнопку.
+        /// </summary>
+        private int ButtonPadding { get { return ShowButtons ? 9 : 0; } }
+        #endregion
     }
 }

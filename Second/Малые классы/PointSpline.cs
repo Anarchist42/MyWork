@@ -57,6 +57,29 @@ namespace Second
         }
         #endregion
 
+        #region Перегрузка операторов
+        public static PointSpline operator +(PointSpline A, PointSpline B)
+        {
+            return new PointSpline(A.x + B.x, A.y + B.y);
+        }
+        public static PointSpline operator +(PointSpline A, double B)
+        {
+            return new PointSpline(A.x + B, A.y + B);
+        }
+        public static PointSpline operator -(PointSpline A, PointSpline B)
+        {
+            return new PointSpline(A.x - B.x, A.y - B.y);
+        }
+        public static PointSpline operator -(PointSpline A, double B)
+        {
+            return new PointSpline(A.x - B, A.y - B);
+        }
+        public static PointSpline operator *(PointSpline A, double B)
+        {
+            return new PointSpline(A.x*B, A.y*B);
+        }
+        #endregion
+
         #region Методы
         public bool Round()
         {

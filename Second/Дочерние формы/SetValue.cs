@@ -21,6 +21,7 @@ namespace Second
             /*Если нажат энтер*/
             if (e.KeyChar == 13)
                 UnFocus.Focus();
+            /*Нельзя вводить первой запятую*/
             if (TextBoxXCoordinate.TextLength == 0 && e.KeyChar == 44)
                 e.Handled = true;
         }
@@ -34,8 +35,10 @@ namespace Second
             /*Если нажат энтер*/
             if (e.KeyChar == 13)
                 UnFocus.Focus();
+            /*Нельзя вводить первой запятую*/
             if (TextBoxXCoordinate.TextLength == 0 && e.KeyChar == 44)
                 e.Handled = true;
+            /*Нельзя вводить не первым знак минус*/
             if (TextBoxYCoordinate.TextLength > 0 && e.KeyChar == 45)
                 e.Handled = true;
         }
@@ -50,6 +53,5 @@ namespace Second
         {
             Close();
         }
-
     }
 }
