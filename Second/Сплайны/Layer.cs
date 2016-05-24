@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
 
 namespace Second
@@ -16,13 +15,17 @@ namespace Second
         /// </summary>
         private List<PointSpline> BSplinePoints = new List<PointSpline>();
         /// <summary>
+        /// Массив значений Y при разбиение.
+        /// </summary>
+        private List<double> Partition = new List<double>();
+        /// <summary>
         /// Цвет слоя.
         /// </summary>
         private Color Color = new Color();
         /// <summary>
         /// Количество точек разбиения BSpline.
         /// </summary>
-        private int BSplineN = 15;
+        private int BSplineN = 10;
         /// <summary>
         /// Материал слоя.
         /// </summary>
@@ -71,9 +74,31 @@ namespace Second
 
         #region Методы      
         /// <summary>
+        /// Удаление дублирующих точек.
+        /// </summary>
+        /// <returns> Выполнил или нет. </returns>
+        private bool RemoveDuplicate()
+        {
+            try
+            {
+                int i;
+                for (i = 0; i < Points.Count - 1; i++)
+                {
+                    if (Points[i] == Points[i + 1])
+                    {
+                        Points.RemoveAt(i);
+                        i--;
+                    }
+                }
+            }
+            catch
+            {return false;}
+            return true;
+        }
+        /// <summary>
         /// Изменение точности.
         /// </summary>
-        /// <returns></returns>
+        /// <returns> Выполнил или нет. </returns>
         public bool ChangeAccuracy()
         {
             int i;
@@ -81,13 +106,11 @@ namespace Second
             {
                 for (i = 0; i < Points.Count; i++)
                     Points[i].Round();
-                for (i = 0; i < BSplinePoints.Count; i++)
-                    BSplinePoints[i].Round();
+                RemoveDuplicate();
+                BSpline();
             }
             catch
-            {
-                return false;
-            }
+            {return false;}
             return true;
         }
         /// <summary>
@@ -129,107 +152,142 @@ namespace Second
             return Points[Points.Count - 1];
         }
         /// <summary>
-        /// Построение BSpline.
+        /// Построение сплайна.
         /// </summary>
-        public void BSpline()
+        /// <param name="Start"> Точка начала построения. </param>
+        /// <param name="End"> Точка конца построения. </param>
+        /// /// <returns> Выполнил или нет. </returns>
+        public bool BSpline()
         {
-            /*Очищаем массив*/
-            BSplinePoints.Clear();
-            /*Необходимо добавить несколько точек, что бы рисовал до самого конца*/
-            Points.Add(Points[Points.Count - 1]);
-            Points.Add(Points[Points.Count - 1]);
-            Points.Add(Points[Points.Count - 1]);
-            /*Считаем нужное количество точек*/
-            for (int start_cv = -3, j = 0; j != Points.Count; ++j, ++start_cv)
+            try
             {
-                for (int k = 0; k != BSplineN; ++k) 
+                /*Очищаем массив*/
+                BSplinePoints.Clear();
+                /*Необходимо добавить несколько точек, что бы рисовал до самого конца*/
+                Points.Add(Points[Points.Count - 1]);
+                Points.Add(Points[Points.Count - 1]);
+                Points.Add(Points[Points.Count - 1]);
+                /*Считаем нужное количество точек*/
+                for (int start_cv = -3, j = 0; j != Points.Count; ++j, ++start_cv)
                 {
-                    double t = (double)k / BSplineN;
-                    double it = 1.0f - t;
-                    double b0 = it * it * it / 6.0f;
-                    double b1 = (3 * t * t * t - 6 * t * t + 4) / 6.0f;
-                    double b2 = (-3 * t * t * t + 3 * t * t + 3 * t + 1) / 6.0f;
-                    double b3 = t * t * t / 6.0f;
-                    double x = b0 * GetPoint(start_cv + 0, Points).X +
-                              b1 * GetPoint(start_cv + 1, Points).X +
-                              b2 * GetPoint(start_cv + 2, Points).X +
-                              b3 * GetPoint(start_cv + 3, Points).X;
-                    double y = b0 * GetPoint(start_cv + 0, Points).Y +
-                              b1 * GetPoint(start_cv + 1, Points).Y +
-                              b2 * GetPoint(start_cv + 2, Points).Y +
-                              b3 * GetPoint(start_cv + 3, Points).Y;
-                    BSplinePoints.Add(new PointSpline(x, y));
+                    for (int k = 0; k != BSplineN; ++k)
+                    {
+                        double t = (double)k / BSplineN;
+                        double it = 1.0f - t;
+                        double b0 = it * it * it / 6.0f;
+                        double b1 = (3 * t * t * t - 6 * t * t + 4) / 6.0f;
+                        double b2 = (-3 * t * t * t + 3 * t * t + 3 * t + 1) / 6.0f;
+                        double b3 = t * t * t / 6.0f;
+                        double x = b0 * GetPoint(start_cv + 0, Points).X +
+                                  b1 * GetPoint(start_cv + 1, Points).X +
+                                  b2 * GetPoint(start_cv + 2, Points).X +
+                                  b3 * GetPoint(start_cv + 3, Points).X;
+                        double y = b0 * GetPoint(start_cv + 0, Points).Y +
+                                  b1 * GetPoint(start_cv + 1, Points).Y +
+                                  b2 * GetPoint(start_cv + 2, Points).Y +
+                                  b3 * GetPoint(start_cv + 3, Points).Y;
+                        BSplinePoints.Add(new PointSpline(x, y));
+                    }
                 }
+                /*Удаляем добавленные точки*/
+                Points.RemoveRange(Points.Count - 3, 3);
             }
-            /*Удаляем добавленные точки*/
-            Points.RemoveRange(Points.Count - 3, 3);
+            catch
+            { return false; }
+            return true;
         }
         /// <summary>
         /// Смещение точек вправо.
         /// </summary>
         /// <param name="ChangeX"> Величина смещения. </param>
-        public void ChangeXPoints(double ChangeX)
+        /// <returns> Выполнил или нет. </returns>
+        public bool ChangeXPoints(double ChangeX)
         {
-            int i;
-            for (i = 0; i < Points.Count; i++)
-                Points[i].X += ChangeX;
-            /*Добавляем точку в начало*/
-            Points.Insert(0, new PointSpline(0, Points[0].Y));
-            /*Перестраиваем массив*/
-            BSpline();
+            try
+            {
+                int i;
+                for (i = 0; i < Points.Count; i++)
+                    Points[i].X += ChangeX;
+                /*Добавляем точку в начало*/
+                Points.Insert(0, new PointSpline(0, Points[0].Y));
+                /*Перестраиваем массив*/
+                BSpline();
+            }
+            catch
+            { return false; }
+            return true;
         }
         /// <summary>
         /// Добавление опорных точек.
         /// </summary>
         /// <param name="Add"> Добовляемая точка. </param>
-        public void AddPoint(PointSpline Add)
+        /// <returns> Выполнил или нет. </returns>
+        public bool AddPoint(PointSpline Add, out int Position)
         {
-            int i;
-            /*Ищем куда вставить*/
-            for (i = 1; i < Points.Count; i++)
-                if (Points[i].X > Add.X)
+            Position = -1;
+            try
+            {
+                int i;
+                /*Ищем куда вставить*/
+                for (i = 1; i < Points.Count; i++)
+                    if (Points[i].X > Add.X && Points[i-1].X!=Add.X)
+                    {
+                        /*Вставляем элементы*/
+                        Points.Insert(i, Add);
+                        Position = i;
+                        return true;
+                    }
+                /*если не нашли и он больше последнего*/
+                if (Add.X > Points[Points.Count - 1].X)
                 {
-                    /*Вставляем элементы*/
-                    Points.Insert(i, Add);
-                    /*Перестраиваем массив*/
-                    BSpline();
-                    return;
+                    Points.Add(Add);
+                    Position = Points.Count - 1;
+                    return true;
                 }
-            /*если не нашли и он больше последнего*/
-            if (Add.X > Points[Points.Count - 1].X)
-                Points.Add(Add);
-            /*Перестраиваем массив*/
-            BSpline();
+            }
+            catch { return false; }
+            return true;
         }
         /// <summary>
         /// Удаление опорной точки.
         /// </summary>
         /// <param name="Delete"> Индекс удаляемой точки. </param>
-        public void DeletePoint(int Delete)
+        /// <returns> Выполнил или нет. </returns>
+        public bool DeletePoint(int Delete)
         {
-            if (Delete > 0 && Delete < Points.Count - 1)
-                Points.RemoveAt(Delete);
-            /*Перестраиваем массив*/
-            BSpline();
+            try
+            {
+                if (Delete > 0 && Delete < Points.Count - 1)
+                    Points.RemoveAt(Delete);
+            }
+            catch
+            { return false; }
+            return true;
         }
         /// <summary>
         /// Удаление опорных точек правее области.
         /// </summary>
         /// <param name="DeleteX"> На сколько уменьшилась область. </param>
-        public void DeletePoint(double DeleteX)
+        /// <returns> Выполнил или нет. </returns>
+        public bool DeletePoint(double DeleteX)
         {
-            int i;
-            double Y = 0;
-            for (i = Points.Count - 1; i >= 0 && Points[i].X > DeleteX; i--)
+            try
             {
-                /*Запоминаем Y удаляемого элемента*/
-                Y = Points[i].Y;
-                Points.RemoveAt(i);
+                int i;
+                double Y = 0;
+                for (i = Points.Count - 1; i >= 0 && Points[i].X > DeleteX; i--)
+                {
+                    /*Запоминаем Y удаляемого элемента*/
+                    Y = Points[i].Y;
+                    Points.RemoveAt(i);
+                }
+                /*Добавление последней точки*/
+                Points.Add(new PointSpline(DeleteX, Y));
+                /*Перестраиваем массив*/
+                BSpline();
             }
-            /*Добавление последней точки*/
-            Points.Add(new PointSpline(DeleteX, Y));
-            /*Перестраиваем массив*/
-            BSpline();
+            catch { return false; }
+            return true;
         }
         #endregion
     }

@@ -15,7 +15,7 @@ using Tao.Platform.Windows; // для работы с элементом упр�
 
 
 using System.Numerics;
-
+using System.IO;
 
 namespace Second
 {
@@ -58,10 +58,6 @@ namespace Second
         /// </summary>
         private bool AddPointLayers;
         /// <summary>
-        /// Выбрали слои или минералы (1 - слои, 2 - минералы).
-        /// </summary>
-        private int LayerMinerals;
-        /// <summary>
         /// Массив материалов слоя.
         /// </summary>
         private List<Material> MaterialLayer;
@@ -91,7 +87,6 @@ namespace Second
             DrawMineral = false;
             CheckControlPoint = new int[3];
             AddPointLayers = false;
-            LayerMinerals = 0;
             GlobalConst.Difference = 5;
             GlobalConst.Accuracy = -1;
             /*Создаем и заполняем материалы*/
@@ -102,7 +97,6 @@ namespace Second
             for (int i = 0; i < MaterialLayer.Count; i++)
                 СomboBoxLayerMaterial.Items.Add(MaterialLayer[i].NAME);
             СomboBoxLayerMaterial.SelectedIndex = 0;
-
             MaterialMineral = new List<Material>();
             MaterialMineral.Add(new Material("Земля", 0));
             MaterialMineral.Add(new Material("Грунт", 1));
@@ -321,7 +315,7 @@ namespace Second
         #endregion
         private void MainForm_SizeChanged(object sender, EventArgs e)
         {
-            if (this.WindowState != FormWindowState.Minimized)
+            if (this.WindowState != FormWindowState.Minimized && MainPaint.Enabled == true)
             {
                 /*Сбрасываем сдвиги по осям*/
                 Draw.XOFFSET = 0.0;
@@ -457,8 +451,9 @@ namespace Second
         }
         private void MainPaint_MouseDown(object sender, MouseEventArgs e)
         {
-            /*Убираем выделение в таблице Слоев*/
+            /*Убираем выделение в таблицах*/
             DataGridViewLayers.ClearSelection();
+            DataGridViewMinerals.ClearSelection();
             /*Если нажата левая кнопка мыши*/
             if (e.Button == System.Windows.Forms.MouseButtons.Left)
             {
@@ -496,10 +491,12 @@ namespace Second
                 }
             }
             /*Проверяем попали ли мы на опорную точку*/
-            Draw.CheckPoint(new Point(e.X, e.Y), out CheckControlPoint);
+            if (!Draw.CheckPoint(new Point(e.X, e.Y), out CheckControlPoint))
+                CheckControlPoint[0] = 0;
             /*Если попали и нажата правая кнопка мыши, то вызываем контексное меню*/
             if (CheckControlPoint[0] != 0 && e.Button == System.Windows.Forms.MouseButtons.Right)
             {
+                AddPointLayers = false;
                 ChangeMaterialsToolStripMenuItem(ChangeMaterialToolStripMenuItem);
                 СontextMenuMainPaint.Show(Cursor.Position);
             }
@@ -861,7 +858,6 @@ namespace Second
         }
         #endregion
 
-
         #region Почва
         /*Снимаем фокус*/
         private void TabPageSpline_Click(object sender, EventArgs e)
@@ -872,23 +868,20 @@ namespace Second
         #region Таблица
         private void DeleteSplineDataGridViewToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            /*Удаляем сплайн*/
-            if (CheckControlPoint[0] == 1)
-                CheckControlPoint[1]++;
             Draw.DeleteSpline(CheckControlPoint);
             /*Изменяем ползунки*/
             MainPaint_VScroll.LargeChange = Draw.YAREASIZE;
             MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
             MainPaint_VScroll.Value = Draw.ScrollValue(0);
             /*Выбраты слои*/
-            if (LayerMinerals == 0)
+            if (CheckControlPoint[0] == 1)
             {
                 DataGridViewLayers.Rows.RemoveAt(0);
                 ChangeDataGridViewLayers();
                 DataGridViewLayers.ClearSelection();
             }
             /*Выбраны минералы*/
-            if (LayerMinerals == 1)
+            if (CheckControlPoint[0] == 2)
             {
                 DataGridViewMinerals.Rows.RemoveAt(0);
                 ChangeDataGridViewMinerals();
@@ -942,7 +935,7 @@ namespace Second
             {
                 ToolStripMenuItem AddItem;
                 /*Если выбран материал слоя*/
-                if (LayerMinerals==0)
+                if (CheckControlPoint[0] == 1)
                 {
                     /*Если данное название уже используется, то ничего не делаем*/
                     for(i=0;i< MaterialLayer.Count;i++)
@@ -993,10 +986,10 @@ namespace Second
                 /*Создаем новый материал*/
                 Material Material = new Material(GlobalConst.Buffer[0], Convert.ToDouble(GlobalConst.Buffer[1]));
                 /*Если это слои*/
-                if (LayerMinerals == 0)
+                if (CheckControlPoint[0] == 1)
                 {
                     /*Проверяем встречается ли старый тип и меняем их*/
-                    if (!Draw.CheckMaterial(LayerMinerals, MaterialLayer[СomboBoxLayerMaterial.SelectedIndex], out Number))
+                    if (!Draw.CheckMaterial(CheckControlPoint[0], MaterialLayer[СomboBoxLayerMaterial.SelectedIndex], out Number))
                     {
                         for (i = 0; i < Number.Count; i++)
                         {
@@ -1013,7 +1006,7 @@ namespace Second
                 else
                 {
                     /*Проверяем встречается ли старый тип и меняем их*/
-                    if (!Draw.CheckMaterial(LayerMinerals, MaterialMineral[ComboBoxMineralMaterial.SelectedIndex], out Number))
+                    if (!Draw.CheckMaterial(CheckControlPoint[0], MaterialMineral[ComboBoxMineralMaterial.SelectedIndex], out Number))
                     {
                         for (i = 0; i < Number.Count; i++)
                         {
@@ -1034,9 +1027,9 @@ namespace Second
             int i;
             string Out="";
             /*Если слои*/
-            if (LayerMinerals == 0)
+            if (CheckControlPoint[0] == 1)
                 /*Поиск такого материала в слоях*/
-                if(!Draw.CheckMaterial(LayerMinerals, MaterialLayer[СomboBoxLayerMaterial.SelectedIndex], out Number))
+                if(!Draw.CheckMaterial(CheckControlPoint[0], MaterialLayer[СomboBoxLayerMaterial.SelectedIndex], out Number))
                 {
                     for (i = 0; i < Number.Count; i++)
                         Out += " "+Number[i];
@@ -1052,7 +1045,7 @@ namespace Second
             else
             {
                 /*Поиск такого материала в минералах*/
-                if (!Draw.CheckMaterial(LayerMinerals, MaterialMineral[ComboBoxMineralMaterial.SelectedIndex], out Number))
+                if (!Draw.CheckMaterial(CheckControlPoint[0], MaterialMineral[ComboBoxMineralMaterial.SelectedIndex], out Number))
                 {
                     for (i = 0; i < Number.Count; i++)
                         Out += " " + Number[i];                   
@@ -1161,10 +1154,7 @@ namespace Second
         {
             /*Если нажата правая кнопка, то выводим контексное меню*/
             if (e.Button == MouseButtons.Right)
-            {
-                LayerMinerals = 0;
                 ContextMenuMaterials.Show(Cursor.Position);
-            }
         }
         private void СomboBoxLayerMaterial_DrawItem(object sender, DrawItemEventArgs e)
         {
@@ -1195,11 +1185,79 @@ namespace Second
                 ChangeMaterialsToolStripMenuItem(MaterialSplineDataGridViewToolStripMenuItem);
                 ContextMenuDataGridView.Show(Cursor.Position);
             }
+        }      
+        #endregion
+
+        #region Минералы
+        private void DrawSplineMinerals_Click(object sender, EventArgs e)
+        {
+            /*"Включаем" кнопку, теперь можно рисовать минерал*/
+            if (DrawMineral == false)
+            {
+                DrawMineral = true;
+                DrawSplineMinerals.BackColor = System.Drawing.SystemColors.Highlight;
+                DrawLayers = false;
+                DrawSplineLayers.BackColor = System.Drawing.SystemColors.Control;
+                Draw.NewMinerals(MaterialLayer[ComboBoxMineralMaterial.SelectedIndex]);
+                UnFocus.Focus();
+            }
+            else
+            {
+                DrawMineral = false;
+                DrawSplineMinerals.BackColor = System.Drawing.SystemColors.Control;
+                if (!Draw.CheckPointsMinerals())
+                    MessageBox.Show("Должно быть минимум 3 точки, точки удалены.");
+                else
+                {
+                    DataGridViewMinerals.Rows.Add(0, "", 0, 0);
+                    ChangeDataGridViewMinerals();
+                }
+                UnFocus.Focus();
+            }
         }
+
+        private void DataGridViewMinerals_MouseDown(object sender, MouseEventArgs e)
+        {
+            /*Если нажата правая кнопка, то выводим контексное меню*/
+            if (e.Button == MouseButtons.Right)
+                ContextMenuMaterials.Show(Cursor.Position);
+        }
+        private void ComboBoxMineralMaterial_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            if (e.Index < 0) { return; }
+            string text = "Сопротивление:" + MaterialMineral[e.Index].RESISTANCE.ToString();
+            e.DrawBackground();
+            using (SolidBrush br = new SolidBrush(e.ForeColor))
+            { e.Graphics.DrawString(ComboBoxMineralMaterial.GetItemText(ComboBoxMineralMaterial.Items[e.Index]), e.Font, br, e.Bounds); }
+            if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
+            {
+                ToolTip.Show(text, ComboBoxMineralMaterial, e.Bounds.Right, e.Bounds.Bottom);
+            }
+            e.DrawFocusRectangle();
+        }
+        private void ComboBoxMineralMaterial_DropDownClosed(object sender, EventArgs e)
+        {
+            /*Скрываем тултип, убираем фокус*/
+            ToolTip.Hide(СomboBoxLayerMaterial);
+            UnFocus.Focus();
+        }
+
+        private void DataGridViewMinerals_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right && e.RowIndex != DataGridViewMinerals.Rows.Count - 1)
+            {
+                DataGridViewMinerals.Rows[e.RowIndex].Selected = true;
+                CheckControlPoint[0] = 2;
+                CheckControlPoint[1] = e.RowIndex;
+                ChangeMaterialsToolStripMenuItem(MaterialSplineDataGridViewToolStripMenuItem);
+                ContextMenuDataGridView.Show(Cursor.Position);
+            }
+        }
+        #endregion
 
         private void СheckedListBoxSpline_ItemCheck(object sender, ItemCheckEventArgs e)
         {
-            switch(e.Index)
+            switch (e.Index)
             {
                 /*Нажата Опорные линии.*/
                 case 0:
@@ -1237,62 +1295,9 @@ namespace Second
         }
         #endregion
 
-        #region Минералы
-
-
-
-        private void DrawSplineMinerals_Click(object sender, EventArgs e)
-        {
-            /*"Включаем" кнопку, теперь можно рисовать несколько слоев с заданным количеством*/
-            /*опорных точек*/
-            if (DrawMineral == false)
-            {
-                DrawMineral = true;
-                DrawSplineMinerals.BackColor = System.Drawing.SystemColors.Highlight;
-                DrawLayers = false;
-                DrawSplineLayers.BackColor = System.Drawing.SystemColors.Control;
-                Draw.NewMinerals(MaterialLayer[ComboBoxMineralMaterial.SelectedIndex]);
-                UnFocus.Focus();
-            }
-            else
-            {
-                DrawMineral = false;
-                DrawSplineMinerals.BackColor = System.Drawing.SystemColors.Control;
-                DataGridViewMinerals.Rows.Add(0, "", 0, 0);
-                ChangeDataGridViewMinerals();
-                if (!Draw.CheckPointsMinerals())
-                    MessageBox.Show("Должно быть минимум 3 точки, точки удалены.");
-                UnFocus.Focus();
-            }
-        }
-
-        private void ComboBoxMineralMaterial_DrawItem(object sender, DrawItemEventArgs e)
-        {
-            if (e.Index < 0) { return; }
-            string text = "Сопротивление:" + MaterialMineral[e.Index].RESISTANCE.ToString();
-            e.DrawBackground();
-            using (SolidBrush br = new SolidBrush(e.ForeColor))
-            { e.Graphics.DrawString(ComboBoxMineralMaterial.GetItemText(ComboBoxMineralMaterial.Items[e.Index]), e.Font, br, e.Bounds); }
-            if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
-            {
-                ToolTip.Show(text, ComboBoxMineralMaterial, e.Bounds.Right, e.Bounds.Bottom);
-            }
-            e.DrawFocusRectangle();
-        }
-
-        private void ComboBoxMineralMaterial_DropDownClosed(object sender, EventArgs e)
-        {
-
-        }
-        #endregion
 
         #endregion
 
-        #endregion
-
-
-
-
-
+        
     }
 }

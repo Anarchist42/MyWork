@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Drawing;
 
-
-using Tao.DevIl;
 using Tao.OpenGl;
 using Tao.FreeGlut;
 using Tao.Platform.Windows;
@@ -13,7 +11,6 @@ namespace Second
     class Paint
     {
         #region Поля класса
-
         #region Нужны Get\Set
         /// <summary>
         /// Текущий зум.
@@ -76,7 +73,6 @@ namespace Second
         /// </summary>
         private bool CSpline;
         #endregion
-
         #region Не нужны Get\Set
         /// <summary>
         /// Указатель на OpenGLControl где рисуем.
@@ -103,8 +99,6 @@ namespace Second
         /// </summary>
         Random random = new Random();    
         #endregion
-
-        bool flag = false;
         #endregion
 
         #region Конструктор
@@ -148,7 +142,7 @@ namespace Second
                     this.MINZOOM = GlobalConst.MinZoom * Convert.ToDouble(GLPaint.Height - GlobalConst.Difference)
                         / Convert.ToDouble(GLPaint.MinimumSize.Height - GlobalConst.Difference);
                 this.MaxZoom = MinZoom * XAreaSize * Math.Pow(10, GlobalConst.Accuracy) / Convert.ToDouble(GLPaint.MinimumSize.Width - GlobalConst.Difference);
-                ZoomWheel = (MaxZoom - MinZoom) / 150;
+                ZoomWheel = 0.01;
                 /*Высота области*/
                 this.DefYAreaSize = Math.Round(Convert.ToDouble(GLPaint.MinimumSize.Height - GlobalConst.Difference) / GlobalConst.MinZoom, GlobalConst.Accuracy);
                 if (this.YAreaSize < DefYAreaSize)
@@ -394,17 +388,12 @@ namespace Second
         public void ChangeOffsetZoomIn()
         {
             ZOOM += ZoomWheel;
-            if (flag==false)
-            {
                 this.YOFFSET =
                        (((YAreaSize * (Zoom - ZoomWheel) - GLPaint.Height + GlobalConst.Difference) / 2 + YOffset + MousePosition.Y) / (Zoom - ZoomWheel)) * Zoom
                        - (YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 - MousePosition.Y;
                 this.XOFFSET =
                     (XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2 - (((XAreaSize * (Zoom - ZoomWheel) - GLPaint.Width + GlobalConst.Difference) / 2
                     - XOffset + MousePosition.X) / (Zoom - ZoomWheel)) * Zoom + MousePosition.X;
-            }
-            if (Zoom == MaxZoom - ZoomWheel)
-                flag = true;
         }
         /// <summary>
         /// Изменение сдвига по осям (отдаление).
@@ -414,15 +403,18 @@ namespace Second
             ZOOM -= ZoomWheel;
             if (Zoom != MinZoom)
             {
-                this.YOFFSET -= (YOffset / ((Zoom - MinZoom) / ZoomWheel));
-                this.XOFFSET -= (XOffset / ((Zoom - MinZoom) / ZoomWheel));
+                this.YOFFSET =
+                       (((YAreaSize * (Zoom - ZoomWheel) - GLPaint.Height + GlobalConst.Difference) / 2 + YOffset + MousePosition.Y) / (Zoom - ZoomWheel)) * Zoom
+                       - (YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 - MousePosition.Y;
+                this.XOFFSET =
+                    (XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2 - (((XAreaSize * (Zoom - ZoomWheel) - GLPaint.Width + GlobalConst.Difference) / 2
+                    - XOffset + MousePosition.X) / (Zoom - ZoomWheel)) * Zoom + MousePosition.X;
             }
             else
             {
                 this.YOFFSET = 0.0;
                 this.XOFFSET = 0.0;
             }
-            flag = false;
         }
         /// <summary>
         /// Изменение сдвига по осям (мышь). 
@@ -436,7 +428,6 @@ namespace Second
                         - XOffset + MouseDownPosition.X) / Zoom) * Zoom + MousePosition.X;
         }
         #endregion
-
 
         #region Слои и Минералы (общие функции)
 
@@ -454,16 +445,13 @@ namespace Second
             try
             {
                 //Если не используется, то меняем цвет.
-                if (!CheckSplineColor(Color))                
-                if (FIJ[0] == 1)
-                    Layers[FIJ[1]].COLOR = Color;
-                else
-                    Minerals[FIJ[1]].COLOR = Color;
+                if (!CheckSplineColor(Color))
+                    if (FIJ[0] == 1)
+                        Layers[FIJ[1]].COLOR = Color;
+                    else
+                        Minerals[FIJ[1]].COLOR = Color;
             }
-            catch
-            {
-                return false;
-            }
+            catch { return false; }
             return true;
         }
         /// <summary>
@@ -471,7 +459,7 @@ namespace Second
         /// </summary>
         /// <returns> Выполнил или нет. </returns>
         public bool SetSplineAccuracy()
-        {          
+        {
             try
             {
                 int i;
@@ -480,10 +468,7 @@ namespace Second
                 for (i = 0; i < Minerals.Count; i++)
                     Minerals[i].ChangeAccuracy();
             }
-            catch
-            {
-                return false;
-            }
+            catch { return false; }
             return true;
         }
         /// <summary>
@@ -502,10 +487,7 @@ namespace Second
                 else
                     Minerals[FIJ[1]].MATERIAL = Material;
             }
-            catch
-            {
-                return false;
-            }
+            catch { return false; }
             return true;
         }
         #endregion
@@ -528,10 +510,7 @@ namespace Second
                 else
                     Material = Minerals[FIJ[1]].MATERIAL;
             }
-            catch
-            {
-                return false;
-            }
+            catch { return false; }
             return true;
         }
         /// <summary>
@@ -565,10 +544,7 @@ namespace Second
                     Material = Minerals[PositionNumber].MATERIAL.NAME;
                 }
             }
-            catch
-            {
-                return false;
-            }
+            catch { return false; }
             return true;
         }
         /// <summary>
@@ -582,7 +558,6 @@ namespace Second
             while (CheckSplineColor(Color))
                 Color = Color.FromArgb(random.Next(0, 255), random.Next(0, 255), random.Next(0, 255));
             return Color;
-
         }
         #endregion
 
@@ -599,14 +574,21 @@ namespace Second
             try
             {
                 if (FIJ[0] == 1)
-                    Layers[FIJ[1]].AddPoint(new PointSpline(GetCoordinate(0), GetCoordinate(1)));
+                {
+                    Layers[FIJ[1]].AddPoint(new PointSpline(GetCoordinate(0), GetCoordinate(1)), out FIJ[2]);
+                    /*Проверяем сплайны на пересечение*/
+                    if (CheckLayersIntersectionRude(FIJ))
+                    {
+                        Layers[FIJ[1]].POINT.RemoveAt(FIJ[2]);
+                        return false;
+                    }
+                    /*Перестраиваем массив*/
+                    Layers[FIJ[1]].BSpline();
+                }
                 else
                     Minerals[FIJ[1]].AddPoint(new PointSpline(GetCoordinate(0), GetCoordinate(1)));
             }
-            catch
-            {
-                return false;
-            }
+            catch { return false; }
             return true;
         }
         /// <summary>
@@ -618,15 +600,31 @@ namespace Second
         /// <returns> Выполнил или нет. </returns>
         public bool DeletePoint(int[] FIJ)
         {
-            if (FIJ[0] == 1)
-                Layers[FIJ[1]].DeletePoint(FIJ[2]);
-            else
-                Minerals[FIJ[1]].DeletePoint(FIJ[2]);
+            try
+            {
+                if (FIJ[0] == 1)
+                {
+                    PointSpline PrefPoint = Layers[FIJ[1]].POINT[FIJ[2]];
+                    Layers[FIJ[1]].DeletePoint(FIJ[2]);
+                    /*Проверяем сплайны на пересечение*/
+                    if (CheckLayersIntersectionRude(FIJ))
+                    {
+                        Layers[FIJ[1]].POINT.Insert(FIJ[2],PrefPoint);
+                        return false;
+                    }
+                    /*Перестраиваем массив*/
+                    Layers[FIJ[1]].BSpline();
+                }
+                else
+                    Minerals[FIJ[1]].DeletePoint(FIJ[2]);
+            }
+            catch { return false; }
             return true;
         }
         /// <summary>
         /// Удаляем все точки больше области.
         /// </summary>
+        /// <returns> Выполнил или нет. </returns>
         public bool DeletePoints()
         {
             int i;
@@ -637,10 +635,7 @@ namespace Second
                 for (i = 0; i < Minerals.Count; i++)
                     Minerals[i].DeletePoint(XAreaSize);
             }
-            catch
-            {
-                return false;
-            }
+            catch { return false; }
             return true;
         }
         #endregion
@@ -660,7 +655,10 @@ namespace Second
                 if (FIJ[0] == 1)
                 {
                     if (Layers.Count > 1)
-                        Layers.RemoveAt(FIJ[1]);
+
+                        if (FIJ[1] == Layers.Count - 2)
+                            Layers.RemoveAt(FIJ[1] + 1);
+                        else Layers.RemoveAt(FIJ[1]);
                     else
                         return false;
                 }
@@ -668,15 +666,41 @@ namespace Second
                     Minerals.RemoveAt(FIJ[1]);
                 YAreaSize = GetMaxPointLayers();
             }
-            catch
-            {
-                return false;
-            }
+            catch { return false; }
             return true;
         }
         #endregion
 
         #region Чеки сплайнов
+        /// <summary>
+        /// Проверка есть ли материал.
+        /// </summary>
+        /// <param name="NumberGrid"> Номер таблицы (0 - слои, 1 - минералы). </param>
+        /// <param name="Material"> Материал. </param>
+        /// <param name="Number"> Массив найденных совпадений. </param>
+        /// <returns> Нашли материал или нет. </returns>
+        public bool CheckMaterial(int NumberGrid, Material Material, out List<int> Number)
+        {
+            Number = new List<int>();
+            int i;
+            try
+            {
+                if (NumberGrid == 1)
+                {
+                    for (i = 0; i < Layers.Count - 1; i++)
+                        if (Layers[i].MATERIAL == Material)
+                            Number.Add(i + 1);
+                }
+                else
+                {
+                    for (i = 0; i < Minerals.Count; i++)
+                        if (Minerals[i].MATERIAL == Material)
+                            Number.Add(i + 1);
+                }
+            }
+            catch { return false; }
+            return Number.Count == 0;
+        }
         /// <summary>
         /// Используется ли данный цвет где-то.
         /// </summary>
@@ -696,13 +720,9 @@ namespace Second
                     if (Minerals[i].COLOR == Color)
                         return true;
             }
-            catch
-            {
-                return true;
-            }
+            catch { return true; }
             return false;
         }
-
         /// <summary>
         /// Площадь треугольника.
         /// </summary>
@@ -727,12 +747,65 @@ namespace Second
             return AreaTriangle(A, B, C) * AreaTriangle(A, B, D) < 0
                 && AreaTriangle(C, D, A) * AreaTriangle(C, D, B) < 0;
         }
-
-        private bool CheckSplineSelfIntersection(int[] FIJ)
+        /// <summary>
+        /// Пересекается ли сплайн сам с собой (грубый способ, по опорным линиям).
+        /// </summary>
+        /// <param name="NumberCheckPoint"> Номер движимой опорной точки. </param>
+        /// <param name="Points"> Массив опорных точек. </param>
+        /// <returns></returns>
+        private bool CheckSplineSelfIntersectionRude(int NumberCheckPoint, List<PointSpline> Points)
         {
-            
-            return true;
+            try
+            {
+                int i;
+                for (i = 0; i < Points.Count - 1; i++)
+                {
+                    if (IntersectParts(Points[i], Points[i + 1], Points[NumberCheckPoint - 1], Points[NumberCheckPoint])
+                        || IntersectParts(Points[i], Points[i + 1], Points[NumberCheckPoint], Points[NumberCheckPoint + 1]))
+                        return true;
+                }               
+            }
+            catch { return true; }
+            return false;
         }
+
+
+
+        private bool CheckLayersIntersectionRude(int[] FIJ)
+        {
+            try
+            {
+                if (Layers.Count > 1)
+                {
+                    if (FIJ[1] == 0)
+                        return Check4LayersIntersectionRude(FIJ[2], Layers[0].POINT, Layers[1].POINT);
+                    if (FIJ[1] == Layers.Count - 1)
+                        return Check4LayersIntersectionRude(FIJ[2], Layers[Layers.Count - 1].POINT, Layers[Layers.Count - 2].POINT);
+                    else
+                        return Check4LayersIntersectionRude(FIJ[2], Layers[FIJ[1]].POINT, Layers[FIJ[1] + 1].POINT) ||
+                            Check4LayersIntersectionRude(FIJ[2], Layers[FIJ[1]].POINT, Layers[FIJ[1] - 1].POINT);
+                }
+            }
+            catch { return true; }
+            return false;
+        }
+
+        private bool Check4LayersIntersectionRude(int NumberCheckPoint, List<PointSpline> First, List<PointSpline> Second)
+        {
+            try
+            {
+                int i;
+                for(i=0;i<Second.Count - 1;i++)
+                {
+                    if ((IntersectParts(Second[i], Second[i + 1], First[NumberCheckPoint - 1], First[NumberCheckPoint]) ||
+                        IntersectParts(Second[i], Second[i + 1], First[NumberCheckPoint], First[NumberCheckPoint + 1])))
+                        return true;
+                }
+            }
+            catch { return true; }
+            return false;
+        }
+
 
 
         /// <summary>
@@ -756,10 +829,10 @@ namespace Second
                     double[] X = new double[2];
                     double[] Y = new double[2];
                     int i, j;
-                    X[0] = ((XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2 - XOffset + MousePosition.X - 3) / Zoom;
-                    X[1] = ((XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2 - XOffset + MousePosition.X + 3) / Zoom;
-                    Y[0] = EarthSize - ((YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 + YOffset + MousePosition.Y - 3) / Zoom;
-                    Y[1] = EarthSize - ((YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 + YOffset + MousePosition.Y + 3) / Zoom;
+                    X[0] = ((XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2 - XOffset + MouseDownPosition.X - 3) / Zoom;
+                    X[1] = ((XAreaSize * Zoom - GLPaint.Width + GlobalConst.Difference) / 2 - XOffset + MouseDownPosition.X + 3) / Zoom;
+                    Y[0] = EarthSize - ((YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 + YOffset + MouseDownPosition.Y - 3) / Zoom;
+                    Y[1] = EarthSize - ((YAreaSize * Zoom - GLPaint.Height + GlobalConst.Difference) / 2 + YOffset + MouseDownPosition.Y + 3) / Zoom;
                     List<PointSpline> Points;
                     for (i = 0; i < Layers.Count; i++)
                     {
@@ -788,14 +861,9 @@ namespace Second
 
                 }
             }
-            catch
-            {
-                return false;
-            }
-            return true;
+            catch { return false; }
+            return false;
         }
-        
-
         #endregion
 
         #region Перемещение сплайнов
@@ -822,14 +890,12 @@ namespace Second
                     {
                         Points[FIJ[2]] = new PointSpline(Point.X, Point.Y);
                         /*Проверка на самопересечение*/
-                        for (int i = 0; i < Points.Count - 1; i++)
-                            for (int j = i + 2; j < Points.Count - 1; j++)
-                                if (IntersectParts(Points[i], Points[i + 1], Points[j], Points[j + 1]))
-                                {
-                                    /*Если пересек - сохраняем старое значение и выходим*/
-                                    Points[FIJ[2]] = PrefPoint;
-                                    return false;
-                                }
+                        if (CheckSplineSelfIntersectionRude(FIJ[2], Points) || CheckLayersIntersectionRude(FIJ))
+                        {
+                            /*Если пересек - сохраняем старое значение и выходим*/
+                            Points[FIJ[2]] = PrefPoint;
+                            return false;
+                        }
                     }
                     //Если первая либо последняя, то двигать можно только по Y
                     else
@@ -841,32 +907,35 @@ namespace Second
                         YAreaSize += XAreaSize / 100;
                         YOffset += XAreaSize / 100;
                     }
+                    /*Перестраиваем сплайн*/
                     Layers[FIJ[1]].BSpline();
                 }
                 else
                 {
                     Points = Minerals[FIJ[1]].POINT;
+                    /*Добавляем точку в начало и конец, что бы замкнуть контур с обеих сторон*/
+                    Points.Insert(0, Points[Points.Count - 1]);
                     Points.Add(Points[Points.Count - 1]);
-                    PrefPoint = Points[FIJ[2]];
-                    Points[FIJ[2]] = new PointSpline(Point.X, Point.Y);
+                    PrefPoint = Points[FIJ[2] + 1];
+                    Points[FIJ[2] + 1] = new PointSpline(Point.X, Point.Y);
                     /*Проверка на самопересечение*/
-                    for (int i = 0; i < Points.Count - 1; i++)
-                        for (int j = i + 1; j < Points.Count - 1; j++)
-                            if (IntersectParts(Points[i], Points[i + 1], Points[j], Points[j + 1]))
-                            {
-                                /*Если пересек - сохраняем старое значение и выходим*/
-                                Points[FIJ[2]] = PrefPoint;
-                                Points.RemoveAt(Points.Count - 1);
-                                return false;
-                            }
+                    if (CheckSplineSelfIntersectionRude(FIJ[2] + 1, Points))
+                    {
+                        /*Если пересек - сохраняем старое значение и выходим*/
+                        Points[FIJ[2] + 1] = PrefPoint;
+                        /*Убираем лишние значения*/
+                        Points.RemoveAt(0);
+                        Points.RemoveAt(Points.Count - 1);
+                        return false;
+                    }
+                    /*Убираем лишние значения*/
+                    Points.RemoveAt(0);
                     Points.RemoveAt(Points.Count - 1);
+                    /*Перестраиваем сплайн*/
                     Minerals[FIJ[1]].BSpline();
                 }
             }
-            catch
-            {
-                return false;
-            }
+            catch { return false; }
             return true;
         }
         /// <summary>
@@ -884,57 +953,12 @@ namespace Second
                 for (i = 0; i < Minerals.Count; i++)
                     Layers[i].ChangeXPoints(ChangeX);
             }
-            catch
-            {
-                return false;
-            }
+            catch { return false; }
             return true;
         }
         #endregion
 
-
-
-
-
-
-
-
-
-        /// <summary>
-        /// Проверка есть ли материал.
-        /// </summary>
-        /// <param name="NumberGrid"> Номер таблицы (0 - слои, 1 - минералы). </param>
-        /// <param name="Material"> Материал. </param>
-        /// <param name="Number"> Массив найденных совпадений. </param>
-        /// <returns></returns>
-        public bool CheckMaterial(int NumberGrid,Material Material, out List<int> Number)
-        {
-            Number = new List<int>();
-            int i;
-            try
-            {
-                if(NumberGrid==0)
-                {
-                    for (i = 0; i < Layers.Count - 1; i++)
-                        if (Layers[i].MATERIAL == Material)
-                            Number.Add(i + 1);
-                }
-                else
-                {
-                    for (i = 0; i < Minerals.Count; i++)
-                        if (Minerals[i].MATERIAL == Material)
-                            Number.Add(i + 1);
-                }
-            }
-            catch
-            {
-                return false;
-            }
-            return Number.Count==0;
-        }
-
         #endregion
-
 
         #region Работа со слоями
         /// <summary>
@@ -1003,20 +1027,23 @@ namespace Second
                         return false;
                 }
             }
-            catch
-            {
-                return false;
-            }
+            catch { return false; }
             return true;
-        }    
+        }
         /// <summary>
         /// Добавляем опорную точку в конец.
         /// </summary>
-        public void AddLastPoint()
+        /// <returns> Выполнил или нет. </returns>
+        public bool AddLastPoint()
         {
-            int i = 0;
-            for (i = 0; i < Layers.Count; i++)
-                Layers[i].AddPoint(new PointSpline(XAreaSize, Layers[i].POINT[Layers[i].POINT.Count - 1].Y));
+            try
+            {
+                int i,Position;
+                for (i = 0; i < Layers.Count; i++)
+                    Layers[i].AddPoint(new PointSpline(XAreaSize, Layers[i].POINT[Layers[i].POINT.Count - 1].Y), out Position);
+            }
+            catch { return false; }
+            return true;
         }
         #endregion
 
@@ -1025,7 +1052,7 @@ namespace Second
         /// Добавление нового минерала.
         /// </summary>
         /// <param name="Material"> Тип материала. </param>
-        /// <returns></returns>
+        /// <returns> Выполнил или нет. </returns>
         public bool NewMinerals(Material Material)
         {
             try
@@ -1033,16 +1060,13 @@ namespace Second
                 Mineral tmp = new Mineral(Material, GetRandomColor());
                 Minerals.Add(tmp);
             }
-            catch
-            {
-                return false;
-            }
+            catch { return false; }
             return true;
         }
         /// <summary>
         /// Проверка количества точек минерала.
         /// </summary>
-        /// <returns></returns>
+        /// <returns> Больше 2 точек или нет. </returns>
         public bool CheckPointsMinerals()
         {
             if (Minerals[Minerals.Count - 1].POINT.Count > 2)
@@ -1057,13 +1081,10 @@ namespace Second
         public bool AddPointMinerals()
         {
             try
-            {   
+            {
                 Minerals[Minerals.Count - 1].AddPoint(new PointSpline(GetCoordinate(0), GetCoordinate(1)));
             }
-            catch
-            {
-                return false;
-            }
+            catch { return false; }
             return true;
         }
         #endregion

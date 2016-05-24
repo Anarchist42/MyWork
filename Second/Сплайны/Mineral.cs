@@ -179,13 +179,12 @@ namespace Second
         {
             return A.X * B.X + A.Y * B.Y;
         }
-
-
-
-        /*Для отрисовки сплайна*/
-        /*Параметры: i - номер точки позицию которой надо вернуть*/
-        /*           Points - массив опорных точек сплайна*/
-        /*Возвращает: Points[1] - точка для отрисовки куска сплайна*/
+        /// <summary>
+        /// Для отрисовки сплайна.
+        /// </summary>
+        /// <param name="i"> Номер точки, позицию которых надо вернуть. </param>
+        /// <param name="Points"> Массив опорных точек сплайна. </param>
+        /// <returns> Точка для отрисовки куска сплайна. </returns>
         private PointSpline GetPoint(int i, List<PointSpline> Points)
         {
             if (i < 0)
@@ -194,7 +193,9 @@ namespace Second
                 return Points[i];
             return Points[i - Points.Count];
         }
-        /*Заполняем массив BSpline*/
+        /// <summary>
+        /// Построение BSpline.
+        /// </summary>
         public void BSpline()
         {
             /*Очищаем массив*/
@@ -222,15 +223,10 @@ namespace Second
                 }
             }
         }
-
-
-
-
-
-        
-
-        /*Удаление опорной точки*/
-        /*Параметры: Delete - индекс удаляемой точки в массиве*/
+        /// <summary>
+        /// Удаление опорной точки.
+        /// </summary>
+        /// <param name="Delete"> Индекс удаляемой точки. </param>
         public void DeletePoint(int Delete)
         {
             if (Points.Count > 3)
@@ -240,9 +236,10 @@ namespace Second
                 BSpline();
             }
         }
-
-        /*Удаление опорных точек меньше рабочей зоны*/
-        /*Параметры: DeleteX*/
+        /// <summary>
+        /// Удаление опорных точек правее области.
+        /// </summary>
+        /// <param name="DeleteX"> На сколько уменьшилась область. </param>
         public void DeletePoint(double DeleteX)
         {
             int i;

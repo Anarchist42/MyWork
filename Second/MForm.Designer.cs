@@ -91,6 +91,8 @@
             this.DeleteLayersMainPaintToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.ContextMenuDataGridView = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.MaterialSplineDataGridViewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ChangeColorDataGridViewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.DeleteSplineDataGridViewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.GroupBox = new System.Windows.Forms.GroupBox();
             this.TextBoxYCoordinate = new System.Windows.Forms.TextBox();
@@ -99,8 +101,6 @@
             this.LabelXCoordinate = new System.Windows.Forms.Label();
             this.ColorDialog = new System.Windows.Forms.ColorDialog();
             this.UnFocus = new System.Windows.Forms.Button();
-            this.ChangeColorDataGridViewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.MaterialSplineDataGridViewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.MainPaint_HScroll = new Second.MyScroll();
             this.MainPaint_VScroll = new Second.MyScroll();
             this.MenuStrip.SuspendLayout();
@@ -394,7 +394,7 @@
             this.ComboBoxMineralMaterial.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             this.ComboBoxMineralMaterial.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ComboBoxMineralMaterial.FormattingEnabled = true;
-            this.ComboBoxMineralMaterial.Location = new System.Drawing.Point(71, 200);
+            this.ComboBoxMineralMaterial.Location = new System.Drawing.Point(71, 223);
             this.ComboBoxMineralMaterial.Name = "ComboBoxMineralMaterial";
             this.ComboBoxMineralMaterial.Size = new System.Drawing.Size(89, 21);
             this.ComboBoxMineralMaterial.TabIndex = 11;
@@ -411,7 +411,7 @@
             "Опорные линии.",
             "BSpline.",
             "CSpline"});
-            this.СheckedListBoxSpline.Location = new System.Drawing.Point(3, 335);
+            this.СheckedListBoxSpline.Location = new System.Drawing.Point(4, 374);
             this.СheckedListBoxSpline.Name = "СheckedListBoxSpline";
             this.СheckedListBoxSpline.Size = new System.Drawing.Size(109, 45);
             this.СheckedListBoxSpline.TabIndex = 10;
@@ -420,7 +420,7 @@
             // LabelMineralMaterial
             // 
             this.LabelMineralMaterial.AutoSize = true;
-            this.LabelMineralMaterial.Location = new System.Drawing.Point(4, 200);
+            this.LabelMineralMaterial.Location = new System.Drawing.Point(4, 223);
             this.LabelMineralMaterial.Name = "LabelMineralMaterial";
             this.LabelMineralMaterial.Size = new System.Drawing.Size(60, 26);
             this.LabelMineralMaterial.TabIndex = 9;
@@ -430,7 +430,7 @@
             // 
             this.DrawSplineMinerals.BackColor = System.Drawing.SystemColors.Control;
             this.DrawSplineMinerals.Enabled = false;
-            this.DrawSplineMinerals.Location = new System.Drawing.Point(163, 200);
+            this.DrawSplineMinerals.Location = new System.Drawing.Point(163, 223);
             this.DrawSplineMinerals.Name = "DrawSplineMinerals";
             this.DrawSplineMinerals.Size = new System.Drawing.Size(78, 23);
             this.DrawSplineMinerals.TabIndex = 8;
@@ -460,12 +460,14 @@
             dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
             this.DataGridViewMinerals.DefaultCellStyle = dataGridViewCellStyle3;
             this.DataGridViewMinerals.GridColor = System.Drawing.SystemColors.Control;
-            this.DataGridViewMinerals.Location = new System.Drawing.Point(4, 229);
+            this.DataGridViewMinerals.Location = new System.Drawing.Point(4, 252);
             this.DataGridViewMinerals.Name = "DataGridViewMinerals";
             this.DataGridViewMinerals.RowHeadersVisible = false;
             this.DataGridViewMinerals.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
-            this.DataGridViewMinerals.Size = new System.Drawing.Size(239, 100);
+            this.DataGridViewMinerals.Size = new System.Drawing.Size(239, 120);
             this.DataGridViewMinerals.TabIndex = 7;
+            this.DataGridViewMinerals.CellMouseDown += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.DataGridViewMinerals_CellMouseDown);
+            this.DataGridViewMinerals.MouseDown += new System.Windows.Forms.MouseEventHandler(this.DataGridViewMinerals_MouseDown);
             // 
             // dataGridViewTextBoxColumn1
             // 
@@ -576,7 +578,7 @@
             this.DataGridViewLayers.Name = "DataGridViewLayers";
             this.DataGridViewLayers.RowHeadersVisible = false;
             this.DataGridViewLayers.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
-            this.DataGridViewLayers.Size = new System.Drawing.Size(239, 100);
+            this.DataGridViewLayers.Size = new System.Drawing.Size(239, 120);
             this.DataGridViewLayers.TabIndex = 3;
             this.DataGridViewLayers.CellMouseDown += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.DataGridViewLayers_CellMouseDown);
             // 
@@ -763,6 +765,20 @@
             this.ContextMenuDataGridView.Name = "СontextMenuStrip";
             this.ContextMenuDataGridView.Size = new System.Drawing.Size(167, 70);
             // 
+            // MaterialSplineDataGridViewToolStripMenuItem
+            // 
+            this.MaterialSplineDataGridViewToolStripMenuItem.Name = "MaterialSplineDataGridViewToolStripMenuItem";
+            this.MaterialSplineDataGridViewToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
+            this.MaterialSplineDataGridViewToolStripMenuItem.Text = "Задать материал";
+            this.MaterialSplineDataGridViewToolStripMenuItem.Click += new System.EventHandler(this.MaterialSplineDataGridViewToolStripMenuItem_Click);
+            // 
+            // ChangeColorDataGridViewToolStripMenuItem
+            // 
+            this.ChangeColorDataGridViewToolStripMenuItem.Name = "ChangeColorDataGridViewToolStripMenuItem";
+            this.ChangeColorDataGridViewToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
+            this.ChangeColorDataGridViewToolStripMenuItem.Text = "Изменить цвет";
+            this.ChangeColorDataGridViewToolStripMenuItem.Click += new System.EventHandler(this.ChangeColorDataGridViewToolStripMenuItem_Click);
+            // 
             // DeleteSplineDataGridViewToolStripMenuItem
             // 
             this.DeleteSplineDataGridViewToolStripMenuItem.Name = "DeleteSplineDataGridViewToolStripMenuItem";
@@ -828,20 +844,6 @@
             this.UnFocus.TabIndex = 12;
             this.UnFocus.Text = "UnFocus";
             this.UnFocus.UseVisualStyleBackColor = true;
-            // 
-            // ChangeColorDataGridViewToolStripMenuItem
-            // 
-            this.ChangeColorDataGridViewToolStripMenuItem.Name = "ChangeColorDataGridViewToolStripMenuItem";
-            this.ChangeColorDataGridViewToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
-            this.ChangeColorDataGridViewToolStripMenuItem.Text = "Изменить цвет";
-            this.ChangeColorDataGridViewToolStripMenuItem.Click += new System.EventHandler(this.ChangeColorDataGridViewToolStripMenuItem_Click);
-            // 
-            // MaterialSplineDataGridViewToolStripMenuItem
-            // 
-            this.MaterialSplineDataGridViewToolStripMenuItem.Name = "MaterialSplineDataGridViewToolStripMenuItem";
-            this.MaterialSplineDataGridViewToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
-            this.MaterialSplineDataGridViewToolStripMenuItem.Text = "Задать материал";
-            this.MaterialSplineDataGridViewToolStripMenuItem.Click += new System.EventHandler(this.MaterialSplineDataGridViewToolStripMenuItem_Click);
             // 
             // MainPaint_HScroll
             // 

@@ -78,6 +78,16 @@ namespace Second
         {
             return new PointSpline(A.x*B, A.y*B);
         }
+        public static bool operator ==(PointSpline A, PointSpline B)
+        {
+            if (A.x == B.x && A.y == B.y) return true;
+            return false;
+        }
+        public static bool operator !=(PointSpline A, PointSpline B)
+        {
+            if (A.x != B.x && A.y != B.y) return true;
+            return false;
+        }
         #endregion
 
         #region Методы
