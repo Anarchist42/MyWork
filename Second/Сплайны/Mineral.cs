@@ -30,6 +30,11 @@ namespace Second
         #endregion
 
         #region Конструктор
+        /// <summary>
+        /// Конструктор.
+        /// </summary>
+        /// <param name="Material"> Матреиал. </param>
+        /// <param name="Color"> Цвет. </param>
         public Mineral(Material Material, Color Color)
         {
             this.Material = Material;
@@ -86,9 +91,9 @@ namespace Second
         public double ReturnMinY()
         {
             int i;
-            double Min = Points[0].Y;
-            for (i = 1; i < Points.Count; i++)
-                if (Min > Points[i].Y) Min = Points[i].Y;
+            double Min = BSplinePoints[0].Y;
+            for (i = 1; i < BSplinePoints.Count; i++)
+                if (Min > BSplinePoints[i].Y) Min = BSplinePoints[i].Y;
             return Min;
         }
         /// <summary>
@@ -98,9 +103,9 @@ namespace Second
         public double ReturnMaxY()
         {
             int i;
-            double Max = Points[0].Y;
-            for (i = 1; i < Points.Count; i++)
-                if (Max < Points[i].Y) Max = Points[i].Y;
+            double Max = BSplinePoints[0].Y;
+            for (i = 1; i < BSplinePoints.Count; i++)
+                if (Max < BSplinePoints[i].Y) Max = BSplinePoints[i].Y;
             return Max;
         }
         /// <summary>
@@ -121,29 +126,37 @@ namespace Second
         /// Добавление опорной точки.
         /// </summary>
         /// <param name="Add"> Добавляемая точка. </param>
-        public void AddPoint(PointSpline Add)
+        public bool AddPoint(PointSpline Add,out int Position)
         {
-            if (Points.Count < 2)
+            Position = -1;
+            try
             {
-                Points.Add(Add);
-            }
-            else
-            {
-                int k = Points.Count;
-                int i;
-                double Min;
-                Min = PointsLength(Add, Points[0], Points[Points.Count - 1]);
-                for (i = 0; i < Points.Count - 1; i++)
+                if (Points.Count < 2)
                 {
-                    if (Min > PointsLength(Add, Points[i], Points[i + 1]))
-                    {
-                        Min = PointsLength(Add, Points[i], Points[i + 1]);
-                        k = i + 1;
-                    }
+                    Position = Points.Count;
+                    Points.Add(Add);
                 }
-                Points.Insert(k, Add);
-                BSpline();
+                else
+                {
+                    int k = Points.Count;
+                    int i;
+                    double Min;
+                    Min = PointsLength(Add, Points[0], Points[Points.Count - 1]);
+                    for (i = 0; i < Points.Count - 1; i++)
+                    {
+                        if (Min > PointsLength(Add, Points[i], Points[i + 1]))
+                        {
+                            Min = PointsLength(Add, Points[i], Points[i + 1]);
+                            k = i + 1;
+                        }
+                    }
+                    Points.Insert(k, Add);
+                    Position = k;
+                    BSpline();
+                }
             }
+            catch { return false; }
+            return true;
         }
         /// <summary>
         /// Расстояние от точки до отрезка.

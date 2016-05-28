@@ -71,6 +71,8 @@
     </Compile>
     <Compile Include="Малые классы\GlobalConst.cs" />
     <Compile Include="Малые классы\Material.cs" />
+    <Compile Include="Малые классы\PointMKE.cs" />
+    <Compile Include="Работа с файлами\WorkingWithFiles.cs" />
     <Compile Include="Сплайны\Mineral.cs" />
     <Compile Include="Кастомный скролл\MyScroll.cs">
       <SubType>Component</SubType>
@@ -123,7 +125,10 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Файлы\InputMaterialsLayer.txt" />
+    <Content Include="Файлы\OutputMaterials.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

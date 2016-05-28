@@ -114,15 +114,56 @@ namespace Second
             return true;
         }
         /// <summary>
+        /// Значение Y на отрезке AB.
+        /// </summary>
+        /// <param name="X"> Значение X. </param>
+        /// <param name="A"> Точка начала отрезка. </param>
+        /// <param name="B"> Точка конца отрезка. </param>
+        /// <returns></returns>
+        private double ReturnY(double X,PointSpline A, PointSpline B)
+        {
+            return (X - A.X) * (B.Y - A.Y) / (B.X - A.X) + A.Y;
+        }
+        /// <summary>
+        /// Возвращение максимального грубого(по опорной линии) значения Y(Х).
+        /// </summary>
+        /// <param name="X"> Значение Х. </param>
+        /// <returns> Значение Y(X). </returns>
+        public double ReturnMaxYRude(double X)
+        {
+            int i;
+            double Max = -double.MaxValue;
+            for (i = 0; i < Points.Count - 1; i++)
+                if ((X > Points[i].X && X < Points[i + 1].X) || (X < Points[i].X && X > Points[i+1].X))
+                    if (Max < ReturnY(X, Points[i], Points[i + 1]))
+                        Max = ReturnY(X, Points[i], Points[i + 1]);
+            return Max;
+        }
+        /// <summary>
+        /// Возвращение минимального грубого(по опорной линии) значения Y(Х).
+        /// </summary>
+        /// <param name="X"> Значение Х. </param>
+        /// <returns> Значение Y(X). </returns>
+        public double ReturnMinYRude(double X)
+        {
+            int i;
+            double Min = double.MaxValue;
+            for (i = 0; i < Points.Count - 1; i++)
+                if ((X > Points[i].X && X < Points[i + 1].X) || (X < Points[i].X && X > Points[i + 1].X))
+                    if (Min > ReturnY(X, Points[i], Points[i + 1]))
+                        Min = ReturnY(X, Points[i], Points[i + 1]);
+            return Min;
+        }
+        /// <summary>
         /// Максимальное значение глубины.
         /// </summary>
         /// <returns> Минимальное значение Y. </returns>
         public double ReturnMinY()
         {
             int i;
-            double Min = Points[0].Y;
-            for (i = 1; i < Points.Count; i++)
-                if (Min > Points[i].Y) Min = Points[i].Y;
+            double Min = BSplinePoints[0].Y;
+            for (i = 1; i < BSplinePoints.Count; i++)
+                if (Min > BSplinePoints[i].Y) Min = BSplinePoints[i].Y;
             return Min;
         }
         /// <summary>
@@ -132,9 +173,9 @@ namespace Second
         public double ReturnMaxY()
         {
             int i;
-            double Max = Points[0].Y;
-            for (i = 1; i < Points.Count; i++)
-                if (Max < Points[i].Y) Max = Points[i].Y;
+            double Max = BSplinePoints[0].Y;
+            for (i = 1; i < BSplinePoints.Count; i++)
+                if (Max < BSplinePoints[i].Y) Max = BSplinePoints[i].Y;
             return Max;
         }
         /// <summary>
@@ -166,9 +207,8 @@ namespace Second
                 /*Необходимо добавить несколько точек, что бы рисовал до самого конца*/
                 Points.Add(Points[Points.Count - 1]);
                 Points.Add(Points[Points.Count - 1]);
-                Points.Add(Points[Points.Count - 1]);
                 /*Считаем нужное количество точек*/
-                for (int start_cv = -3, j = 0; j != Points.Count; ++j, ++start_cv)
+                for (int start_cv = -2, j = 1; j != Points.Count; ++j, ++start_cv)
                 {
                     for (int k = 0; k != BSplineN; ++k)
                     {
@@ -190,7 +230,7 @@ namespace Second
                     }
                 }
                 /*Удаляем добавленные точки*/
-                Points.RemoveRange(Points.Count - 3, 3);
+                Points.RemoveRange(Points.Count - 2, 2);
             }
             catch
             { return false; }
@@ -289,6 +329,19 @@ namespace Second
             catch { return false; }
             return true;
         }
+
+        public bool MakePartition(double PartitionX)
+        {
+            try
+            {
+                int i;
+                for (i = 0; i < BSplinePoints.Count; i++)
+                    i++;
+            }
+            catch { return false; }
+            return true;
+        }
+
         #endregion
     }
 }

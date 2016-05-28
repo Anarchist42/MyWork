@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-namespace Second
+﻿namespace Second
 {
     public class GlobalConst
     {
