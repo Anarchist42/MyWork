@@ -12,7 +12,6 @@ using Tao.FreeGlut;         // для работы с библиотекой Fre
 
 namespace Second
 {
-
     public partial class MainForm : Form
     {
         #region Поля класса
@@ -72,6 +71,41 @@ namespace Second
 
         private void LoadSceneToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            OpenFileDialog Files = new OpenFileDialog();
+            if (Files.ShowDialog() == DialogResult.OK)
+            {
+                Draw.HardReset();
+             
+                WFiles.InputScene(Files.FileName, Draw, out MaterialLayer, out MaterialMineral);
+                /*Делаем интерфейс активным*/
+                ChangeEnabled();
+                /*Записываем данные в настройки*/
+                TextBoxAccuracy.Text = GlobalConst.Accuracy.ToString();
+                TextBoxXAreaSize.Text = Draw.XAREASIZE.ToString();
+                TextBoxYAreaSize.Text = Draw.YAREASIZE.ToString();
+                TextBoxEarthSize.Text = Draw.EARTHSIZE.ToString();
+                /*Изменяем скроллбары*/
+                ChangeScrollBars();
+                /*Записываем данные в таблицы*/
+                ChangeDataGridViewLayers();
+                ChangeDataGridViewMinerals();
+                /*Записываем данные в выпадающие списки*/
+                int i;
+                СomboBoxLayerMaterial.Items.Clear();
+                ComboBoxMineralMaterial.Items.Clear();
+                for (i = 0; i < MaterialLayer.Count; i++)
+                    СomboBoxLayerMaterial.Items.Add(MaterialLayer[i].NAME);
+                СomboBoxLayerMaterial.SelectedIndex = 0;
+                for (i = 0; i < MaterialMineral.Count; i++)
+                    ComboBoxMineralMaterial.Items.Add(MaterialMineral[i].NAME);
+                ComboBoxMineralMaterial.SelectedIndex = 0;
+                /*Запускаем отрисовку*/
+                RenderTimer.Start();
+            }
+        }
+
+        private void SaveSceneToolStripMenuItem_Click(object sender, EventArgs e)
+        {
             /*Открываем диалог*/
             SaveFileDialog Files = new SaveFileDialog();
             /*Если все окей,то*/
@@ -79,11 +113,6 @@ namespace Second
             {
                 WFiles.OutputScene(Files.FileName, Draw, MaterialLayer, MaterialMineral);
             }
-        }
-
-        private void SaveSceneToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
         }
 
         private void AboutProgrammToolStripMenuItem_Click(object sender, EventArgs e)
@@ -162,6 +191,35 @@ namespace Second
         }
 
         #region Изменение объектов интерфейса
+        /*Изменяем доступ к меню*/
+        private void ChangeEnabled()
+        {
+            /*Делаем активным окно с сеткой и поля с кнопками*/
+            MainPaint.Enabled = true;
+            TextBoxXAreaSize.Enabled = true;
+            TextBoxEarthSize.Enabled = true;
+            TextBoxYAreaSize.Enabled = true;
+            DrawSplineLayers.Enabled = true;
+            AddSplineLayers.Enabled = true;
+            DrawSplineMinerals.Enabled = true;
+            СheckedListBoxSpline.Enabled = true;
+            СheckedListBoxSettings.Enabled = true;
+            TextBoxChangeXMoveSpline.Enabled = true;
+            ButtonChangeXMoveSpline.Enabled = true;
+            TextBoxLayerNumberOfPoints.Enabled = true;
+            TextBoxLayerHeight.Enabled = true;
+            TextBoxStepPartition.Enabled = true;
+            PictureBoxColorPartition.Enabled = true;
+            СheckedListBoxMKE.Enabled = true;
+            ButtonMakePartition.Enabled = true;
+            ButtonSavePartition.Enabled = true;
+            /*Разрешаем менять окно*/
+            this.MaximumSize = SystemInformation.PrimaryMonitorSize;
+            this.FormBorderStyle = FormBorderStyle.Sizable;
+            /*Меняем точность в скроллбарах*/
+            MainPaint_VScroll.SmallStep = Math.Pow(10, -GlobalConst.Accuracy);
+            MainPaint_HScroll.SmallStep = Math.Pow(10, -GlobalConst.Accuracy);
+        }
         /*Изменяем ползунки*/
         private void ChangeScrollBars()
         {
@@ -578,24 +636,8 @@ namespace Second
                     TextBoxEarthSize.Text = "0,0";
                     Draw.EARTHSIZE = Convert.ToDouble(TextBoxEarthSize.Text);
                     TextBoxChangeXMoveSpline.Text = "0,0";
-                    /*Делаем активным окно с сеткой и поля с кнопками*/
-                    MainPaint.Enabled = true;
-                    TextBoxXAreaSize.Enabled = true;
-                    TextBoxEarthSize.Enabled = true;
-                    TextBoxYAreaSize.Enabled = true;
-                    DrawSplineLayers.Enabled = true;
-                    AddSplineLayers.Enabled = true;
-                    DrawSplineMinerals.Enabled = true;
-                    СheckedListBoxSpline.Enabled = true;
-                    СheckedListBoxSettings.Enabled = true;
-                    TextBoxChangeXMoveSpline.Enabled = true;
-                    ButtonChangeXMoveSpline.Enabled = true;
-                    /*Разрешаем менять окно*/
-                    this.MaximumSize = SystemInformation.PrimaryMonitorSize;
-                    this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Sizable;
-                    /*Меняем точность в скроллбарах*/
-                    MainPaint_VScroll.SmallStep = Math.Pow(10, -GlobalConst.Accuracy);
-                    MainPaint_HScroll.SmallStep = Math.Pow(10, -GlobalConst.Accuracy);
+                    /*Делаем интерфейс активным*/
+                    ChangeEnabled();
                     /*Добавляем "Землю" 0 сплайн*/
                     Draw.AddLayers(0, 2, MaterialLayer[0]);
                     /*Изменяем ползунки*/
@@ -1104,7 +1146,7 @@ namespace Second
                 {
                     for (i = 0; i < Number.Count; i++)
                         Out += " " + Number[i];
-                    MessageBox.Show("Нельзя удалить материал, так как он использутся в" + Out + " отложениях.");
+                    MessageBox.Show("Нельзя удалить материал, так как он использутся в" + Out + " объектах.");
                 }
                 else
                 {

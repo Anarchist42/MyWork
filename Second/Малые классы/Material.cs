@@ -1,4 +1,6 @@
-﻿namespace Second
+﻿using System;
+
+namespace Second
 {
     class Material
     {
@@ -30,6 +32,16 @@
             this.Name = Name;
             this.Resistance = Resistance;
         }
+        /// <summary>
+        /// Конструктор.
+        /// </summary>
+        /// <param name="Name"> Название материала. </param>
+        /// <param name="Resistance"> Сопротивление. </param>
+        public Material(string Name, string Resistance)
+        {
+            this.Name = Name;
+            this.Resistance = Convert.ToDouble(Resistance);
+        }
         #endregion
 
         #region SETs and GETs
@@ -42,6 +54,17 @@
         {
             get { return this.Resistance; }
             set { this.Resistance = value; }
+        }
+        #endregion
+
+        #region Перегрузка операторов
+        public static bool operator ==(Material A, Material B)
+        {
+            return A.Name == B.Name && A.Resistance == B.Resistance;
+        }
+        public static bool operator !=(Material A, Material B)
+        {
+            return A.Name != B.Name || A.Resistance != B.Resistance;
         }
         #endregion
 

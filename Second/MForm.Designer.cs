@@ -109,12 +109,12 @@
             this.ColorLayer = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.HeightLayer = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Material = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.MainPaint_HScroll = new Second.MyScroll();
-            this.MainPaint_VScroll = new Second.MyScroll();
             this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.MainPaint_HScroll = new Second.MyScroll();
+            this.MainPaint_VScroll = new Second.MyScroll();
             this.MenuStrip.SuspendLayout();
             this.TabControl.SuspendLayout();
             this.TabPageSettings.SuspendLayout();
@@ -490,6 +490,7 @@
             // 
             // TextBoxLayerHeight
             // 
+            this.TextBoxLayerHeight.Enabled = false;
             this.TextBoxLayerHeight.Location = new System.Drawing.Point(117, 64);
             this.TextBoxLayerHeight.Name = "TextBoxLayerHeight";
             this.TextBoxLayerHeight.Size = new System.Drawing.Size(43, 20);
@@ -560,6 +561,7 @@
             // 
             // TextBoxLayerNumberOfPoints
             // 
+            this.TextBoxLayerNumberOfPoints.Enabled = false;
             this.TextBoxLayerNumberOfPoints.Location = new System.Drawing.Point(116, 9);
             this.TextBoxLayerNumberOfPoints.MaxLength = 6;
             this.TextBoxLayerNumberOfPoints.Name = "TextBoxLayerNumberOfPoints";
@@ -613,6 +615,7 @@
             // 
             // ButtonMakePartition
             // 
+            this.ButtonMakePartition.Enabled = false;
             this.ButtonMakePartition.Location = new System.Drawing.Point(140, 67);
             this.ButtonMakePartition.Name = "ButtonMakePartition";
             this.ButtonMakePartition.Size = new System.Drawing.Size(75, 23);
@@ -624,6 +627,7 @@
             // СheckedListBoxMKE
             // 
             this.СheckedListBoxMKE.BackColor = System.Drawing.SystemColors.Control;
+            this.СheckedListBoxMKE.Enabled = false;
             this.СheckedListBoxMKE.FormattingEnabled = true;
             this.СheckedListBoxMKE.Items.AddRange(new object[] {
             "Макет"});
@@ -638,6 +642,7 @@
             // PictureBoxColorPartition
             // 
             this.PictureBoxColorPartition.BackColor = System.Drawing.Color.White;
+            this.PictureBoxColorPartition.Enabled = false;
             this.PictureBoxColorPartition.Location = new System.Drawing.Point(140, 36);
             this.PictureBoxColorPartition.Name = "PictureBoxColorPartition";
             this.PictureBoxColorPartition.Size = new System.Drawing.Size(100, 25);
@@ -656,6 +661,7 @@
             // 
             // ButtonSavePartition
             // 
+            this.ButtonSavePartition.Enabled = false;
             this.ButtonSavePartition.Location = new System.Drawing.Point(140, 108);
             this.ButtonSavePartition.Name = "ButtonSavePartition";
             this.ButtonSavePartition.Size = new System.Drawing.Size(75, 23);
@@ -666,6 +672,7 @@
             // 
             // TextBoxStepPartition
             // 
+            this.TextBoxStepPartition.Enabled = false;
             this.TextBoxStepPartition.Location = new System.Drawing.Point(140, 9);
             this.TextBoxStepPartition.Name = "TextBoxStepPartition";
             this.TextBoxStepPartition.Size = new System.Drawing.Size(100, 20);
@@ -927,42 +934,6 @@
             this.Material.ToolTipText = "Материал слоя.";
             this.Material.Width = 84;
             // 
-            // MainPaint_HScroll
-            // 
-            this.MainPaint_HScroll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.MainPaint_HScroll.BorderColor = System.Drawing.Color.Silver;
-            this.MainPaint_HScroll.LargeChange = 588D;
-            this.MainPaint_HScroll.Location = new System.Drawing.Point(12, 561);
-            this.MainPaint_HScroll.Maximum = 587D;
-            this.MainPaint_HScroll.Name = "MainPaint_HScroll";
-            this.MainPaint_HScroll.Orientation = System.Windows.Forms.ScrollOrientation.HorizontalScroll;
-            this.MainPaint_HScroll.Size = new System.Drawing.Size(587, 12);
-            this.MainPaint_HScroll.SmallStep = 1D;
-            this.MainPaint_HScroll.TabIndex = 2;
-            this.MainPaint_HScroll.ThumbColor = System.Drawing.Color.Gray;
-            this.MainPaint_HScroll.ThumbSize = 10;
-            this.MainPaint_HScroll.Value = 0D;
-            this.MainPaint_HScroll.Visible = false;
-            this.MainPaint_HScroll.ValueChanged += new System.EventHandler(this.MainPaint_HScroll_ValueChanged);
-            // 
-            // MainPaint_VScroll
-            // 
-            this.MainPaint_VScroll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.MainPaint_VScroll.BorderColor = System.Drawing.Color.Silver;
-            this.MainPaint_VScroll.LargeChange = 527D;
-            this.MainPaint_VScroll.Location = new System.Drawing.Point(602, 32);
-            this.MainPaint_VScroll.Maximum = 526D;
-            this.MainPaint_VScroll.Name = "MainPaint_VScroll";
-            this.MainPaint_VScroll.Orientation = System.Windows.Forms.ScrollOrientation.VerticalScroll;
-            this.MainPaint_VScroll.Size = new System.Drawing.Size(12, 526);
-            this.MainPaint_VScroll.SmallStep = 1D;
-            this.MainPaint_VScroll.TabIndex = 1;
-            this.MainPaint_VScroll.ThumbColor = System.Drawing.Color.Gray;
-            this.MainPaint_VScroll.ThumbSize = 10;
-            this.MainPaint_VScroll.Value = 0D;
-            this.MainPaint_VScroll.Visible = false;
-            this.MainPaint_VScroll.ValueChanged += new System.EventHandler(this.MainPaint_VScroll_ValueChanged);
-            // 
             // dataGridViewTextBoxColumn1
             // 
             this.dataGridViewTextBoxColumn1.HeaderText = "№";
@@ -1005,6 +976,42 @@
             this.dataGridViewTextBoxColumn4.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             this.dataGridViewTextBoxColumn4.ToolTipText = "Материал отложений.";
             this.dataGridViewTextBoxColumn4.Width = 84;
+            // 
+            // MainPaint_HScroll
+            // 
+            this.MainPaint_HScroll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.MainPaint_HScroll.BorderColor = System.Drawing.Color.Silver;
+            this.MainPaint_HScroll.LargeChange = 588D;
+            this.MainPaint_HScroll.Location = new System.Drawing.Point(12, 561);
+            this.MainPaint_HScroll.Maximum = 587D;
+            this.MainPaint_HScroll.Name = "MainPaint_HScroll";
+            this.MainPaint_HScroll.Orientation = System.Windows.Forms.ScrollOrientation.HorizontalScroll;
+            this.MainPaint_HScroll.Size = new System.Drawing.Size(587, 12);
+            this.MainPaint_HScroll.SmallStep = 1D;
+            this.MainPaint_HScroll.TabIndex = 2;
+            this.MainPaint_HScroll.ThumbColor = System.Drawing.Color.Gray;
+            this.MainPaint_HScroll.ThumbSize = 10;
+            this.MainPaint_HScroll.Value = 0D;
+            this.MainPaint_HScroll.Visible = false;
+            this.MainPaint_HScroll.ValueChanged += new System.EventHandler(this.MainPaint_HScroll_ValueChanged);
+            // 
+            // MainPaint_VScroll
+            // 
+            this.MainPaint_VScroll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.MainPaint_VScroll.BorderColor = System.Drawing.Color.Silver;
+            this.MainPaint_VScroll.LargeChange = 527D;
+            this.MainPaint_VScroll.Location = new System.Drawing.Point(602, 32);
+            this.MainPaint_VScroll.Maximum = 526D;
+            this.MainPaint_VScroll.Name = "MainPaint_VScroll";
+            this.MainPaint_VScroll.Orientation = System.Windows.Forms.ScrollOrientation.VerticalScroll;
+            this.MainPaint_VScroll.Size = new System.Drawing.Size(12, 526);
+            this.MainPaint_VScroll.SmallStep = 1D;
+            this.MainPaint_VScroll.TabIndex = 1;
+            this.MainPaint_VScroll.ThumbColor = System.Drawing.Color.Gray;
+            this.MainPaint_VScroll.ThumbSize = 10;
+            this.MainPaint_VScroll.Value = 0D;
+            this.MainPaint_VScroll.Visible = false;
+            this.MainPaint_VScroll.ValueChanged += new System.EventHandler(this.MainPaint_VScroll_ValueChanged);
             // 
             // MainForm
             // 

@@ -34,6 +34,19 @@ namespace Second
 
         #region Конструктор
         /// <summary>
+        /// Констурктор.
+        /// </summary>
+        /// <param name="Color"> Цвет. </param>
+        /// <param name="Material"> Материал. </param>
+        /// <param name="Points"> Массив точек. </param>
+        public Layer(Color Color, Material Material, List<PointSpline> Points)
+        {
+            this.Color = Color;
+            this.Material = Material;
+            this.Points = Points;
+            BSpline();
+        }
+        /// <summary>
         /// Конструктор.
         /// </summary>
         /// <param name="XAreaSize"> Ширина рабочей области. </param>
@@ -69,6 +82,14 @@ namespace Second
         {
             get { return this.Material; }
             set { this.Material = value; }
+        }
+        public List<PointSpline> ClonePoint()
+        {
+            int i;
+            List<PointSpline> Clon = new List<PointSpline>();
+            for (i = 0; i < Points.Count; i++)
+                Clon.Add(new PointSpline(Points[i].X,Points[i].Y));
+            return Clon;
         }
         #endregion
 

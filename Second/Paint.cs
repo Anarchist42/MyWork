@@ -1473,11 +1473,81 @@ namespace Second
         #endregion
 
         #region Работа с файлами
-        public bool OutputScene(StreamWriter FileName)
+        /// <summary>
+        /// Вывод сцены.
+        /// </summary>
+        /// <param name="Number"> Слой или минерал (1\2). </param>
+        /// <param name="Color"> Цвет. </param>
+        /// <param name="Material"> Материал. </param>
+        /// <param name="Points"> Массив точек. </param>
+        /// <returns> Выполнил или нет. </returns>
+        public bool OutputScene(int Number,out List<string> Color,out List<string> Material, out List<string> Points)
+        {
+            Color = new List<string>();
+            Material = new List<string>();
+            Points = new List<string>();
+            try
+            {
+                int i,j;
+                string Buffer;
+                if(Number == 1)
+                    for(i=0;i<Layers.Count;i++)
+                    {
+                        Buffer = Layers[i].COLOR.R + " " + Layers[i].COLOR.G + " " + Layers[i].COLOR.B;
+                        Color.Add(Buffer);
+                        Buffer = Layers[i].MATERIAL.NAME + " " + Layers[i].MATERIAL.RESISTANCE;
+                        Material.Add(Buffer);
+                        Buffer = "";
+                        for (j = 0; j < Layers[i].POINT.Count; j++)
+                            Buffer += Layers[i].POINT[j].X + " " + Layers[i].POINT[j].Y + " ";
+                        Points.Add(Buffer);
+                    }
+                if (Number == 2)
+                    for (i = 0; i < Minerals.Count; i++)
+                    {
+                        Buffer = Minerals[i].COLOR.R + " " + Minerals[i].COLOR.G + " " + Minerals[i].COLOR.B;
+                        Color.Add(Buffer);
+                        Buffer = Minerals[i].MATERIAL.NAME + " " + Minerals[i].MATERIAL.RESISTANCE;
+                        Material.Add(Buffer);
+                        Buffer = "";
+                        for (j = 0; j < Minerals[i].POINT.Count; j++)
+                            Buffer += Minerals[i].POINT[j].X + " " + Minerals[i].POINT[j].Y + " ";
+                        Points.Add(Buffer);
+                    }
+            }
+            catch { return false; }
+            return true;
+        }
+        /// <summary>
+        /// Загрузка сцены.
+        /// </summary>
+        /// <param name="Number"> Слой или минерал (1\2). </param>
+        /// <param name="ColorSpline"> Цвет. </param>
+        /// <param name="MaterialSpline"> Материал. </param>
+        /// <param name="PointsSpline"> Массив точек. </param>
+        /// <returns></returns>
+        public bool InputScene(int Number, string ColorSpline, string MaterialSpline, string PointsSpline)
         {
             try
             {
-
+                int i;
+                /*Разбиваем цвет на фрагменты*/
+                string[] Str = ColorSpline.Split(' ');
+                /*Сохраняем цвет*/
+                Color _Color = Color.FromArgb(0, Convert.ToInt32(Str[0]), Convert.ToInt32(Str[1]), Convert.ToInt32(Str[2]));
+                /*Разбиваем материал на фрагменты*/
+                Str = MaterialSpline.Split(' ');
+                /*Сохраняем материал*/
+                Material _Material = new Material(Str[0], Str[1]);
+                /*Разбиваем массив точек на фрагменты*/
+                Str = PointsSpline.Split(' ');
+                List<PointSpline> _Points = new List<PointSpline>();
+                for (i = 0; i < Str.Length - 1; i += 2)
+                    _Points.Add(new PointSpline(Str[i], Str[i + 1]));
+                if (Number == 1)
+                    Layers.Add(new Layer(_Color, _Material, _Points));
+                if(Number == 2)
+                    Minerals.Add(new Mineral(_Color, _Material, _Points));
             }
             catch { return false; }
             return true;

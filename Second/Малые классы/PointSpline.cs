@@ -85,7 +85,7 @@ namespace Second
         }
         public static bool operator !=(PointSpline A, PointSpline B)
         {
-            if (A.x != B.x && A.y != B.y) return true;
+            if (A.x != B.x || A.y != B.y) return true;
             return false;
         }
         #endregion
