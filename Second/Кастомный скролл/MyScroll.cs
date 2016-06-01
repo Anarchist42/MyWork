@@ -2,7 +2,6 @@
 using System.Windows.Forms;
 using System.Drawing;
 using System.ComponentModel;
-
 namespace Second
 {
     public class MyScroll : Control
@@ -37,7 +36,6 @@ namespace Second
         /// </summary>
         private ScrollOrientation orientation;       
         #endregion
-
         #region Конструктор
         public MyScroll()
         {
@@ -46,7 +44,6 @@ namespace Second
             ShowButtons = true;
         }
         #endregion
-
         #region SETs and GETs
         public double Value
         {
@@ -95,7 +92,6 @@ namespace Second
         [DefaultValue(true)]
         public bool ShowButtons { get; set; }       
         #endregion
-
         #region Методы
         /// <summary>
         /// Эвент изменения значения ползунка.

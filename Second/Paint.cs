@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-
 using Tao.OpenGl;
 using Tao.FreeGlut;
 using Tao.Platform.Windows;
-
 namespace Second
 {
     class Paint
@@ -73,17 +71,17 @@ namespace Second
         /// </summary>
         private bool CSpline;
         /// <summary>
-        /// Макет разбиения.
+        /// Опорные линии разбиения.
         /// </summary>
-        private bool MaketPartition;
+        private bool LinePartition;
+        /// <summary>
+        /// Точки разбиения.
+        /// </summary>
+        private bool PointPartition;
         /// <summary>
         /// Цвет разбиения.
         /// </summary>
-        private Color ColorPartition;
-        /// <summary>
-        /// Разбиение.
-        /// </summary>
-        private bool Partition;
+        private Color ColorPartition;        
         /// <summary>
         /// Шаг разбиения.
         /// </summary>
@@ -137,8 +135,8 @@ namespace Second
             this.SupportLine = false;
             this.BSpline = false;
             this.CSpline = false;
-            this.MaketPartition = false;
-            this.Partition = false;
+            this.LinePartition = false;
+            this.PointPartition = false;
         }
         #endregion
 
@@ -166,8 +164,8 @@ namespace Second
                 this.SupportLine = false;
                 this.BSpline = false;
                 this.CSpline = false;
-                this.MaketPartition = false;
-                this.Partition = false;
+                this.LinePartition = false;
+                this.PointPartition = false;
                 this.ColorPartition = Color.Black;
                 this.PartitionX = 0.0;
                 this.MaxZoom = 0.0;
@@ -293,20 +291,20 @@ namespace Second
             get { return this.CSpline; }
             set { this.CSpline = value; }
         }
-        public bool MAKEPARTITION
+        public bool LINEPARTITION
         {
-            get { return this.MaketPartition; }
-            set { this.MaketPartition = value; }
+            get { return this.LinePartition; }
+            set { this.LinePartition = value; }
         }
         public Color COLORPARTITION
         {
             get { return this.ColorPartition; }
             set { this.ColorPartition = value; }
         }
-        public bool PARTITION
+        public bool POINTPARTITION
         {
-            get { return this.Partition; }
-            set { this.Partition = value; }
+            get { return this.PointPartition; }
+            set { this.PointPartition = value; }
         }
         public double PARTITIONX
         {
@@ -656,14 +654,14 @@ namespace Second
                 if (NumberGrid == 0)
                 {
                     Color = Layers[PositionNumber].COLOR;
-                    LayerPosition = Layers[PositionNumber].ReturnMaxY().ToString() + "\n" + Layers[PositionNumber + 1].ReturnMinY().ToString();
+                    LayerPosition = Layers[PositionNumber].ReturnMaxY(0).ToString() + "\n" + Layers[PositionNumber + 1].ReturnMinY(0).ToString();
                     Material = Layers[PositionNumber].MATERIAL.NAME;
                 }
                 //Если минерал
                 else
                 {
                     Color = Minerals[PositionNumber].COLOR;
-                    LayerPosition = Minerals[PositionNumber].ReturnMaxY().ToString() + "\n" + Minerals[PositionNumber].ReturnMinY().ToString();
+                    LayerPosition = Minerals[PositionNumber].ReturnMaxY(1).ToString() + "\n" + Minerals[PositionNumber].ReturnMinY(1).ToString();
                     Material = Minerals[PositionNumber].MATERIAL.NAME;
                 }
             }
@@ -681,6 +679,24 @@ namespace Second
             while (CheckSplineColor(Color))
                 Color = Color.FromArgb(random.Next(0, 255), random.Next(0, 255), random.Next(0, 255));
             return Color;
+        }
+        /// <summary>
+        /// Возвращаем количество сплайнов слоя и минерала.
+        /// </summary>
+        /// <param name="LCount"> Количество сплайнов слоя. </param>
+        /// <param name="MCount"> Количество сплайнов минерала. </param>
+        /// <returns></returns>
+        public bool GetCountSplines(out int LCount,out int MCount)
+        {
+            LCount = 0;
+            MCount = 0;
+            try
+            {
+                LCount = Layers.Count;
+                MCount = Minerals.Count;
+            }
+            catch { return false; }
+            return true;
         }
         #endregion
 
@@ -710,8 +726,8 @@ namespace Second
                 }
                 else
                 {
-                    if (Layers.Count > 1 && GetCoordinate(1) < Layers[0].ReturnMaxYRude(GetCoordinate(0))
-                   && GetCoordinate(1) > Layers[Layers.Count - 1].ReturnMinYRude(GetCoordinate(0)))
+                    if (Layers.Count > 1 && GetCoordinate(1) < Layers[0].ReturnMaxYX(GetCoordinate(0),0)
+                   && GetCoordinate(1) > Layers[Layers.Count - 1].ReturnMinYX(GetCoordinate(0),0))
                     {
                         Minerals[Minerals.Count - 1].AddPoint(new PointSpline(GetCoordinate(0), GetCoordinate(1)), out FIJ[2]);
                     }
@@ -1056,8 +1072,8 @@ namespace Second
                     PrefPoint = Points[FIJ[2] + 1];
                     Points[FIJ[2] + 1] = new PointSpline(Point.X, Point.Y);
                     /*Проверка на самопересечение*/
-                    if (Layers.Count > 1 && Point.Y < Layers[0].ReturnMaxYRude(Point.X)
-                    && Point.Y > Layers[Layers.Count - 1].ReturnMinYRude(Point.X)
+                    if (Layers.Count > 1 && Point.Y < Layers[0].ReturnMaxYX(Point.X,0)
+                    && Point.Y > Layers[Layers.Count - 1].ReturnMinYX(Point.X,0)
                             && CheckSplineSelfIntersectionRude(FIJ[2] + 1, Points))
                     {
                         /*Если пересек - сохраняем старое значение и выходим*/
@@ -1104,11 +1120,14 @@ namespace Second
             {
                 int i;
                 for (i = 0; i < Layers.Count; i++)
-                    Layers[i].MakePartition(PARTITIONX);
+                    Layers[i].MakePartition(PARTITIONX,1);
+                for (i = 0; i < Minerals.Count; i++)
+                    Minerals[i].MakePartition(PARTITIONX,1);
             }
             catch { return false; }
             return true;
         }
+
         #endregion
 
         #endregion
@@ -1137,7 +1156,7 @@ namespace Second
                 return y.POINT[0].Y.CompareTo(x.POINT[0].Y);
             });
             for (i = 0, NumbAdd = -1; i < Layers.Count && NumbAdd==-1; i++)
-                if (Layers[i].POINT[0].Y == LayerHeight && Layers[i].ReturnMaxY() == Layers[i].ReturnMinY())
+                if (Layers[i].POINT[0].Y == LayerHeight && Layers[i].ReturnMaxY(0) == Layers[i].ReturnMinY(0))
                     NumbAdd = i;
             int[] FIJ = { 0, NumbAdd, 1 };
             for (i = 1;i<Layers[NumbAdd].POINT.Count;i+=2)
@@ -1162,7 +1181,7 @@ namespace Second
                 return DefYAreaSize;
             else
             {
-                double Height = Math.Abs(Layers[Layers.Count - 1].ReturnMinY()) + XAreaSize / 10 + EarthSize;
+                double Height = Math.Abs(Layers[Layers.Count - 1].ReturnMinY(0)) + XAreaSize / 10 + EarthSize;
                 return Height > DefYAreaSize ? Height : DefYAreaSize;
             }
         }
@@ -1206,10 +1225,10 @@ namespace Second
         {
             try
             {
-                int i,Position;
+                int i, Position;
                 for (i = 0; i < Layers.Count; i++)
                     Layers[i].AddPoint(new PointSpline(XAreaSize, Layers[i].POINT[Layers[i].POINT.Count - 1].Y), out Position);
-                Layers[i-1].BSpline();
+                Layers[i - 1].BSpline();
             }
             catch { return false; }
             return true;
@@ -1251,8 +1270,8 @@ namespace Second
         {
             try
             {
-                if (Layers.Count > 1 && GetCoordinate(1) < Layers[0].ReturnMaxYRude(GetCoordinate(0))
-                    && GetCoordinate(1) > Layers[Layers.Count-1].ReturnMinYRude(GetCoordinate(0)))
+                if (Layers.Count > 1 && GetCoordinate(1) < Layers[0].ReturnMaxYX(GetCoordinate(0),0)
+                    && GetCoordinate(1) > Layers[Layers.Count-1].ReturnMinYX(GetCoordinate(0),0))
                 {
                     int Position;
                     Minerals[Minerals.Count - 1].AddPoint(new PointSpline(GetCoordinate(0), GetCoordinate(1)),out Position);
@@ -1340,7 +1359,7 @@ namespace Second
             Gl.glLineWidth(2);
             Gl.glBegin(Gl.GL_LINE_STRIP);
             for (i = 0; i < Point.Count; i++)
-                Gl.glVertex2d((Point[i].X - XAreaSize / 2) * Zoom + XOffset - 1, (YAreaSize / 2 - EarthSize + Point[i].Y) * Zoom + YOffset - 1);
+                Gl.glVertex2d((Point[i].X - XAreaSize / 2) * Zoom + XOffset, (YAreaSize / 2 - EarthSize + Point[i].Y) * Zoom + YOffset);
             Gl.glEnd();
             Gl.glPopMatrix();
             /*Рисуем опорные точки*/
@@ -1452,7 +1471,7 @@ namespace Second
             Glu.gluDeleteTess(pTess);
         }
 
-        private void DrawingPartition()
+        private void DrawingLinePartition()
         {
             double i=0;
             double GridHalfDown = -GLPaint.Height / 2;
@@ -1467,6 +1486,32 @@ namespace Second
                 Gl.glVertex2d((i - XAreaSize / 2) * Zoom + XOffset - 1, GridHalfUp);
                 i += PartitionX;
             }
+            Gl.glEnd();
+            Gl.glPopMatrix();
+        }
+
+        private void DrawingPointPartition()
+        {
+            int i, j;
+            Gl.glColor3d(ColorPartition.R / 255.0, ColorPartition.G / 255.0, ColorPartition.B / 255);
+            Gl.glPushMatrix();
+            Gl.glPointSize(4);
+            Gl.glBegin(Gl.GL_POINTS);
+            for (i = 0; i < Layers.Count; i++)
+                for (j = 0; j < Layers[i].PARTITION.Count; j++)
+                {
+                    Gl.glVertex2d((Layers[i].PARTITION[j].POINT.X - XAreaSize / 2) * Zoom + XOffset - 1, (YAreaSize / 2 - EarthSize + Layers[i].PARTITION[j].POINT.Y) * Zoom + YOffset - 1);
+                }
+            Gl.glEnd();
+            Gl.glPopMatrix();
+            Gl.glPushMatrix();
+            Gl.glPointSize(4);
+            Gl.glBegin(Gl.GL_POINTS);
+            for (i = 0; i < Minerals.Count; i++)
+                for (j = 0; j < Minerals[i].PARTITION.Count; j++)
+                {
+                    Gl.glVertex2d((Minerals[i].PARTITION[j].POINT.X - XAreaSize / 2) * Zoom + XOffset - 1, (YAreaSize / 2 - EarthSize + Minerals[i].PARTITION[j].POINT.Y) * Zoom + YOffset - 1);
+                }
             Gl.glEnd();
             Gl.glPopMatrix();
         }
@@ -1534,7 +1579,7 @@ namespace Second
                 /*Разбиваем цвет на фрагменты*/
                 string[] Str = ColorSpline.Split(' ');
                 /*Сохраняем цвет*/
-                Color _Color = Color.FromArgb(0, Convert.ToInt32(Str[0]), Convert.ToInt32(Str[1]), Convert.ToInt32(Str[2]));
+                Color _Color = Color.FromArgb(255, Convert.ToInt32(Str[0]), Convert.ToInt32(Str[1]), Convert.ToInt32(Str[2]));
                 /*Разбиваем материал на фрагменты*/
                 Str = MaterialSpline.Split(' ');
                 /*Сохраняем материал*/
@@ -1569,9 +1614,12 @@ namespace Second
             /*Рисуем сетку*/
             if (Grid)
                 DrawingGrid();
-            /*Рисуем макет*/
-            if (MaketPartition)
-                DrawingPartition();
+            /*Рисуем линии разбиения*/
+            if (LinePartition)
+                DrawingLinePartition();
+            /*Рисуем точки разбиения*/
+            if (PointPartition)
+                DrawingPointPartition();
             /*Рисуем разметку*/
             if (Marking)
                 DrawingMarking();          

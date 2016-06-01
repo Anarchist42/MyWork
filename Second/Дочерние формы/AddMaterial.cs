@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Windows.Forms;
-
 namespace Second
 {
     public partial class AddMaterial : Form

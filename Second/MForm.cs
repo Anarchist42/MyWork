@@ -8,8 +8,6 @@ using System.IO;
 using Tao.OpenGl;           // для работы с библиотекой OpenGL 
 using Tao.FreeGlut;         // для работы с библиотекой FreeGLUT 
 
-
-
 namespace Second
 {
     public partial class MainForm : Form
@@ -68,14 +66,15 @@ namespace Second
         {
             Close();
         }
-
         private void LoadSceneToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OpenFileDialog Files = new OpenFileDialog();
             if (Files.ShowDialog() == DialogResult.OK)
             {
+                /*Сброс данных*/
                 Draw.HardReset();
-             
+                MFormHardReset();
+                /*Ввод данных*/
                 WFiles.InputScene(Files.FileName, Draw, out MaterialLayer, out MaterialMineral);
                 /*Делаем интерфейс активным*/
                 ChangeEnabled();
@@ -86,11 +85,17 @@ namespace Second
                 TextBoxEarthSize.Text = Draw.EARTHSIZE.ToString();
                 /*Изменяем скроллбары*/
                 ChangeScrollBars();
+                /*Узнаем сколько данных для таблиц*/
+                int i, LCount, MCount;
+                Draw.GetCountSplines(out LCount, out MCount);
+                for (i = 0; i < LCount - 1; i++)
+                    DataGridViewLayers.Rows.Add(0, "", 0, 0);
+                for (i = 0; i < MCount; i++)
+                    DataGridViewMinerals.Rows.Add(0, "", 0, 0);
                 /*Записываем данные в таблицы*/
                 ChangeDataGridViewLayers();
                 ChangeDataGridViewMinerals();
                 /*Записываем данные в выпадающие списки*/
-                int i;
                 СomboBoxLayerMaterial.Items.Clear();
                 ComboBoxMineralMaterial.Items.Clear();
                 for (i = 0; i < MaterialLayer.Count; i++)
@@ -103,7 +108,6 @@ namespace Second
                 RenderTimer.Start();
             }
         }
-
         private void SaveSceneToolStripMenuItem_Click(object sender, EventArgs e)
         {
             /*Открываем диалог*/
@@ -114,7 +118,6 @@ namespace Second
                 WFiles.OutputScene(Files.FileName, Draw, MaterialLayer, MaterialMineral);
             }
         }
-
         private void AboutProgrammToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
@@ -153,6 +156,13 @@ namespace Second
                 ComboBoxMineralMaterial.Items.Add(MaterialMineral[i].NAME);
             ComboBoxMineralMaterial.SelectedIndex = 0;
         }
+        private void MFormHardReset()
+        {
+            while (DataGridViewLayers.Rows.Count > 1)
+                DataGridViewLayers.Rows.RemoveAt(DataGridViewLayers.Rows.Count - 2);
+            while (DataGridViewMinerals.Rows.Count > 1)
+                DataGridViewMinerals.Rows.RemoveAt(DataGridViewMinerals.Rows.Count - 2);
+        }
         private void MainPaint_Load(object sender, EventArgs e)
         {
             /*устанавливаем положение плоскости отображения*/
@@ -183,7 +193,7 @@ namespace Second
             if (MainPaint_VScroll.Maximum <= 2 * a)
                 MainPaint_VScroll.Visible = false;
             else MainPaint_VScroll.Visible = true;
-            
+
             if (MainPaint_HScroll.Maximum <= 2 * a)
                 MainPaint_HScroll.Visible = false;
             else MainPaint_HScroll.Visible = true;
@@ -213,6 +223,8 @@ namespace Second
             СheckedListBoxMKE.Enabled = true;
             ButtonMakePartition.Enabled = true;
             ButtonSavePartition.Enabled = true;
+            DataGridViewLayers.Enabled = true;
+            DataGridViewMinerals.Enabled = true;
             /*Разрешаем менять окно*/
             this.MaximumSize = SystemInformation.PrimaryMonitorSize;
             this.FormBorderStyle = FormBorderStyle.Sizable;
@@ -269,10 +281,10 @@ namespace Second
             Material Material;
             ToolStripMenuItem AddItem;
             MenuItem.DropDownItems.Clear();
-            if (CheckControlPoint[0]==1)
-            {               
-                Draw.GetSplineMaterial(CheckControlPoint,out Material);
-                for (i=0;i< MaterialLayer.Count;i++)
+            if (CheckControlPoint[0] == 1)
+            {
+                Draw.GetSplineMaterial(CheckControlPoint, out Material);
+                for (i = 0; i < MaterialLayer.Count; i++)
                 {
                     AddItem = new ToolStripMenuItem(MaterialLayer[i].NAME);
                     if (MenuItem == ChangeMaterialToolStripMenuItem)
@@ -314,7 +326,7 @@ namespace Second
                 double X = Math.Round(Convert.ToDouble(GlobalConst.Buffer[0]));
                 double Y = Math.Round(Convert.ToDouble(GlobalConst.Buffer[1]));
                 if (X > Draw.XAREASIZE)
-                    MessageBox.Show("Абсцисса точки должна быть меньше "+X.ToString());
+                    MessageBox.Show("Абсцисса точки должна быть меньше " + X.ToString());
                 if (Y < -1000000 + Draw.EARTHSIZE)
                     MessageBox.Show("Ордината точки должна быть меньше " + (-1000000 + Draw.EARTHSIZE).ToString());
                 else
@@ -389,9 +401,9 @@ namespace Second
                 }
             }
             /*Изменяем ползунки*/
-            MainPaint_VScroll.LargeChange = Convert.ToInt32(Draw.YAREASIZE + 1);            
+            MainPaint_VScroll.LargeChange = Convert.ToInt32(Draw.YAREASIZE + 1);
             MainPaint_VScroll.Maximum = Draw.ScrollMaximum(0);
-            Draw.YOFFSET += (MaximumScroll - MainPaint_VScroll.Maximum ) * Draw.ZOOM;
+            Draw.YOFFSET += (MaximumScroll - MainPaint_VScroll.Maximum) * Draw.ZOOM;
             MainPaint_VScroll.Value = Draw.ScrollValue(0);
         }
         #endregion
@@ -540,7 +552,7 @@ namespace Second
                 /*Если выбранно "Добавить точку" в контексном меню слоя*/
                 if (FlagAddPoint)
                 {
-                    if(!Draw.AddPoint(CheckControlPoint))
+                    if (!Draw.AddPoint(CheckControlPoint))
                         MessageBox.Show("Нельзя добавить точку.");
                     FlagAddPoint = false;
                     MouseDownLeft = false;
@@ -587,6 +599,24 @@ namespace Second
         #endregion
 
         #region TabControl
+        private void TabControl_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            switch (TabControl.SelectedIndex)
+            {
+                case 0:
+                    {
+                        TextBoxAccuracy.Text = GlobalConst.Accuracy.ToString();
+                        TextBoxXAreaSize.Text = Draw.XAREASIZE.ToString();
+                        TextBoxEarthSize.Text = Draw.EARTHSIZE.ToString();
+                        TextBoxYAreaSize.Text = Draw.YAREASIZE.ToString();
+                    }
+                    break;
+
+                case 1: break;
+                case 2: break;
+            }
+        }
+
         #region Настройки
         private void TabPageSettings_MouseClick(object sender, MouseEventArgs e)
         {
@@ -1166,7 +1196,6 @@ namespace Second
         #endregion
 
         #region Слои
-
         private void TextBoxLayerNumberOfPoints_KeyPress(object sender, KeyPressEventArgs e)
         {
             /*Можно вводить только числа и бэкспейс*/
@@ -1237,7 +1266,7 @@ namespace Second
             {
                 DrawLayers = false;
                 DrawSplineLayers.BackColor = System.Drawing.SystemColors.Control;
-                LabelLayerHeight.Focus();
+                UnFocus.Focus();
             }
         }
         private void AddSplineLayers_Click(object sender, EventArgs e)
@@ -1454,7 +1483,6 @@ namespace Second
             {
                 TextBoxStepPartition.Text = Min.ToString();
                 MessageBox.Show("Минимальный шаг разбиения " + Min);
-                Min = 2 * Math.Pow(10, -GlobalConst.Accuracy);
                 return;
             }
             /*Обрезаем с нужной точностью*/
@@ -1464,7 +1492,6 @@ namespace Second
             {
                 TextBoxStepPartition.Text = Min.ToString();
                 MessageBox.Show("Минимальный шаг разбиения " + Min);
-                Min = 2 * Math.Pow(10, -GlobalConst.Accuracy);
                 return;
             }
             /*Если больше максимума, то ставим максимум*/
@@ -1474,19 +1501,15 @@ namespace Second
                 MessageBox.Show("Максимальный шаг разбиения " + Draw.XAREASIZE);
                 return;
             }
-            if (Draw.XAREASIZE % Convert.ToDouble(TextBoxStepPartition.Text) != 0)
-            {
-                double a = Math.Round(Draw.XAREASIZE % Convert.ToDouble(TextBoxStepPartition.Text), GlobalConst.Accuracy);
-                double b = Math.Round(Convert.ToDouble(TextBoxStepPartition.Text), GlobalConst.Accuracy);
-                TextBoxStepPartition.Text = (b - a).ToString();
-                MessageBox.Show("Область не делится нацело с данным шагом. Ближайшие число " + (b - a).ToString());
-                return;
-            }
             if (СheckedListBoxMKE.GetItemChecked(0) == true)
             {
                 СheckedListBoxMKE.SetItemCheckState(0, CheckState.Unchecked);
-                Draw.MAKEPARTITION = false;
+                Draw.LINEPARTITION = false;
             }
+        }
+        private void TextBoxStepPartition_Validated(object sender, EventArgs e)
+        {
+            Draw.PARTITIONX = Convert.ToDouble(TextBoxStepPartition.Text);
         }
 
         private void PictureBoxColorPartition_MouseDown(object sender, MouseEventArgs e)
@@ -1509,10 +1532,24 @@ namespace Second
                     {
                         if (e.NewValue == CheckState.Checked && TextBoxStepPartition.Text!="")
                         {
-                            Draw.PARTITIONX = Convert.ToDouble(TextBoxStepPartition.Text);
-                            Draw.MAKEPARTITION = true;
+                            Draw.LINEPARTITION = true;
                         }
-                        else Draw.MAKEPARTITION = false;
+                        else Draw.LINEPARTITION = false;
+                    }
+                    break;
+                /*Нажата Точки разбиения*/
+                case 1:
+                    {
+                        if (e.NewValue == CheckState.Checked && TextBoxStepPartition.Text != "")
+                        {
+                            Draw.POINTPARTITION = true;
+                        }
+                        else Draw.POINTPARTITION = false;
+                    }
+                    break;
+                case 2:
+                    {
+
                     }
                     break;
             }
@@ -1533,10 +1570,9 @@ namespace Second
             UnFocus.Focus();
         }
 
-
         private void ButtonMakePartition_Click(object sender, EventArgs e)
         {
-
+            Draw.MakePartition();
         }
 
         private void ButtonSavePartition_Click(object sender, EventArgs e)
@@ -1560,10 +1596,9 @@ namespace Second
             }
         }
 
-
-
         #endregion
 
         #endregion
+
     }
 }

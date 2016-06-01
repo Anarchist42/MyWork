@@ -1,5 +1,4 @@
 ﻿using System;
-
 namespace Second
 {
     class Material
@@ -14,7 +13,6 @@ namespace Second
         /// </summary>
         double Resistance;
         #endregion
-
         #region Конструктор
         /// <summary>
         /// Конструктор.
@@ -43,7 +41,6 @@ namespace Second
             this.Resistance = Convert.ToDouble(Resistance);
         }
         #endregion
-
         #region SETs and GETs
         public string NAME
         {
@@ -56,7 +53,6 @@ namespace Second
             set { this.Resistance = value; }
         }
         #endregion
-
         #region Перегрузка операторов
         public static bool operator ==(Material A, Material B)
         {
@@ -67,6 +63,5 @@ namespace Second
             return A.Name != B.Name || A.Resistance != B.Resistance;
         }
         #endregion
-
     }
 }

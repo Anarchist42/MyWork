@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
-
 namespace Second
 {
     class Layer
@@ -15,9 +14,13 @@ namespace Second
         /// </summary>
         private List<PointSpline> BSplinePoints = new List<PointSpline>();
         /// <summary>
-        /// Массив значений Y при разбиение.
+        /// Массив точек CSpline.
         /// </summary>
-        private List<double> Partition = new List<double>();
+        private List<PointSpline> CSplinePoints = new List<PointSpline>();
+        /// <summary>
+        /// Массив значений при разбиение.
+        /// </summary>
+        private List<PointMKE> Partition = new List<PointMKE>();
         /// <summary>
         /// Цвет слоя.
         /// </summary>
@@ -44,7 +47,7 @@ namespace Second
             this.Color = Color;
             this.Material = Material;
             this.Points = Points;
-            BSpline();
+            ReBuild();
         }
         /// <summary>
         /// Конструктор.
@@ -53,6 +56,7 @@ namespace Second
         /// <param name="LayerHeight"> Глубина слоя. </param>
         /// <param name="NumberOfPoints"> Количество опорных точек. </param>
         /// <param name="Material"> Материал. </param>
+        /// <param name="Color"> Цвет. </param>
         public Layer(double XAreaSize, double LayerHeight, int NumberOfPoints, Material Material, Color Color)
         {
             double Step = (XAreaSize) / (NumberOfPoints - 1) > 0 ? (XAreaSize) / (NumberOfPoints - 1) : 1;
@@ -60,7 +64,7 @@ namespace Second
                 this.Points.Add(new PointSpline(i * Step, LayerHeight));
             this.Material = Material;
             this.Color = Color;
-            BSpline();
+            ReBuild();
         }
         #endregion
 
@@ -73,6 +77,14 @@ namespace Second
         {
             get { return BSplinePoints; }
         }
+        public List<PointSpline> CSPLINEPOINT
+        {
+            get { return CSplinePoints; }
+        }
+        public List<PointMKE> PARTITION
+        {
+            get { return this.Partition; }
+        }
         public Color COLOR
         {
             set { this.Color = value; }
@@ -83,17 +95,57 @@ namespace Second
             get { return this.Material; }
             set { this.Material = value; }
         }
-        public List<PointSpline> ClonePoint()
+        #endregion
+
+        #region Методы    
+        /// <summary>
+        /// Перестройка BSpline,CSpline.
+        /// </summary>
+        /// <returns></returns>
+        public bool ReBuild()
+        {
+            try
+            {
+                BSpline();
+            }
+            catch { return false; }
+            return true;
+        }
+
+        /// <summary>
+        /// Клонирование массива.
+        /// </summary>
+        /// <param name="Massive"> Какого массива (0 - опорные линии, 1 - BSpline, 2 - CSpline). </param>
+        /// <returns> Массив. </returns>
+        public List<PointSpline> ClonePoint(int Massive)
         {
             int i;
             List<PointSpline> Clon = new List<PointSpline>();
+            List<PointSpline> Point;
+            switch (Massive)
+            {
+                case 0: Point = Points; break;
+                case 1: Point = BSplinePoints; break;
+                case 2: Point = CSplinePoints; break;
+                default: Point = Points; break;
+            }
             for (i = 0; i < Points.Count; i++)
-                Clon.Add(new PointSpline(Points[i].X,Points[i].Y));
+                Clon.Add(new PointSpline(Points[i].X, Points[i].Y));
             return Clon;
         }
-        #endregion
+        /// <summary>
+        /// Клонирование точек разбиения.
+        /// </summary>
+        /// <returns> Массив. </returns>
+        public List<PointMKE> ClonePartition()
+        {
+            int i;
+            List<PointMKE> Clon = new List<PointMKE>();
+            for (i = 0; i < Points.Count; i++)
+                Clon.Add(new PointMKE(new PointSpline(Partition[i].POINT.X, Partition[i].POINT.Y),Partition[i].MATERIAL,Partition[i].ITSLAYER));
+            return Clon;
+        }
 
-        #region Методы      
         /// <summary>
         /// Удаление дублирующих точек.
         /// </summary>
@@ -112,8 +164,7 @@ namespace Second
                     }
                 }
             }
-            catch
-            {return false;}
+            catch { return false; }
             return true;
         }
         /// <summary>
@@ -128,77 +179,115 @@ namespace Second
                 for (i = 0; i < Points.Count; i++)
                     Points[i].Round();
                 RemoveDuplicate();
-                BSpline();
+                ReBuild();
             }
             catch
             {return false;}
             return true;
         }
+
         /// <summary>
         /// Значение Y на отрезке AB.
         /// </summary>
         /// <param name="X"> Значение X. </param>
         /// <param name="A"> Точка начала отрезка. </param>
         /// <param name="B"> Точка конца отрезка. </param>
-        /// <returns></returns>
+        /// <returns> Y(X). </returns>
         private double ReturnY(double X,PointSpline A, PointSpline B)
         {
             return (X - A.X) * (B.Y - A.Y) / (B.X - A.X) + A.Y;
         }
         /// <summary>
-        /// Возвращение максимального грубого(по опорной линии) значения Y(Х).
+        /// Максимальное значение Y.
+        /// </summary>
+        /// <param name="Massive"> В каком массиве искать (0 - опорные линии, 1 - BSpline, 2 - CSpline). </param>
+        /// <returns> Максимальное значение Y. </returns>
+        public double ReturnMaxY(int Massive)
+        {
+            int i;
+            List<PointSpline> Point;
+            switch (Massive)
+            {
+                case 0: Point = Points; break;
+                case 1: Point = BSplinePoints; break;
+                case 2: Point = CSplinePoints; break;
+                default: Point = Points; break;
+            }
+            double Max = Point[0].Y;
+            for (i = 1; i < Point.Count; i++)
+                if (Max < Point[i].Y) Max = Point[i].Y;
+            return Max;
+        }
+        /// <summary>
+        /// Минимальное значение Y.
+        /// </summary>
+        /// <param name="Massive"> В каком массиве искать (0 - опорные линии, 1 - BSpline, 2 - CSpline). </param>
+        /// <returns> Минимальное значение Y. </returns>
+        public double ReturnMinY(int Massive)
+        {
+            int i;
+            List<PointSpline> Point;
+            switch (Massive)
+            {
+                case 0: Point = Points; break;
+                case 1: Point = BSplinePoints; break;
+                case 2: Point = CSplinePoints; break;
+                default: Point = Points; break;
+            }
+            double Min = Point[0].Y;
+            for (i = 1; i < Point.Count; i++)
+                if (Min > Point[i].Y) Min = Point[i].Y;
+            return Min;
+        }
+        /// <summary>
+        /// Возвращение максимального значения Y(X).
         /// </summary>
         /// <param name="X"> Значение Х. </param>
-        /// <returns> Значение Y(X). </returns>
-        public double ReturnMaxYRude(double X)
+        /// <param name="Massive"> В каком массиве искать (0 - опорные линии, 1 - BSpline, 2 - CSpline). </param>
+        /// <returns></returns>
+        public double ReturnMaxYX(double X,int Massive)
         {
+            List<PointSpline> Point;
+            switch (Massive)
+            {
+                case 0: Point = Points; break;
+                case 1: Point = BSplinePoints; break;
+                case 2: Point = CSplinePoints; break;
+                default: Point = Points; break;
+            }
             int i;
             double Max = -double.MaxValue;
-            for (i = 0; i < Points.Count - 1; i++)
-                if ((X > Points[i].X && X < Points[i + 1].X) || (X < Points[i].X && X > Points[i+1].X))
-                    if (Max < ReturnY(X, Points[i], Points[i + 1]))
-                        Max = ReturnY(X, Points[i], Points[i + 1]);
+            for (i = 0; i < Point.Count - 1; i++)
+                if ((X > Point[i].X && X < Point[i + 1].X) || (X < Point[i].X && X > Point[i + 1].X))
+                    if (Max < ReturnY(X, Point[i], Point[i + 1]))
+                        Max = ReturnY(X, Point[i], Point[i + 1]);
             return Max;
         }
         /// <summary>
-        /// Возвращение минимального грубого(по опорной линии) значения Y(Х).
+        /// Возвращение минимального значения Y(X).
         /// </summary>
         /// <param name="X"> Значение Х. </param>
-        /// <returns> Значение Y(X). </returns>
-        public double ReturnMinYRude(double X)
+        /// <param name="Massive"> В каком массиве искать (0 - опорные линии, 1 - BSpline, 2 - CSpline). </param>
+        /// <returns></returns>
+        public double ReturnMinYX(double X, int Massive)
         {
+            List<PointSpline> Point;
+            switch (Massive)
+            {
+                case 0: Point = Points; break;
+                case 1: Point = BSplinePoints; break;
+                case 2: Point = CSplinePoints; break;
+                default: Point = Points; break;
+            }
             int i;
             double Min = double.MaxValue;
-            for (i = 0; i < Points.Count - 1; i++)
-                if ((X > Points[i].X && X < Points[i + 1].X) || (X < Points[i].X && X > Points[i + 1].X))
-                    if (Min > ReturnY(X, Points[i], Points[i + 1]))
-                        Min = ReturnY(X, Points[i], Points[i + 1]);
+            for (i = 0; i < Point.Count - 1; i++)
+                if ((X > Point[i].X && X < Point[i + 1].X) || (X < Point[i].X && X > Point[i + 1].X))
+                    if (Min > ReturnY(X, Point[i], Point[i + 1]))
+                        Min = ReturnY(X, Point[i], Point[i + 1]);
             return Min;
         }
-        /// <summary>
-        /// Максимальное значение глубины.
-        /// </summary>
-        /// <returns> Минимальное значение Y. </returns>
-        public double ReturnMinY()
-        {
-            int i;
-            double Min = BSplinePoints[0].Y;
-            for (i = 1; i < BSplinePoints.Count; i++)
-                if (Min > BSplinePoints[i].Y) Min = BSplinePoints[i].Y;
-            return Min;
-        }
-        /// <summary>
-        /// Минимальное значение глубины.
-        /// </summary>
-        /// <returns> Максимальное значение Y. </returns>
-        public double ReturnMaxY()
-        {
-            int i;
-            double Max = BSplinePoints[0].Y;
-            for (i = 1; i < BSplinePoints.Count; i++)
-                if (Max < BSplinePoints[i].Y) Max = BSplinePoints[i].Y;
-            return Max;
-        }
+
         /// <summary>
         /// Для отрисовки сплайна.
         /// </summary>
@@ -216,20 +305,15 @@ namespace Second
         /// <summary>
         /// Построение сплайна.
         /// </summary>
-        /// <param name="Start"> Точка начала построения. </param>
-        /// <param name="End"> Точка конца построения. </param>
-        /// /// <returns> Выполнил или нет. </returns>
+        /// <returns> Выполнил или нет. </returns>
         public bool BSpline()
         {
             try
             {
                 /*Очищаем массив*/
                 BSplinePoints.Clear();
-                /*Необходимо добавить несколько точек, что бы рисовал до самого конца*/
-                Points.Add(Points[Points.Count - 1]);
-                Points.Add(Points[Points.Count - 1]);
                 /*Считаем нужное количество точек*/
-                for (int start_cv = -2, j = 1; j != Points.Count; ++j, ++start_cv)
+                for (int start_cv = -2, j = 0; j <= Points.Count; ++j, ++start_cv)
                 {
                     for (int k = 0; k != BSplineN; ++k)
                     {
@@ -250,13 +334,12 @@ namespace Second
                         BSplinePoints.Add(new PointSpline(x, y));
                     }
                 }
-                /*Удаляем добавленные точки*/
-                Points.RemoveRange(Points.Count - 2, 2);
             }
             catch
             { return false; }
             return true;
         }
+
         /// <summary>
         /// Смещение точек вправо.
         /// </summary>
@@ -271,11 +354,9 @@ namespace Second
                     Points[i].X += ChangeX;
                 /*Добавляем точку в начало*/
                 Points.Insert(0, new PointSpline(0, Points[0].Y));
-                /*Перестраиваем массив*/
-                BSpline();
+                ReBuild();
             }
-            catch
-            { return false; }
+            catch { return false; }
             return true;
         }
         /// <summary>
@@ -321,8 +402,7 @@ namespace Second
                 if (Delete > 0 && Delete < Points.Count - 1)
                     Points.RemoveAt(Delete);
             }
-            catch
-            { return false; }
+            catch { return false; }
             return true;
         }
         /// <summary>
@@ -345,24 +425,75 @@ namespace Second
                 /*Добавление последней точки*/
                 Points.Add(new PointSpline(DeleteX, Y));
                 /*Перестраиваем массив*/
-                BSpline();
+                ReBuild();
             }
             catch { return false; }
             return true;
         }
 
-        public bool MakePartition(double PartitionX)
+        /// <summary>
+        /// Находим точки разбиения.
+        /// </summary>
+        /// <param name="PartitionX"> Шаг разбиения. </param>
+        /// <param name="Massive"> В каком массиве искать (0 - опорные линии, 1 - BSpline, 2 - CSpline). </param>
+        /// <returns> Выполнил или нет. </returns>
+        public bool MakePartition(double PartitionX,int Massive)
         {
+            List<PointSpline> Point;
+            switch (Massive)
+            {
+                case 0: Point = Points; break;
+                case 1: Point = BSplinePoints; break;
+                case 2: Point = CSplinePoints; break;
+                default: Point = Points; break;
+            }
             try
             {
-                int i;
-                for (i = 0; i < BSplinePoints.Count; i++)
-                    i++;
+                if (PartitionX != 0)
+                {
+                    int i;
+                    double X = 0;
+                    PointMKE tmp;
+                    Partition.Clear();
+                    /*Идем по всем отрезкам*/
+                    for (i = 0; i < Point.Count - 1; i++)
+                    {
+                        /*Если идем вперед*/
+                        if (Point[i].X < Point[i + 1].X)
+                        {
+                            /*Пока точка лежит внутри*/
+                            while (Point[i].X <= X && X <= Point[i + 1].X)
+                            {
+                                tmp = new PointMKE(new PointSpline(X, ReturnY(X, Point[i], Point[i + 1])), Material, true);
+                                Partition.Add(tmp);
+                                X += PartitionX;
+                            }
+                        }
+                        /*Если идем назад*/
+                        if (Point[i].X > Point[i + 1].X)
+                        {                        
+                            X -= PartitionX;
+                            /*Пока точка лежит внутри*/
+                            while (Point[i].X >= X && X >= Point[i + 1].X)
+                            {
+                                tmp = new PointMKE(new PointSpline(X, ReturnY(X, Point[i], Point[i + 1])), Material, true);
+                                Partition.Add(tmp);
+                                X -= PartitionX;
+                            }
+                            X += PartitionX;
+                        }
+                    }
+                    /*Если в конце есть еще кусок - добавляем*/
+                    if(X< Point[Point.Count-1].X)
+                    {
+                        tmp = new PointMKE(new PointSpline(X, Point[Point.Count - 1].Y), Material, true);
+                        Partition.Add(tmp);
+                    }
+                }
             }
             catch { return false; }
             return true;
         }
-
         #endregion
     }
 }

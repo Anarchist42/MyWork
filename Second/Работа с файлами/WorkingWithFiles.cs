@@ -1,23 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-
 namespace Second
 {
     class WorkingWithFiles
     {
         #region Поля класса
         #endregion
-
         #region Конструктор
         public WorkingWithFiles()
         {            
         }
         #endregion
-
         #region GET'S and SET's
         #endregion
-
         #region Методы
         /// <summary>
         /// Добавление новых материалов.
@@ -46,10 +42,10 @@ namespace Second
         /// Вывод данных сцены в файл.
         /// </summary>
         /// <param name="FileName"> Имя файла. </param>
-        /// <param name="Draw"> </param>
-        /// <param name="MaterialLayer"></param>
-        /// <param name="MaterialMineral"></param>
-        /// <returns></returns>
+        /// <param name="Draw"> Объект класса отрисовки. </param>
+        /// <param name="MaterialLayer"> Массив материалов слоя. </param>
+        /// <param name="MaterialMineral"> Массив материалов минералов. </param>
+        /// <returns> Выполнил или нет. </returns>
         public bool OutputScene(string FileName, Paint Draw, List<Material> MaterialLayer, List<Material> MaterialMineral)
         {
             try
@@ -84,7 +80,14 @@ namespace Second
             catch { return false; }
             return true;
         }
-
+        /// <summary>
+        /// Ввод данных сцены из файла.
+        /// </summary>
+        /// <param name="FileName"> Имя файла. </param>
+        /// <param name="Draw"> Объект класса отрисовки. </param>
+        /// <param name="MaterialLayer"> Массив материалов слоя. </param>
+        /// <param name="MaterialMineral"> Массив материалов минералов. </param>
+        /// <returns> Выполнил или нет. </returns>
         public bool InputScene(string FileName, Paint Draw, out List<Material> MaterialLayer, out List<Material> MaterialMineral)
         {
             MaterialLayer = new List<Material>();
