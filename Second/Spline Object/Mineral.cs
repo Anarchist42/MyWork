@@ -97,6 +97,9 @@ namespace Second
             try
             {
                 BSpline();
+                Points.Add(Points[0]);
+                CSplinePoints = CubicSpline.FitParametric(Points);
+                Points.RemoveAt(Points.Count - 1);
             }
             catch { return false; }
             return true;

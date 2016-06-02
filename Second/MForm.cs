@@ -1022,6 +1022,7 @@ namespace Second
             }
         }
         #endregion
+
         #region Материал
         /*Добавление материала*/
         private void AddMaterial(string Name,string Resistance)
@@ -1501,10 +1502,21 @@ namespace Second
                 MessageBox.Show("Максимальный шаг разбиения " + Draw.XAREASIZE);
                 return;
             }
+            /*Убираем чеки*/
             if (СheckedListBoxMKE.GetItemChecked(0) == true)
             {
                 СheckedListBoxMKE.SetItemCheckState(0, CheckState.Unchecked);
                 Draw.LINEPARTITION = false;
+            }
+            if (СheckedListBoxMKE.GetItemChecked(1) == true)
+            {
+                СheckedListBoxMKE.SetItemCheckState(1, CheckState.Unchecked);
+                Draw.POINTPARTITION = false;
+            }
+            if (СheckedListBoxMKE.GetItemChecked(2) == true)
+            {
+                СheckedListBoxMKE.SetItemCheckState(2, CheckState.Unchecked);
+                Draw.PARTITION = false;
             }
         }
         private void TextBoxStepPartition_Validated(object sender, EventArgs e)
@@ -1560,6 +1572,8 @@ namespace Second
             switch (СheckedListBoxMKE.SelectedIndex)
             {
                 case 0: ToolTip.Show("Отображение опорных линий разбиения.", СheckedListBoxMKE); break;
+                case 1: ToolTip.Show("Отображение точек разбиения.", СheckedListBoxMKE); break;
+                case 2: ToolTip.Show("Отображение разбиения.", СheckedListBoxMKE); break;
             }
         }
         private void СheckedListBoxMKE_MouseLeave(object sender, EventArgs e)

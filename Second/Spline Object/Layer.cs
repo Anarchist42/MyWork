@@ -107,6 +107,7 @@ namespace Second
             try
             {
                 BSpline();
+                CSplinePoints = CubicSpline.FitParametric(Points);
             }
             catch { return false; }
             return true;

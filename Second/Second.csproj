@@ -63,18 +63,20 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Дочерние формы\AddMaterial.cs">
+    <Compile Include="CSpline\CSpline.cs" />
+    <Compile Include="CSpline\TriDiagonalMatrixF.cs" />
+    <Compile Include="SubForms\AddMaterial.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Дочерние формы\AddMaterial.Designer.cs">
+    <Compile Include="SubForms\AddMaterial.Designer.cs">
       <DependentUpon>AddMaterial.cs</DependentUpon>
     </Compile>
-    <Compile Include="Малые классы\GlobalConst.cs" />
-    <Compile Include="Малые классы\Material.cs" />
-    <Compile Include="Малые классы\PointMKE.cs" />
-    <Compile Include="Работа с файлами\WorkingWithFiles.cs" />
-    <Compile Include="Сплайны\Mineral.cs" />
-    <Compile Include="Кастомный скролл\MyScroll.cs">
+    <Compile Include="Using stucture\GlobalConst.cs" />
+    <Compile Include="Using stucture\Material.cs" />
+    <Compile Include="Using stucture\PointMKE.cs" />
+    <Compile Include="Work with files\WorkingWithFiles.cs" />
+    <Compile Include="Spline Object\Mineral.cs" />
+    <Compile Include="CustomScroll\MyScroll.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Paint.cs" />
@@ -84,17 +86,17 @@
     <Compile Include="MForm.Designer.cs">
       <DependentUpon>MForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Сплайны\Layer.cs" />
-    <Compile Include="Малые классы\PointSpline.cs" />
+    <Compile Include="Spline Object\Layer.cs" />
+    <Compile Include="Using stucture\PointSpline.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Дочерние формы\SetValue.cs">
+    <Compile Include="SubForms\SetValue.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Дочерние формы\SetValue.Designer.cs">
+    <Compile Include="SubForms\SetValue.Designer.cs">
       <DependentUpon>SetValue.cs</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="Дочерние формы\AddMaterial.resx">
+    <EmbeddedResource Include="SubForms\AddMaterial.resx">
       <DependentUpon>AddMaterial.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MForm.resx">
@@ -109,7 +111,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="Дочерние формы\SetValue.resx">
+    <EmbeddedResource Include="SubForms\SetValue.resx">
       <DependentUpon>SetValue.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
@@ -126,10 +128,11 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Файлы\InputMaterialsLayer.txt" />
-    <Content Include="Файлы\OutputMaterials.txt" />
-    <Content Include="Файлы\Scene.txt" />
+    <Content Include="Files\InputMaterialsLayer.txt" />
+    <Content Include="Files\OutputMaterials.txt" />
+    <Content Include="Files\Scene.txt" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

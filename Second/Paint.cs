@@ -58,9 +58,11 @@ namespace Second
         /// Нужна ли разметка.
         /// </summary>
         private bool Marking;
+
         /// <summary>
         /// Нужна ли опорная линия.
         /// </summary>
+        /// 
         private bool SupportLine;
         /// <summary>
         /// Нужна ли апроксимация сплайнами.
@@ -70,6 +72,7 @@ namespace Second
         /// Нужна ли интерполяция сплайнами.
         /// </summary>
         private bool CSpline;
+
         /// <summary>
         /// Опорные линии разбиения.
         /// </summary>
@@ -79,6 +82,10 @@ namespace Second
         /// </summary>
         private bool PointPartition;
         /// <summary>
+        /// Разбиение.
+        /// </summary>
+        private bool Partition;
+        /// <summary>
         /// Цвет разбиения.
         /// </summary>
         private Color ColorPartition;        
@@ -87,6 +94,7 @@ namespace Second
         /// </summary>
         private double PartitionX;
         #endregion
+
         #region Не нужны Get\Set
         /// <summary>
         /// Указатель на OpenGLControl где рисуем.
@@ -276,6 +284,7 @@ namespace Second
             get { return this.Marking; }
             set { this.Marking = value; }
         }
+
         public bool SUPPORTLINE
         {
             get { return this.SupportLine; }
@@ -291,21 +300,27 @@ namespace Second
             get { return this.CSpline; }
             set { this.CSpline = value; }
         }
+
         public bool LINEPARTITION
         {
             get { return this.LinePartition; }
             set { this.LinePartition = value; }
-        }
-        public Color COLORPARTITION
-        {
-            get { return this.ColorPartition; }
-            set { this.ColorPartition = value; }
         }
         public bool POINTPARTITION
         {
             get { return this.PointPartition; }
             set { this.PointPartition = value; }
         }
+        public bool PARTITION
+        {
+            get { return this.Partition; }
+            set { this.Partition = value; }
+        }
+        public Color COLORPARTITION
+        {
+            get { return this.ColorPartition; }
+            set { this.ColorPartition = value; }
+        }      
         public double PARTITIONX
         {
             get { return this.PartitionX; }
@@ -722,7 +737,7 @@ namespace Second
                         return false;
                     }
                     /*Перестраиваем массив*/
-                    Layers[FIJ[1]].BSpline();
+                    Layers[FIJ[1]].ReBuild();
                 }
                 else
                 {
@@ -759,7 +774,7 @@ namespace Second
                         return false;
                     }
                     /*Перестраиваем массив*/
-                    Layers[FIJ[1]].BSpline();
+                    Layers[FIJ[1]].ReBuild();
                 }
                 else
                     Minerals[FIJ[1]].DeletePoint(FIJ[2]);
@@ -1061,7 +1076,7 @@ namespace Second
                         YOffset += XAreaSize / 100;
                     }
                     /*Перестраиваем сплайн*/
-                    Layers[FIJ[1]].BSpline();
+                    Layers[FIJ[1]].ReBuild();
                 }
                 else
                 {
@@ -1087,7 +1102,7 @@ namespace Second
                     Points.RemoveAt(0);
                     Points.RemoveAt(Points.Count - 1);
                     /*Перестраиваем сплайн*/
-                    Minerals[FIJ[1]].BSpline();
+                    Minerals[FIJ[1]].ReBuild();
                 }
             }
             catch { return false; }
@@ -1228,7 +1243,7 @@ namespace Second
                 int i, Position;
                 for (i = 0; i < Layers.Count; i++)
                     Layers[i].AddPoint(new PointSpline(XAreaSize, Layers[i].POINT[Layers[i].POINT.Count - 1].Y), out Position);
-                Layers[i - 1].BSpline();
+                Layers[i - 1].ReBuild();
             }
             catch { return false; }
             return true;
@@ -1470,7 +1485,9 @@ namespace Second
             /*Удаляем тесселятор*/
             Glu.gluDeleteTess(pTess);
         }
-
+        /// <summary>
+        /// Вывод линий разбиения.
+        /// </summary>
         private void DrawingLinePartition()
         {
             double i=0;
@@ -1489,7 +1506,9 @@ namespace Second
             Gl.glEnd();
             Gl.glPopMatrix();
         }
-
+        /// <summary>
+        /// Вывод точек разбиения.
+        /// </summary>
         private void DrawingPointPartition()
         {
             int i, j;
