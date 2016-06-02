@@ -231,6 +231,8 @@ namespace Second
             /*Меняем точность в скроллбарах*/
             MainPaint_VScroll.SmallStep = Math.Pow(10, -GlobalConst.Accuracy);
             MainPaint_HScroll.SmallStep = Math.Pow(10, -GlobalConst.Accuracy);
+            /*Делаем активным по умолчанию линейную интерполяцию*/
+            СheckedListBoxSpline.SetItemChecked(1, true);
         }
         /*Изменяем ползунки*/
         private void ChangeScrollBars()
@@ -1404,38 +1406,66 @@ namespace Second
         {
             switch (e.Index)
             {
-                /*Нажата Опорные линии.*/
+                /*Нажата Опорные точки.*/
                 case 0:
                     {
                         if (e.NewValue == CheckState.Checked)
-                            Draw.SUPPORTLINE = true;
-                        else Draw.SUPPORTLINE = false;
+                            Draw.SUPPORTPOINT = true;
+                        else Draw.SUPPORTPOINT = false;
                     }
                     break;
-                /*Нажата Bspline.*/
+                /*Нажата Line.*/
                 case 1:
                     {
                         if (e.NewValue == CheckState.Checked)
                         {
-                            Draw.BSPLINE = true;
+                            Draw.LINE = true;
+                            Draw.BSPLINE = false;
                             Draw.CSPLINE = false;
                             СheckedListBoxSpline.SetItemChecked(2, false);
+                            СheckedListBoxSpline.SetItemChecked(3, false);
                         }
-                        Draw.BSPLINE = false;
+                        else
+                            if (Draw.BSPLINE == false && Draw.CSPLINE == false)
+                                e.NewValue = e.CurrentValue;
+                             else
+                                Draw.LINE = false;
                     }
                     break;
-                /*Нажата CSpline.*/
+                /*Нажата Bspline.*/
                 case 2:
                     {
                         if (e.NewValue == CheckState.Checked)
                         {
-                            Draw.CSPLINE = true;
-                            Draw.BSPLINE = false;
+                            Draw.BSPLINE = true;
+                            Draw.LINE = false;
+                            Draw.CSPLINE = false;
                             СheckedListBoxSpline.SetItemChecked(1, false);
+                            СheckedListBoxSpline.SetItemChecked(3, false);
                         }
-                        Draw.CSPLINE = false;
+                        else Draw.BSPLINE = false;
                     }
                     break;
+                /*Нажата CSpline.*/
+                case 3:
+                    {
+                        if (e.NewValue == CheckState.Checked)
+                        {
+                            Draw.CSPLINE = true;
+                            Draw.LINE = false;
+                            Draw.BSPLINE = false;
+                            СheckedListBoxSpline.SetItemChecked(1, false);
+                            СheckedListBoxSpline.SetItemChecked(2, false);
+                        }
+                        else Draw.CSPLINE = false;
+                    }
+                    break;
+            }
+            /*Если все выключены, то ставим линии*/
+            if (Draw.LINE == false && Draw.BSPLINE == false && Draw.CSPLINE == false)
+            {
+                Draw.LINE = true;
+                СheckedListBoxSpline.SetItemChecked(1, true);
             }
         }
         private void СheckedListBoxSpline_SelectedIndexChanged(object sender, EventArgs e)
@@ -1443,9 +1473,10 @@ namespace Second
             /*Вывод подсказок*/
             switch (СheckedListBoxSpline.SelectedIndex)
             {
-                case 0: ToolTip.Show("Отображение опорных линий.", СheckedListBoxSpline); break;
-                case 1: ToolTip.Show("Отображение BSpline.", СheckedListBoxSpline); break;
-                case 2: ToolTip.Show("Отображение CSpline.", СheckedListBoxSpline); break;
+                case 0: ToolTip.Show("Отображение опорных точек.", СheckedListBoxSpline); break;
+                case 1: ToolTip.Show("Линейная интерполяция.", СheckedListBoxSpline); break;
+                case 2: ToolTip.Show("Апроксимация BSplin'ом.", СheckedListBoxSpline); break;
+                case 3: ToolTip.Show("Интерполяция CSplin'ом.", СheckedListBoxSpline); break;
             }
         }
         private void СheckedListBoxSpline_MouseLeave(object sender, EventArgs e)
@@ -1613,6 +1644,5 @@ namespace Second
         #endregion
 
         #endregion
-
     }
 }

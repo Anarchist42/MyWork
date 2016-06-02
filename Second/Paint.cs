@@ -59,11 +59,12 @@ namespace Second
         /// </summary>
         private bool Marking;
 
+        private bool SupportPoint;
         /// <summary>
-        /// Нужна ли опорная линия.
+        /// Нужна ли интерполяция линиями.
         /// </summary>
         /// 
-        private bool SupportLine;
+        private bool Line;
         /// <summary>
         /// Нужна ли апроксимация сплайнами.
         /// </summary>
@@ -119,7 +120,11 @@ namespace Second
         /// <summary>
         /// Рандом для цвета.
         /// </summary>
-        Random random = new Random();
+        private Random random = new Random();
+        /// <summary>
+        /// Используемый массив (0 - Points, 1 - BSpline, 2 - CSpline)
+        /// </summary>
+        private int MassivNumber;
         #endregion
         #endregion
 
@@ -140,11 +145,13 @@ namespace Second
             this.DefYAreaSize = 0.0;
             this.Grid = false;
             this.Marking = false;
-            this.SupportLine = false;
+            this.SupportPoint = false;
+            this.Line = true;
             this.BSpline = false;
             this.CSpline = false;
             this.LinePartition = false;
             this.PointPartition = false;
+            this.MassivNumber = 0;
         }
         #endregion
 
@@ -169,9 +176,11 @@ namespace Second
                 this.DefYAreaSize = 0.0;
                 this.Grid = false;
                 this.Marking = false;
-                this.SupportLine = false;
+                this.SupportPoint = false;
+                this.Line = true;
                 this.BSpline = false;
                 this.CSpline = false;
+                this.MassivNumber = 0;
                 this.LinePartition = false;
                 this.PointPartition = false;
                 this.ColorPartition = Color.Black;
@@ -285,20 +294,25 @@ namespace Second
             set { this.Marking = value; }
         }
 
-        public bool SUPPORTLINE
+        public bool SUPPORTPOINT
         {
-            get { return this.SupportLine; }
-            set { this.SupportLine = value; }
+            get { return this.SupportPoint; }
+            set { this.SupportPoint = value; }
+        }
+        public bool LINE
+        {
+            get { return this.Line; }
+            set { this.Line = value; if (value == true) MassivNumber = 0; }
         }
         public bool BSPLINE
         {
             get { return this.BSpline; }
-            set { this.BSpline = value; }
+            set { this.BSpline = value; if (value == true) MassivNumber = 1; }
         }
         public bool CSPLINE
         {
             get { return this.CSpline; }
-            set { this.CSpline = value; }
+            set { this.CSpline = value; if(value == true) MassivNumber = 2; }
         }
 
         public bool LINEPARTITION
@@ -669,14 +683,14 @@ namespace Second
                 if (NumberGrid == 0)
                 {
                     Color = Layers[PositionNumber].COLOR;
-                    LayerPosition = Layers[PositionNumber].ReturnMaxY(0).ToString() + "\n" + Layers[PositionNumber + 1].ReturnMinY(0).ToString();
+                    LayerPosition = Layers[PositionNumber].ReturnMaxY(MassivNumber).ToString() + "\n" + Layers[PositionNumber + 1].ReturnMinY(MassivNumber).ToString();
                     Material = Layers[PositionNumber].MATERIAL.NAME;
                 }
                 //Если минерал
                 else
                 {
                     Color = Minerals[PositionNumber].COLOR;
-                    LayerPosition = Minerals[PositionNumber].ReturnMaxY(1).ToString() + "\n" + Minerals[PositionNumber].ReturnMinY(1).ToString();
+                    LayerPosition = Minerals[PositionNumber].ReturnMaxY(MassivNumber).ToString() + "\n" + Minerals[PositionNumber].ReturnMinY(MassivNumber).ToString();
                     Material = Minerals[PositionNumber].MATERIAL.NAME;
                 }
             }
@@ -741,8 +755,8 @@ namespace Second
                 }
                 else
                 {
-                    if (Layers.Count > 1 && GetCoordinate(1) < Layers[0].ReturnMaxYX(GetCoordinate(0),0)
-                   && GetCoordinate(1) > Layers[Layers.Count - 1].ReturnMinYX(GetCoordinate(0),0))
+                    if (Layers.Count > 1 && GetCoordinate(1) < Layers[0].ReturnMaxYX(GetCoordinate(0), MassivNumber)
+                   && GetCoordinate(1) > Layers[Layers.Count - 1].ReturnMinYX(GetCoordinate(0), MassivNumber))
                     {
                         Minerals[Minerals.Count - 1].AddPoint(new PointSpline(GetCoordinate(0), GetCoordinate(1)), out FIJ[2]);
                     }
@@ -943,12 +957,12 @@ namespace Second
                 if (Layers.Count > 1)
                 {
                     if (FIJ[1] == 0)
-                        return Check4LayersIntersectionRude(FIJ[2], Layers[0].POINT, Layers[1].POINT);
+                        return Check4LayersIntersectionRude(FIJ[2], Layers[0].ClonePoint(0), Layers[1].ClonePoint(0));
                     if (FIJ[1] == Layers.Count - 1)
-                        return Check4LayersIntersectionRude(FIJ[2], Layers[Layers.Count - 1].POINT, Layers[Layers.Count - 2].POINT);
+                        return Check4LayersIntersectionRude(FIJ[2], Layers[Layers.Count - 1].ClonePoint(0), Layers[Layers.Count - 2].ClonePoint(0));
                     else
-                        return Check4LayersIntersectionRude(FIJ[2], Layers[FIJ[1]].POINT, Layers[FIJ[1] + 1].POINT) ||
-                            Check4LayersIntersectionRude(FIJ[2], Layers[FIJ[1]].POINT, Layers[FIJ[1] - 1].POINT);
+                        return Check4LayersIntersectionRude(FIJ[2], Layers[FIJ[1]].ClonePoint(0), Layers[FIJ[1] + 1].ClonePoint(0)) ||
+                            Check4LayersIntersectionRude(FIJ[2], Layers[FIJ[1]].ClonePoint(0), Layers[FIJ[1] - 1].ClonePoint(0));
                 }
             }
             catch { return true; }
@@ -992,7 +1006,7 @@ namespace Second
             FIJ[2] = 0;
             try
             {
-                if (SupportLine)
+                if (SupportPoint)
                 {
                     double[] X = new double[2];
                     double[] Y = new double[2];
@@ -1004,7 +1018,7 @@ namespace Second
                     List<PointSpline> Points;
                     for (i = 0; i < Layers.Count; i++)
                     {
-                        Points = Layers[i].POINT;
+                        Points = Layers[i].ClonePoint(0);
                         for (j = 0; j < Points.Count; j++)
                             if (Points[j].X >= X[0] && Points[j].X <= X[1] && Points[j].Y <= Y[0] && Points[j].Y >= Y[1])
                             {
@@ -1016,7 +1030,7 @@ namespace Second
                     }
                     for (i = 0; i < Minerals.Count; i++)
                     {
-                        Points = Minerals[i].POINT;
+                        Points = Minerals[i].ClonePoint(0);
                         for (j = 0; j < Points.Count; j++)
                             if (Points[j].X >= X[0] && Points[j].X <= X[1] && Points[j].Y <= Y[0] && Points[j].Y >= Y[1])
                             {
@@ -1135,9 +1149,9 @@ namespace Second
             {
                 int i;
                 for (i = 0; i < Layers.Count; i++)
-                    Layers[i].MakePartition(PARTITIONX,1);
+                    Layers[i].MakePartition(PARTITIONX, MassivNumber);
                 for (i = 0; i < Minerals.Count; i++)
-                    Minerals[i].MakePartition(PARTITIONX,1);
+                    Minerals[i].MakePartition(PARTITIONX, MassivNumber);
             }
             catch { return false; }
             return true;
@@ -1174,16 +1188,15 @@ namespace Second
                 if (Layers[i].POINT[0].Y == LayerHeight && Layers[i].ReturnMaxY(0) == Layers[i].ReturnMinY(0))
                     NumbAdd = i;
             int[] FIJ = { 0, NumbAdd, 1 };
-            for (i = 1;i<Layers[NumbAdd].POINT.Count;i+=2)
+            for (i = 1; i < Layers[NumbAdd].POINT.Count; i += 2)
             {
                 FIJ[2] = i;
-                if(CheckLayersIntersectionRude(FIJ))
+                if (CheckLayersIntersectionRude(FIJ))
                 {
                     Layers.RemoveAt(NumbAdd);
                     return false;
                 }
-            }
-                         
+            }                        
             return true;
         }
         /// <summary>
@@ -1305,41 +1318,27 @@ namespace Second
         private void Drawing()
         {
             int i;
-            List<PointSpline> point = new List<PointSpline>();
             Gl.glPushMatrix();
             /*Рисуем слои*/
             for (i = 0; i < Layers.Count; i++)
             {
-                point = Layers[i].BSPLINEPOINT;
                 Color color = Layers[i].COLOR;
-                DrawingBSpline(point, color);
-                if (SupportLine)
-                {
-                    point = Layers[i].POINT;
-                    DrawingSupportLine(point, color);
-                }
+                DrawingSpline(Layers[i].ClonePoint(MassivNumber), color);
+                if (SupportPoint)
+                    DrawingSupportPoint(Layers[i].ClonePoint(0), color);
                 else
                     if(i!=Layers.Count-1)
-                    DrawingFilingLayers(Layers[i].BSPLINEPOINT, Layers[i + 1].BSPLINEPOINT, Layers[i].COLOR);
+                    DrawingFilingLayers(Layers[i].ClonePoint(MassivNumber), Layers[i + 1].ClonePoint(MassivNumber), Layers[i].COLOR);
             }
             /*Рисуем минералы*/
             for (i = 0; i < Minerals.Count; i++)
             {
-                point = Minerals[i].BSPLINEPOINT;
                 Color color = Minerals[i].COLOR;
-                DrawingBSpline(point, color);
-                if (SupportLine)
-                {
-                    point = Minerals[i].POINT;
-                    if (point.Count != 0)
-                    {
-                        point.Add(point[0]);
-                        DrawingSupportLine(point, color);
-                        point.RemoveAt(point.Count - 1);
-                    }
-                }
+                DrawingSpline(Minerals[i].ClonePoint(MassivNumber), color);
+                if (SupportPoint)
+                        DrawingSupportPoint(Minerals[i].ClonePoint(0), color);
                 else
-                    DrawingFilingMinerals(Minerals[i].BSPLINEPOINT, Minerals[i].COLOR);
+                    DrawingFilingMinerals(Minerals[i].ClonePoint(MassivNumber), Minerals[i].COLOR);
             }
             Gl.glPopMatrix();
         }
@@ -1348,7 +1347,7 @@ namespace Second
         /// </summary>
         /// <param name="Point"> Массив точек BSplin'а. </param>
         /// <param name="Color"> Цвет сплайна. </param>
-        private void DrawingBSpline(List<PointSpline> Point, Color Color)
+        private void DrawingSpline(List<PointSpline> Point, Color Color)
         {
             int i;
             Gl.glColor3d(Color.R / 255.0, Color.G / 255.0, Color.B / 255.0);
@@ -1361,22 +1360,14 @@ namespace Second
             Gl.glPopMatrix();
         }     
         /// <summary>
-        /// Вывод опорных линий.
+        /// Вывод опорных точек.
         /// </summary>
         /// <param name="Point"> Массив опорных точек. </param>
         /// <param name="Color"> Цвет сплайна. </param>
-        private void DrawingSupportLine(List<PointSpline> Point, Color Color)
+        private void DrawingSupportPoint(List<PointSpline> Point, Color Color)
         {
             int i;
             Gl.glColor4d(Color.R / 255.0, Color.G / 255.0, Color.B / 255.0, 0.7);
-            /*Рисуем опорные линии*/
-            Gl.glPushMatrix();
-            Gl.glLineWidth(2);
-            Gl.glBegin(Gl.GL_LINE_STRIP);
-            for (i = 0; i < Point.Count; i++)
-                Gl.glVertex2d((Point[i].X - XAreaSize / 2) * Zoom + XOffset, (YAreaSize / 2 - EarthSize + Point[i].Y) * Zoom + YOffset);
-            Gl.glEnd();
-            Gl.glPopMatrix();
             /*Рисуем опорные точки*/
             Gl.glPushMatrix();
             Gl.glPointSize(7);

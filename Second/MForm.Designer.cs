@@ -426,7 +426,7 @@
             this.ComboBoxMineralMaterial.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             this.ComboBoxMineralMaterial.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ComboBoxMineralMaterial.FormattingEnabled = true;
-            this.ComboBoxMineralMaterial.Location = new System.Drawing.Point(71, 223);
+            this.ComboBoxMineralMaterial.Location = new System.Drawing.Point(71, 213);
             this.ComboBoxMineralMaterial.Name = "ComboBoxMineralMaterial";
             this.ComboBoxMineralMaterial.Size = new System.Drawing.Size(89, 21);
             this.ComboBoxMineralMaterial.TabIndex = 11;
@@ -441,12 +441,13 @@
             this.СheckedListBoxSpline.Enabled = false;
             this.СheckedListBoxSpline.FormattingEnabled = true;
             this.СheckedListBoxSpline.Items.AddRange(new object[] {
-            "Опорные линии.",
+            "Опорные точки.",
+            "Line.",
             "BSpline.",
             "CSpline"});
-            this.СheckedListBoxSpline.Location = new System.Drawing.Point(4, 374);
+            this.СheckedListBoxSpline.Location = new System.Drawing.Point(4, 364);
             this.СheckedListBoxSpline.Name = "СheckedListBoxSpline";
-            this.СheckedListBoxSpline.Size = new System.Drawing.Size(109, 45);
+            this.СheckedListBoxSpline.Size = new System.Drawing.Size(109, 60);
             this.СheckedListBoxSpline.TabIndex = 10;
             this.СheckedListBoxSpline.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.СheckedListBoxSpline_ItemCheck);
             this.СheckedListBoxSpline.SelectedIndexChanged += new System.EventHandler(this.СheckedListBoxSpline_SelectedIndexChanged);
@@ -455,7 +456,7 @@
             // LabelMineralMaterial
             // 
             this.LabelMineralMaterial.AutoSize = true;
-            this.LabelMineralMaterial.Location = new System.Drawing.Point(4, 223);
+            this.LabelMineralMaterial.Location = new System.Drawing.Point(4, 213);
             this.LabelMineralMaterial.Name = "LabelMineralMaterial";
             this.LabelMineralMaterial.Size = new System.Drawing.Size(60, 26);
             this.LabelMineralMaterial.TabIndex = 9;
@@ -465,7 +466,7 @@
             // 
             this.DrawSplineMinerals.BackColor = System.Drawing.SystemColors.Control;
             this.DrawSplineMinerals.Enabled = false;
-            this.DrawSplineMinerals.Location = new System.Drawing.Point(163, 223);
+            this.DrawSplineMinerals.Location = new System.Drawing.Point(163, 213);
             this.DrawSplineMinerals.Name = "DrawSplineMinerals";
             this.DrawSplineMinerals.Size = new System.Drawing.Size(78, 23);
             this.DrawSplineMinerals.TabIndex = 8;
@@ -496,7 +497,7 @@
             this.DataGridViewMinerals.DefaultCellStyle = dataGridViewCellStyle3;
             this.DataGridViewMinerals.Enabled = false;
             this.DataGridViewMinerals.GridColor = System.Drawing.SystemColors.Control;
-            this.DataGridViewMinerals.Location = new System.Drawing.Point(4, 252);
+            this.DataGridViewMinerals.Location = new System.Drawing.Point(4, 242);
             this.DataGridViewMinerals.MultiSelect = false;
             this.DataGridViewMinerals.Name = "DataGridViewMinerals";
             this.DataGridViewMinerals.RowHeadersVisible = false;
@@ -616,7 +617,7 @@
             this.DataGridViewLayers.Name = "DataGridViewLayers";
             this.DataGridViewLayers.RowHeadersVisible = false;
             this.DataGridViewLayers.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
-            this.DataGridViewLayers.Size = new System.Drawing.Size(239, 120);
+            this.DataGridViewLayers.Size = new System.Drawing.Size(239, 110);
             this.DataGridViewLayers.TabIndex = 3;
             this.DataGridViewLayers.CellMouseDown += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.DataGridViewLayers_CellMouseDown);
             // 

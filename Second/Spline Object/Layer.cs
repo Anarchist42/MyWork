@@ -130,8 +130,8 @@ namespace Second
                 case 2: Point = CSplinePoints; break;
                 default: Point = Points; break;
             }
-            for (i = 0; i < Points.Count; i++)
-                Clon.Add(new PointSpline(Points[i].X, Points[i].Y));
+            for (i = 0; i < Point.Count; i++)
+                Clon.Add(new PointSpline(Point[i].X, Point[i].Y));
             return Clon;
         }
         /// <summary>
@@ -142,7 +142,7 @@ namespace Second
         {
             int i;
             List<PointMKE> Clon = new List<PointMKE>();
-            for (i = 0; i < Points.Count; i++)
+            for (i = 0; i < Partition.Count; i++)
                 Clon.Add(new PointMKE(new PointSpline(Partition[i].POINT.X, Partition[i].POINT.Y),Partition[i].MATERIAL,Partition[i].ITSLAYER));
             return Clon;
         }
