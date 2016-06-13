@@ -8,9 +8,9 @@
         /// </summary>
         PointSpline Point = new PointSpline();
         /// <summary>
-        /// Материал.
+        /// Номер слоя или минерала.
         /// </summary>
-        Material Material = new Material();
+        int NumberSpline;
         /// <summary>
         /// Слой или минерал.
         /// </summary>
@@ -26,12 +26,23 @@
         /// Конструктор.
         /// </summary>
         /// <param name="Point"> Координаты. </param>
-        /// <param name="Material"> Материал. </param>
         /// <param name="ItsLayer"> Слой или минерал. </param>
-        public PointMKE(PointSpline Point, Material Material, bool ItsLayer)
+        public PointMKE(PointSpline Point, bool ItsLayer)
         {
             this.Point = Point;
-            this.Material = Material;
+            this.NumberSpline = -1;
+            this.ItsLayer = ItsLayer;
+        }
+        /// <summary>
+        /// Конструктор.
+        /// </summary>
+        /// <param name="Point"> Координаты. </param>
+        /// <param name="NumberSpline"> Номер слоя или минерала. </param>
+        /// <param name="ItsLayer"> Слой или минерал. </param>
+        public PointMKE(PointSpline Point, int NumberSpline, bool ItsLayer)
+        {
+            this.Point = Point;
+            this.NumberSpline = NumberSpline;
             this.ItsLayer = ItsLayer;
         }
         #endregion
@@ -42,10 +53,10 @@
             get { return this.Point; }
             set { this.Point = value; }
         }
-        public Material MATERIAL
+        public int NUMBERSPLINE
         {
-            get { return this.Material; }
-            set { this.Material = value; }
+            get { return this.NumberSpline; }
+            set { this.NumberSpline = value; }
         }
         public bool ITSLAYER
         {

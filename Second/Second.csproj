@@ -71,6 +71,7 @@
     <Compile Include="SubForms\AddMaterial.Designer.cs">
       <DependentUpon>AddMaterial.cs</DependentUpon>
     </Compile>
+    <Compile Include="Using stucture\FiniteElement.cs" />
     <Compile Include="Using stucture\GlobalConst.cs" />
     <Compile Include="Using stucture\Material.cs" />
     <Compile Include="Using stucture\PointMKE.cs" />
@@ -96,6 +97,7 @@
     <Compile Include="SubForms\SetValue.Designer.cs">
       <DependentUpon>SetValue.cs</DependentUpon>
     </Compile>
+    <Content Include="Files\Scene2.txt" />
     <EmbeddedResource Include="SubForms\AddMaterial.resx">
       <DependentUpon>AddMaterial.cs</DependentUpon>
     </EmbeddedResource>
@@ -114,6 +116,7 @@
     <EmbeddedResource Include="SubForms\SetValue.resx">
       <DependentUpon>SetValue.cs</DependentUpon>
     </EmbeddedResource>
+    <Content Include="Files\OutputMKE.txt" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -128,9 +131,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Files\InputMaterialsLayer.txt" />
-    <Content Include="Files\OutputMaterials.txt" />
+    <Content Include="Files\InputMaterials.txt" />
     <Content Include="Files\Scene.txt" />
+    <Content Include="Files\Scene1.txt" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

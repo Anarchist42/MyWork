@@ -13,6 +13,7 @@ namespace Second
         /// </summary>
         double y;
         #endregion
+
         #region Конструктор
         /// <summary>
         /// Конструктор.
@@ -41,6 +42,7 @@ namespace Second
             this.y = Math.Round(Convert.ToDouble(Y), GlobalConst.Accuracy);
         }
         #endregion
+
         #region SETs and GETs
         public double X
         {
@@ -53,6 +55,7 @@ namespace Second
             set { this.x = value; }
         }
         #endregion
+
         #region Перегрузка операторов
         public static PointSpline operator +(PointSpline A, PointSpline B)
         {
@@ -85,6 +88,7 @@ namespace Second
             return false;
         }
         #endregion
+
         #region Методы
         public bool Round()
         {

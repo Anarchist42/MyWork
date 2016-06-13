@@ -118,7 +118,7 @@ namespace Second
         /// </summary>
         /// <param name="Massive"> Какого массива (0 - опорные линии, 1 - BSpline, 2 - CSpline). </param>
         /// <returns> Массив. </returns>
-        public List<PointSpline> ClonePoint(int Massive)
+        public List<PointSpline> ClonePoints(int Massive)
         {
             int i;
             List<PointSpline> Clon = new List<PointSpline>();
@@ -143,7 +143,7 @@ namespace Second
             int i;
             List<PointMKE> Clon = new List<PointMKE>();
             for (i = 0; i < Partition.Count; i++)
-                Clon.Add(new PointMKE(new PointSpline(Partition[i].POINT.X, Partition[i].POINT.Y),Partition[i].MATERIAL,Partition[i].ITSLAYER));
+                Clon.Add(new PointMKE(new PointSpline(Partition[i].POINT.X, Partition[i].POINT.Y), Partition[i].NUMBERSPLINE, Partition[i].ITSLAYER));
             return Clon;
         }
 
@@ -437,8 +437,9 @@ namespace Second
         /// </summary>
         /// <param name="PartitionX"> Шаг разбиения. </param>
         /// <param name="Massive"> В каком массиве искать (0 - опорные линии, 1 - BSpline, 2 - CSpline). </param>
+        /// <param name="Number"> Номер слоя. </param>
         /// <returns> Выполнил или нет. </returns>
-        public bool MakePartition(double PartitionX,int Massive)
+        public bool MakePartition(double PartitionX,int Massive, int Number)
         {
             List<PointSpline> Point;
             switch (Massive)
@@ -465,7 +466,7 @@ namespace Second
                             /*Пока точка лежит внутри*/
                             while (Point[i].X <= X && X <= Point[i + 1].X)
                             {
-                                tmp = new PointMKE(new PointSpline(X, ReturnY(X, Point[i], Point[i + 1])), Material, true);
+                                tmp = new PointMKE(new PointSpline(X, ReturnY(X, Point[i], Point[i + 1])), Number, true);
                                 Partition.Add(tmp);
                                 X += PartitionX;
                             }
@@ -477,7 +478,7 @@ namespace Second
                             /*Пока точка лежит внутри*/
                             while (Point[i].X >= X && X >= Point[i + 1].X)
                             {
-                                tmp = new PointMKE(new PointSpline(X, ReturnY(X, Point[i], Point[i + 1])), Material, true);
+                                tmp = new PointMKE(new PointSpline(X, ReturnY(X, Point[i], Point[i + 1])), Number, true);
                                 Partition.Add(tmp);
                                 X -= PartitionX;
                             }
@@ -485,9 +486,9 @@ namespace Second
                         }
                     }
                     /*Если в конце есть еще кусок - добавляем*/
-                    if(X< Point[Point.Count-1].X)
+                    if(X-PartitionX < Point[Point.Count-1].X)
                     {
-                        tmp = new PointMKE(new PointSpline(X, Point[Point.Count - 1].Y), Material, true);
+                        tmp = new PointMKE(new PointSpline(Point[Point.Count - 1].X, Point[Point.Count - 1].Y), Number, true);
                         Partition.Add(tmp);
                     }
                 }

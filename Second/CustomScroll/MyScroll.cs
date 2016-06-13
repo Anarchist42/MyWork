@@ -36,6 +36,7 @@ namespace Second
         /// </summary>
         private ScrollOrientation orientation;       
         #endregion
+
         #region Конструктор
         public MyScroll()
         {
@@ -44,6 +45,7 @@ namespace Second
             ShowButtons = true;
         }
         #endregion
+
         #region SETs and GETs
         public double Value
         {
@@ -92,6 +94,7 @@ namespace Second
         [DefaultValue(true)]
         public bool ShowButtons { get; set; }       
         #endregion
+
         #region Методы
         /// <summary>
         /// Эвент изменения значения ползунка.
@@ -100,7 +103,7 @@ namespace Second
         /// <summary>
         /// Переопределение функции нажатия мыши.
         /// </summary>
-        /// <param name="e"></param>
+        /// <param name="e"> Объект представляющий данные для событий MouseUp, MouseDown, MouseMove. </param>
         protected override void OnMouseDown(MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
@@ -110,7 +113,7 @@ namespace Second
         /// <summary>
         /// Переопределение функции передвижения мыши.
         /// </summary>
-        /// <param name="e"></param>
+        /// <param name="e"> Объект представляющий данные для событий MouseUp, MouseDown, MouseMove. </param>
         protected override void OnMouseMove(MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
@@ -118,9 +121,9 @@ namespace Second
             base.OnMouseMove(e);
         }
         /// <summary>
-        /// Изменение ползунка от скролла.
+        /// Изменение ползунка от скроллинга мышкой.
         /// </summary>
-        /// <param name="e"></param>
+        /// <param name="e"> Объект представляющий данные для событий MouseUp, MouseDown, MouseMove. </param>
         private void MouseScroll(MouseEventArgs e)
         {
             var v = Value;
@@ -145,7 +148,7 @@ namespace Second
         /// <summary>
         /// Виртуальная функция вызывающая эвент изменения значения.
         /// </summary>
-        /// <param name="type"></param>
+        /// <param name="type"> Типа скроллинга. </param>
         public virtual void OnScroll(ScrollEventType type = ScrollEventType.ThumbPosition)
         {
             if (ValueChanged != null)
@@ -154,7 +157,7 @@ namespace Second
         /// <summary>
         /// Переопределение функции отрисовки.
         /// </summary>
-        /// <param name="e"></param>
+        /// <param name="e"> Объект предоставляющий данные для события отрисовки. </param>
         protected override void OnPaint(PaintEventArgs e)
         {
             if (Maximum <= 0)
@@ -162,6 +165,7 @@ namespace Second
             var w = Width;
             var h = Height;
             Rectangle thumbRect = Rectangle.Empty;
+            /*Рисуем стрелки*/
             switch (Orientation)
             {
                 case ScrollOrientation.HorizontalScroll:
@@ -186,6 +190,7 @@ namespace Second
                         }
                     break;
             }
+            /*Рисуем ползунок*/
             using (var brush = new SolidBrush(thumbColor))
                 e.Graphics.FillRectangle(brush, thumbRect);
             using (var pen = new Pen(borderColor))

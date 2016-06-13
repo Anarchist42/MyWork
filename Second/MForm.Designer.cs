@@ -30,10 +30,10 @@
         {
             this.components = new System.ComponentModel.Container();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             this.MainPaint = new Tao.Platform.Windows.SimpleOpenGlControl();
             this.RenderTimer = new System.Windows.Forms.Timer(this.components);
             this.MenuStrip = new System.Windows.Forms.MenuStrip();
@@ -64,10 +64,6 @@
             this.LabelMineralMaterial = new System.Windows.Forms.Label();
             this.DrawSplineMinerals = new System.Windows.Forms.Button();
             this.DataGridViewMinerals = new System.Windows.Forms.DataGridView();
-            this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataGridViewTextBoxColumn3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.TextBoxLayerHeight = new System.Windows.Forms.TextBox();
             this.LabelLayerHeight = new System.Windows.Forms.Label();
             this.AddSplineLayers = new System.Windows.Forms.Button();
@@ -115,6 +111,10 @@
             this.SaveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.MainPaint_HScroll = new Second.MyScroll();
             this.MainPaint_VScroll = new Second.MyScroll();
+            this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dataGridViewTextBoxColumn3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.MenuStrip.SuspendLayout();
             this.TabControl.SuspendLayout();
             this.TabPageSettings.SuspendLayout();
@@ -396,7 +396,7 @@
             this.TabPageSpline.Padding = new System.Windows.Forms.Padding(3);
             this.TabPageSpline.Size = new System.Drawing.Size(246, 425);
             this.TabPageSpline.TabIndex = 0;
-            this.TabPageSpline.Text = "Почва";
+            this.TabPageSpline.Text = "Геологический разрез";
             this.TabPageSpline.Click += new System.EventHandler(this.TabPageSpline_Click);
             // 
             // СomboBoxLayerMaterial
@@ -506,49 +506,6 @@
             this.DataGridViewMinerals.TabIndex = 7;
             this.DataGridViewMinerals.CellMouseDown += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.DataGridViewMinerals_CellMouseDown);
             // 
-            // dataGridViewTextBoxColumn1
-            // 
-            this.dataGridViewTextBoxColumn1.HeaderText = "№";
-            this.dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
-            this.dataGridViewTextBoxColumn1.ReadOnly = true;
-            this.dataGridViewTextBoxColumn1.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this.dataGridViewTextBoxColumn1.ToolTipText = "Порядковый номер слоя.";
-            this.dataGridViewTextBoxColumn1.Width = 24;
-            // 
-            // dataGridViewTextBoxColumn2
-            // 
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.dataGridViewTextBoxColumn2.DefaultCellStyle = dataGridViewCellStyle1;
-            this.dataGridViewTextBoxColumn2.HeaderText = "Цвет";
-            this.dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
-            this.dataGridViewTextBoxColumn2.ReadOnly = true;
-            this.dataGridViewTextBoxColumn2.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this.dataGridViewTextBoxColumn2.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.dataGridViewTextBoxColumn2.ToolTipText = "Цвет минерала.";
-            this.dataGridViewTextBoxColumn2.Width = 32;
-            // 
-            // dataGridViewTextBoxColumn3
-            // 
-            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.dataGridViewTextBoxColumn3.DefaultCellStyle = dataGridViewCellStyle2;
-            this.dataGridViewTextBoxColumn3.HeaderText = "Глубина";
-            this.dataGridViewTextBoxColumn3.MaxInputLength = 6;
-            this.dataGridViewTextBoxColumn3.Name = "dataGridViewTextBoxColumn3";
-            this.dataGridViewTextBoxColumn3.ReadOnly = true;
-            this.dataGridViewTextBoxColumn3.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this.dataGridViewTextBoxColumn3.ToolTipText = "Глубина на которой находятся отложения.";
-            this.dataGridViewTextBoxColumn3.Width = 104;
-            // 
-            // dataGridViewTextBoxColumn4
-            // 
-            this.dataGridViewTextBoxColumn4.HeaderText = "Материал";
-            this.dataGridViewTextBoxColumn4.MaxInputLength = 6;
-            this.dataGridViewTextBoxColumn4.Name = "dataGridViewTextBoxColumn4";
-            this.dataGridViewTextBoxColumn4.ReadOnly = true;
-            this.dataGridViewTextBoxColumn4.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this.dataGridViewTextBoxColumn4.ToolTipText = "Материал отложений.";
-            this.dataGridViewTextBoxColumn4.Width = 84;
-            // 
             // TextBoxLayerHeight
             // 
             this.TextBoxLayerHeight.Enabled = false;
@@ -578,7 +535,7 @@
             this.AddSplineLayers.Size = new System.Drawing.Size(78, 23);
             this.AddSplineLayers.TabIndex = 4;
             this.AddSplineLayers.Text = "Добавить";
-            this.ToolTip.SetToolTip(this.AddSplineLayers, "Добавить границу слоя почвы.");
+            this.ToolTip.SetToolTip(this.AddSplineLayers, "Добавить границу слоя разреза.");
             this.AddSplineLayers.UseVisualStyleBackColor = false;
             this.AddSplineLayers.Click += new System.EventHandler(this.AddSplineLayers_Click);
             // 
@@ -692,7 +649,7 @@
             this.DrawSplineLayers.Size = new System.Drawing.Size(78, 23);
             this.DrawSplineLayers.TabIndex = 0;
             this.DrawSplineLayers.Text = "Нарисовать";
-            this.ToolTip.SetToolTip(this.DrawSplineLayers, "Нарисовать границу слоя почвы.");
+            this.ToolTip.SetToolTip(this.DrawSplineLayers, "Нарисовать границу слоя разреза.");
             this.DrawSplineLayers.UseVisualStyleBackColor = false;
             this.DrawSplineLayers.Click += new System.EventHandler(this.DrawSplineLayers_Click);
             // 
@@ -1020,6 +977,49 @@
             this.MainPaint_VScroll.Value = 0D;
             this.MainPaint_VScroll.Visible = false;
             this.MainPaint_VScroll.ValueChanged += new System.EventHandler(this.MainPaint_VScroll_ValueChanged);
+            // 
+            // dataGridViewTextBoxColumn1
+            // 
+            this.dataGridViewTextBoxColumn1.HeaderText = "№";
+            this.dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
+            this.dataGridViewTextBoxColumn1.ReadOnly = true;
+            this.dataGridViewTextBoxColumn1.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.dataGridViewTextBoxColumn1.ToolTipText = "Порядковый номер слоя.";
+            this.dataGridViewTextBoxColumn1.Width = 24;
+            // 
+            // dataGridViewTextBoxColumn2
+            // 
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.dataGridViewTextBoxColumn2.DefaultCellStyle = dataGridViewCellStyle1;
+            this.dataGridViewTextBoxColumn2.HeaderText = "Цвет";
+            this.dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
+            this.dataGridViewTextBoxColumn2.ReadOnly = true;
+            this.dataGridViewTextBoxColumn2.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.dataGridViewTextBoxColumn2.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.dataGridViewTextBoxColumn2.ToolTipText = "Цвет отложения.";
+            this.dataGridViewTextBoxColumn2.Width = 32;
+            // 
+            // dataGridViewTextBoxColumn3
+            // 
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.dataGridViewTextBoxColumn3.DefaultCellStyle = dataGridViewCellStyle2;
+            this.dataGridViewTextBoxColumn3.HeaderText = "Глубина";
+            this.dataGridViewTextBoxColumn3.MaxInputLength = 6;
+            this.dataGridViewTextBoxColumn3.Name = "dataGridViewTextBoxColumn3";
+            this.dataGridViewTextBoxColumn3.ReadOnly = true;
+            this.dataGridViewTextBoxColumn3.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.dataGridViewTextBoxColumn3.ToolTipText = "Глубина на которой находятся отложения.";
+            this.dataGridViewTextBoxColumn3.Width = 104;
+            // 
+            // dataGridViewTextBoxColumn4
+            // 
+            this.dataGridViewTextBoxColumn4.HeaderText = "Материал";
+            this.dataGridViewTextBoxColumn4.MaxInputLength = 6;
+            this.dataGridViewTextBoxColumn4.Name = "dataGridViewTextBoxColumn4";
+            this.dataGridViewTextBoxColumn4.ReadOnly = true;
+            this.dataGridViewTextBoxColumn4.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.dataGridViewTextBoxColumn4.ToolTipText = "Материал отложений.";
+            this.dataGridViewTextBoxColumn4.Width = 84;
             // 
             // MainForm
             // 

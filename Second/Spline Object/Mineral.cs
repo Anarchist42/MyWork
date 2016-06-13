@@ -110,7 +110,7 @@ namespace Second
         /// </summary>
         /// <param name="Massive"> Какого массива (0 - опорные линии, 1 - BSpline, 2 - CSpline). </param>
         /// <returns> Массив. </returns>
-        public List<PointSpline> ClonePoint(int Massive)
+        public List<PointSpline> ClonePoints(int Massive)
         {
             int i;
             List<PointSpline> Clon = new List<PointSpline>();
@@ -124,7 +124,7 @@ namespace Second
             }
             for (i = 0; i < Point.Count; i++)
                 Clon.Add(new PointSpline(Point[i].X, Point[i].Y));
-            if (Massive == 0)
+            if (Massive == 0 && Clon.Count>0)
                 Clon.Add(Clon[0]);
             return Clon;
         }
@@ -137,7 +137,7 @@ namespace Second
             int i;
             List<PointMKE> Clon = new List<PointMKE>();
             for (i = 0; i < Partition.Count; i++)
-                Clon.Add(new PointMKE(new PointSpline(Partition[i].POINT.X, Partition[i].POINT.Y), Partition[i].MATERIAL, Partition[i].ITSLAYER));
+                Clon.Add(new PointMKE(new PointSpline(Partition[i].POINT.X, Partition[i].POINT.Y), Partition[i].NUMBERSPLINE, Partition[i].ITSLAYER));
             return Clon;
         }
 
@@ -411,7 +411,8 @@ namespace Second
                 /*Добавление последней точки*/
                 Points.Add(new PointSpline(DeleteX, Y));
                 /*Перестраиваем массив*/
-                ReBuild();
+                if (Points.Count > 2) ReBuild();
+                else return false;
             }
             catch { return false; }
             return true;
@@ -422,8 +423,9 @@ namespace Second
         /// </summary>
         /// <param name="PartitionX"> Шаг разбиения. </param>
         /// <param name="Massive"> В каком массиве искать (0 - опорные линии, 1 - BSpline, 2 - CSpline). </param>
+        /// <param name="Number"> Номер минерала. </param>
         /// <returns> Выполнил или нет. </returns>
-        public bool MakePartition(double PartitionX, int Massive)
+        public bool MakePartition(double PartitionX, int Massive, int Number)
         {
             List<PointSpline> Point;
             switch (Massive)
@@ -433,6 +435,7 @@ namespace Second
                 case 2: Point = CSplinePoints; break;
                 default: Point = Points; break;
             }
+            Point.Add(Point[0]);
             try
             {
                 if (PartitionX != 0)
@@ -451,7 +454,7 @@ namespace Second
                             /*Пока точка лежит внутри*/
                             while (Point[i].X <= X && X <= Point[i + 1].X)
                             {
-                                tmp = new PointMKE(new PointSpline(X, ReturnY(X, Point[i], Point[i + 1])), Material, true);
+                                tmp = new PointMKE(new PointSpline(X, ReturnY(X, Point[i], Point[i + 1])), Number, false);
                                 Partition.Add(tmp);
                                 X += PartitionX;
                             }
@@ -464,7 +467,7 @@ namespace Second
                             /*Пока точка лежит внутри*/
                             while (Point[i].X >= X && X >= Point[i + 1].X)
                             {
-                                tmp = new PointMKE(new PointSpline(X, ReturnY(X, Point[i], Point[i + 1])), Material, true);
+                                tmp = new PointMKE(new PointSpline(X, ReturnY(X, Point[i], Point[i + 1])), Number, false);
                                 Partition.Add(tmp);
                                 X -= PartitionX;
                             }

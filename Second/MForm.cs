@@ -126,6 +126,19 @@ namespace Second
 
         public MainForm()
         {
+            List<double>[] a = new List<double>[2];
+            a[0] = new List<double>();
+            a[1] = new List<double>();
+            a[0].Add(10);
+            a[1].Add(12);
+            a[0].Add(10);
+            a[0][0] = 15;
+            a[1].Add(12);
+            a[0].Add(10);
+            a[1].Add(12);
+            a[0].Add(10);
+            a[1].Add(12);
+
             /*Инициализация компонент*/
             InitializeComponent();
             MainPaint.InitializeContexts();
@@ -249,7 +262,7 @@ namespace Second
         {
             int i;
             Color color = new Color();
-            string LayerPosition = "";
+            string LayerPosition;
             string Material;
             for (i = 0; i < DataGridViewLayers.Rows.Count - 1; i++)
             {
@@ -265,7 +278,7 @@ namespace Second
         {
             int i;
             Color color = new Color();
-            string LayerPosition = "";
+            string LayerPosition;
             string Material;
             for (i = 0; i < DataGridViewMinerals.Rows.Count - 1; i++)
             {
@@ -315,6 +328,17 @@ namespace Second
                 }
             }
         }
+        /*Изменяем размеры таблиц*/
+        private void ChangeSizeDataGridView()
+        {
+            int i,L, M;
+            Draw.GetCountSplines(out L, out M);
+            DataGridViewLayers.Rows.Clear();
+            for (i = 0; i < L - 1; i++)
+                DataGridViewLayers.Rows.Add(0, "", 0, 0);
+            for (i = 0; i < M - 1; i++)
+                DataGridViewMinerals.Rows.Add(0, "", 0, 0);
+        }
         #endregion
 
         #region Работа с MainPaint
@@ -328,9 +352,9 @@ namespace Second
                 double X = Math.Round(Convert.ToDouble(GlobalConst.Buffer[0]));
                 double Y = Math.Round(Convert.ToDouble(GlobalConst.Buffer[1]));
                 if (X > Draw.XAREASIZE)
-                    MessageBox.Show("Абсцисса точки должна быть меньше " + X.ToString());
+                    MessageBox.Show("Абсцисса точки должна быть меньше " + X.ToString(), "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 if (Y < -1000000 + Draw.EARTHSIZE)
-                    MessageBox.Show("Ордината точки должна быть меньше " + (-1000000 + Draw.EARTHSIZE).ToString());
+                    MessageBox.Show("Ордината точки должна быть меньше " + (-1000000 + Draw.EARTHSIZE).ToString(), "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 else
                 {
                     Draw.ChangePoint(CheckControlPoint, new PointSpline(GlobalConst.Buffer[0], GlobalConst.Buffer[1]));
@@ -382,7 +406,7 @@ namespace Second
         private void DeletePointToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (!Draw.DeletePoint(CheckControlPoint))
-                MessageBox.Show("Нельзя удалить точку.");
+                MessageBox.Show("Нельзя удалить точку", "Ошибка удаления элемента", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         private void DeleteLayersMainPaintToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -555,7 +579,7 @@ namespace Second
                 if (FlagAddPoint)
                 {
                     if (!Draw.AddPoint(CheckControlPoint))
-                        MessageBox.Show("Нельзя добавить точку.");
+                        MessageBox.Show("Нельзя добавить точку", "Ошибка добавления элемента", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     FlagAddPoint = false;
                     MouseDownLeft = false;
                     return;
@@ -578,13 +602,13 @@ namespace Second
                         return;
                     }
                     else
-                        MessageBox.Show("Нельзя добавить слой.");
+                        MessageBox.Show("Нельзя добавить слой", "Ошибка добавления элемента", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 /*Если кнопка "Нарисовать" минерал "включена"*/
                 if (DrawMineral)
                 {
                     if (!Draw.AddPointMinerals())
-                        MessageBox.Show("Точка должна находится на слое");
+                        MessageBox.Show("Точка должна находится на слое", "Ошибка добавления элемента", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             /*Проверяем попали ли мы на опорную точку*/
@@ -605,14 +629,7 @@ namespace Second
         {
             switch (TabControl.SelectedIndex)
             {
-                case 0:
-                    {
-                        TextBoxAccuracy.Text = GlobalConst.Accuracy.ToString();
-                        TextBoxXAreaSize.Text = Draw.XAREASIZE.ToString();
-                        TextBoxEarthSize.Text = Draw.EARTHSIZE.ToString();
-                        TextBoxYAreaSize.Text = Draw.YAREASIZE.ToString();
-                    }
-                    break;
+                case 0: TextBoxYAreaSize.Text = Draw.YAREASIZE.ToString(); break;
 
                 case 1: break;
                 case 2: break;
@@ -647,7 +664,7 @@ namespace Second
                 /*Если до этого была точность, то выводим ее*/
                 else
                     TextBoxAccuracy.Text = GlobalConst.Accuracy.ToString();
-                MessageBox.Show("Введите число от 0 до 15");
+                MessageBox.Show("Введите число от 0 до 15","Ошибка ввода",MessageBoxButtons.OK,MessageBoxIcon.Error);
                 return;
             }
         }
@@ -662,7 +679,7 @@ namespace Second
                 if (TextBoxXAreaSize.TextLength == 0)
                 {
                     /*Минимальная ширина области - это 582*10^(-точность)*/
-                    TextBoxXAreaSize.Text = (582.0 * Math.Pow(10,-GlobalConst.Accuracy)).ToString();
+                    TextBoxXAreaSize.Text = (582.0 * Math.Pow(10, -GlobalConst.Accuracy)).ToString();
                     Draw.XAREASIZE = Convert.ToDouble(TextBoxXAreaSize.Text);
                     TextBoxYAreaSize.Text = Draw.YAREASIZE.ToString();
                     TextBoxEarthSize.Text = "0,0";
@@ -709,6 +726,12 @@ namespace Second
                     Draw.YOFFSET = 0.0;
                     /*Сброс смещений и зума*/
                     ChangeScrollBars();
+                    /*Изменяем размер таблицы*/
+                    ChangeSizeDataGridView();
+                    /*Изменение таблицы слоев*/
+                    ChangeDataGridViewLayers();
+                    /*Изменение таблицы минералов*/
+                    ChangeDataGridViewMinerals();
                 }
             }
         }
@@ -736,14 +759,14 @@ namespace Second
             if (Convert.ToDouble(TextBoxXAreaSize.Text) > 1000000)
             {
                 TextBoxXAreaSize.Text = "1000000";
-                MessageBox.Show("Ширина области должна быть меньше 1000км");
+                MessageBox.Show("Ширина области должна быть меньше чем 1000км", "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             /*Если число меньше минимума, то ставим минимум*/
             if (Convert.ToDouble(TextBoxXAreaSize.Text) < Min)
             {
                 TextBoxXAreaSize.Text = Min.ToString();
-                MessageBox.Show("Ширина области должна быть больше чем " + Min + " м");
+                MessageBox.Show("Ширина области должна быть больше чем " + Min + " м", "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
         }
@@ -770,6 +793,12 @@ namespace Second
             TextBoxYAreaSize.Text = Draw.YAREASIZE.ToString();
             /*Изменяем ползунки*/
             ChangeScrollBars();
+            /*Изменяем размер таблицы*/
+            ChangeSizeDataGridView();
+            /*Изменение таблицы слоев*/
+            ChangeDataGridViewLayers();
+            /*Изменение таблицы минералов*/
+            ChangeDataGridViewMinerals();
         }
 
         private void TextBoxEarthSize_KeyPress(object sender, KeyPressEventArgs e)
@@ -790,14 +819,14 @@ namespace Second
             /*Если число не введенно, то по умолчанию 0*/
             if (TextBoxEarthSize.TextLength == 0)
             {
-                TextBoxEarthSize.Text = "0,0";
+                TextBoxEarthSize.Text = "0";
                 return;
             }
             /*Если высота больше максимума, ставим максимум*/
             if (Convert.ToDouble(TextBoxEarthSize.Text) > 10000)
             {
-                TextBoxXAreaSize.Text = "10000";
-                MessageBox.Show("Высота над уровнем земли должна быть меньше 10км");
+                TextBoxEarthSize.Text = "10000";
+                MessageBox.Show("Высота над уровнем земли должна быть меньше чем 10км", "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
         }
@@ -818,6 +847,12 @@ namespace Second
             TextBoxEarthSize.Text = Draw.EARTHSIZE.ToString();
             /*Изменяем ползунки*/
             ChangeScrollBars();
+            /*Изменяем размер таблицы*/
+            ChangeSizeDataGridView();
+            /*Изменение таблицы слоев*/
+            ChangeDataGridViewLayers();
+            /*Изменение таблицы минералов*/
+            ChangeDataGridViewMinerals();
         }
 
         private void TextBoxYAreaSize_KeyPress(object sender, KeyPressEventArgs e)
@@ -839,20 +874,21 @@ namespace Second
             if (TextBoxYAreaSize.TextLength == 0)
             {
                 TextBoxYAreaSize.Text = Draw.GetMaxPointLayers().ToString();
+                MessageBox.Show("Высота области должна быть больше чем " + TextBoxYAreaSize.Text + "м", "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             /*Если ввели область больше максимального, то ставим максимум*/
             if (Convert.ToDouble(TextBoxYAreaSize.Text) > 1000000)
             {
                 TextBoxYAreaSize.Text = "1000000";
-                MessageBox.Show("Высота области должна быть меньше 1000км");
+                MessageBox.Show("Высота области должна быть меньше чем 1000км", "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             /*Если ввели число меньше минимума, то ставим минимум*/
             if (Convert.ToDouble(TextBoxYAreaSize.Text) < Draw.GetMaxPointLayers())
             {
                 TextBoxYAreaSize.Text = Draw.GetMaxPointLayers().ToString();
-                MessageBox.Show("Высота области должна быть больше чем " + TextBoxYAreaSize.Text + "м");
+                MessageBox.Show("Высота области должна быть больше чем " + TextBoxYAreaSize.Text + "м", "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
         }
@@ -868,6 +904,12 @@ namespace Second
             }
             /*Изменяем ползунки*/
             ChangeScrollBars();
+            /*Изменяем размер таблицы*/
+            ChangeSizeDataGridView();
+            /*Изменение таблицы слоев*/
+            ChangeDataGridViewLayers();
+            /*Изменение таблицы минералов*/
+            ChangeDataGridViewMinerals();
         }
 
         private void СheckedListBoxSettings_ItemCheck(object sender, ItemCheckEventArgs e)
@@ -925,26 +967,27 @@ namespace Second
         }
         private void TextBoxChangeXMoveSpline_Validating(object sender, CancelEventArgs e)
         {
-            /*число должно быть введенно суммарные изменения должны не выходить за максимальные рамки (1000км)*/
-            if(TextBoxChangeXMoveSpline.TextLength > 0 && Math.Round(Convert.ToDouble(TextBoxChangeXMoveSpline.Text),GlobalConst.Accuracy)+Draw.XAREASIZE > 1000000)
+            if (TextBoxChangeXMoveSpline.TextLength == 0)
+                TextBoxChangeXMoveSpline.Text = "0";
+            /*суммарные изменения должны не выходить за максимальные рамки (1000км)*/
+            if (Math.Round(Convert.ToDouble(TextBoxChangeXMoveSpline.Text),GlobalConst.Accuracy)+Draw.XAREASIZE > 1000000)
             {
                 double Move = 1000000.0 - Draw.XAREASIZE;
                 TextBoxChangeXMoveSpline.Text = (Move > 0) ? Move.ToString() : "0";
-                MessageBox.Show("Смещение области должно быть меньше чем " + TextBoxChangeXMoveSpline.Text + "м");
+                MessageBox.Show("Смещение области должно быть меньше чем " + TextBoxChangeXMoveSpline.Text + "м", "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
         }
         private void TextBoxChangeXMoveSpline_Validated(object sender, EventArgs e)
         {
-            /*Если число введенно округляем введенные данные*/
-            if (TextBoxChangeXMoveSpline.TextLength > 0)
-                TextBoxChangeXMoveSpline.Text = Math.Round(Convert.ToDouble(TextBoxChangeXMoveSpline.Text), GlobalConst.Accuracy).ToString();
+            /*Округляем введенные данные*/
+            TextBoxChangeXMoveSpline.Text = Math.Round(Convert.ToDouble(TextBoxChangeXMoveSpline.Text), GlobalConst.Accuracy).ToString();
         }
 
         private void ButtonChangeXMoveSpline_Click(object sender, EventArgs e)
         {
-            /*Если число введенно и смещение больше 0 с заданной точностью, то смещаем точки*/
-            if (Convert.ToDouble(TextBoxChangeXMoveSpline.Text) > 0 && Convert.ToDouble(TextBoxChangeXMoveSpline.Text) > 0)
+            /*Если число не выходит за рамки*/
+            if (Math.Round(Convert.ToDouble(TextBoxChangeXMoveSpline.Text), GlobalConst.Accuracy) + Draw.XAREASIZE <= 1000000)
             {
                 /*Смещение*/
                 double ChangeX = Convert.ToDouble(TextBoxChangeXMoveSpline.Text);
@@ -955,6 +998,12 @@ namespace Second
                 ChangeScrollBars();
                 /*Двигаем сплайны*/
                 Draw.MoveSpline(ChangeX);
+            }
+            else
+            {
+                double Move = 1000000.0 - Draw.XAREASIZE;
+                TextBoxChangeXMoveSpline.Text = (Move > 0) ? Move.ToString() : "0";
+                MessageBox.Show("Смещение области должно быть меньше чем " + TextBoxChangeXMoveSpline.Text + "м", "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
         #endregion
@@ -1014,7 +1063,7 @@ namespace Second
         {
             ColorDialog.ShowDialog();
             if (!Draw.SetSplineColor(ColorDialog.Color, CheckControlPoint))
-                MessageBox.Show("Цвет уже занят");
+                MessageBox.Show("Цвет уже занят", "Ошибка изменения элемента", MessageBoxButtons.OK, MessageBoxIcon.Error);
             else
             {
                 if (CheckControlPoint[0] == 1)
@@ -1034,7 +1083,7 @@ namespace Second
             double Resistanc;
             if (!double.TryParse(Resistance, out Resistanc))
             {
-                MessageBox.Show(Name + " имеет сопротивление в другом формате");
+                MessageBox.Show(Name + " имеет сопротивление в другом формате", "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             /*Если выбран материал слоя*/
@@ -1044,7 +1093,7 @@ namespace Second
                 for (i = 0; i < MaterialLayer.Count; i++)
                     if (MaterialLayer[i].NAME == Name)
                     {
-                        MessageBox.Show(Name + " уже используется.");
+                        MessageBox.Show(Name + " уже используется", "Ошибка добавления элемента", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
                 /*Добавляем данные*/
@@ -1059,9 +1108,9 @@ namespace Second
             {
                 /*Если данное название уже используется, то ничего не делаем*/
                 for (i = 0; i < MaterialMineral.Count; i++)
-                    if (MaterialMineral[i].NAME == GlobalConst.Buffer[0])
+                    if (MaterialMineral[i].NAME == Name)
                     {
-                        MessageBox.Show(Name + " уже используется.");
+                        MessageBox.Show(Name + " уже используется", "Ошибка добавления элемента", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
                 /*Добавляем данные*/
@@ -1121,7 +1170,7 @@ namespace Second
                             Draw.SetSplineMaterial(new int[2] { 1, Number[i] }, Material);
                             Out += " " + Number[i];
                         }
-                        MessageBox.Show("Изменены типы в " + Out + " слоях.");
+                        MessageBox.Show("Изменены материалы в " + Out + " слоях.");
                     }
                     /*Меняем в массиве и в списке*/
                     MaterialLayer[СomboBoxLayerMaterial.SelectedIndex] = Material;
@@ -1138,7 +1187,7 @@ namespace Second
                             Draw.SetSplineMaterial(new int[2] { 1, Number[i] }, Material);
                             Out += " " + Number[i];
                         }
-                        MessageBox.Show("Изменены типы в " + Out + " слоях.");
+                        MessageBox.Show("Изменены материалы в " + Out + " объектах.");
                     }
                     /*Меняем в массиве и в списке*/
                     MaterialMineral[ComboBoxMineralMaterial.SelectedIndex] = Material;
@@ -1158,7 +1207,7 @@ namespace Second
                 {
                     for (i = 0; i < Number.Count; i++)
                         Out += " " + Number[i];
-                    MessageBox.Show("Нельзя удалить материал, так как он использутся в" + Out + " слоях.");
+                    MessageBox.Show("Нельзя удалить материал, так как он использутся в" + Out + " слоях.", "Ошибка удаления элемента", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 else
                 {
@@ -1170,7 +1219,7 @@ namespace Second
                         СomboBoxLayerMaterial.SelectedIndex = 0;
                     }
                     else
-                        MessageBox.Show("Должен остаться хотя бы один материал.");
+                        MessageBox.Show("Должен остаться хотя бы один материал.", "Ошибка удаления элемента", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             else
             {
@@ -1179,7 +1228,7 @@ namespace Second
                 {
                     for (i = 0; i < Number.Count; i++)
                         Out += " " + Number[i];
-                    MessageBox.Show("Нельзя удалить материал, так как он использутся в" + Out + " объектах.");
+                    MessageBox.Show("Нельзя удалить материал, так как он использутся в" + Out + " объектах", "Ошибка удаления элемента", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 else
                 {
@@ -1191,7 +1240,7 @@ namespace Second
                         ComboBoxMineralMaterial.SelectedIndex = 0;
                     }
                     else
-                        MessageBox.Show("Должен остаться хотя бы один материал.");
+                        MessageBox.Show("Должен остаться хотя бы один материал", "Ошибка удаления элемента", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
@@ -1210,17 +1259,17 @@ namespace Second
         }
         private void TextBoxLayerNumberOfPoints_Validating(object sender, CancelEventArgs e)
         {
-            if(TextBoxLayerNumberOfPoints.TextLength==0 || Convert.ToInt32(TextBoxLayerNumberOfPoints.Text) < 2)
+            if (TextBoxLayerNumberOfPoints.TextLength == 0 || Convert.ToInt32(TextBoxLayerNumberOfPoints.Text) < 2)
             {
                 TextBoxLayerNumberOfPoints.Text = "2";
-                MessageBox.Show("Количество опорных точек должно быть больше 1");
+                MessageBox.Show("Количество опорных точек должно быть больше чем 1", "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             double X = Draw.XAREASIZE;
-            if(Convert.ToDouble(TextBoxLayerNumberOfPoints.Text) > X * Math.Pow(10, GlobalConst.Accuracy)) 
+            if (Convert.ToDouble(TextBoxLayerNumberOfPoints.Text) > X * Math.Pow(10, GlobalConst.Accuracy))
             {
-                TextBoxLayerNumberOfPoints.Text = X.ToString();
-                MessageBox.Show("Количество опорных точек должно быть меньше " + X.ToString() + ".");
+                TextBoxLayerNumberOfPoints.Text = (X * Math.Pow(10, GlobalConst.Accuracy)).ToString();
+                MessageBox.Show("Количество опорных точек должно быть меньше чем " + (X * Math.Pow(10, GlobalConst.Accuracy)).ToString(), "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
         }
@@ -1245,10 +1294,15 @@ namespace Second
         }
         private void TextBoxLayerHeight_Validating(object sender, CancelEventArgs e)
         {
+            if(TextBoxLayerHeight.TextLength == 0)
+            {
+                TextBoxLayerHeight.Text = "0";
+                return;
+            }
             if (Convert.ToDouble(TextBoxLayerHeight.Text) + Draw.EARTHSIZE > 1000000)
             {
-                TextBoxLayerHeight.Text = (100000000.0-Draw.EARTHSIZE).ToString();
-                MessageBox.Show("Высота слоя должна быть меньше "+TextBoxYAreaSize.Text);
+                TextBoxLayerHeight.Text = (1000000.0-Draw.EARTHSIZE).ToString();
+                MessageBox.Show("Высота слоя должна быть меньше чем " + TextBoxLayerHeight.Text, "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
         }
@@ -1286,7 +1340,7 @@ namespace Second
                 ChangeDataGridViewLayers();
             }
             else
-            MessageBox.Show("Нельзя добавить слой.");
+            MessageBox.Show("Нельзя добавить слой", "Ошибка добавления элемента", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         private void СomboBoxLayerMaterial_MouseDown(object sender, MouseEventArgs e)
@@ -1349,7 +1403,7 @@ namespace Second
                 DrawMineral = false;
                 DrawSplineMinerals.BackColor = System.Drawing.SystemColors.Control;
                 if (!Draw.CheckPointsMinerals())
-                    MessageBox.Show("Должно быть минимум 3 точки, точки удалены.");
+                    MessageBox.Show("Должно быть минимум 3 точки, точки удалены", "Ошибка добавления элемента", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 else
                 {
                     DataGridViewMinerals.Rows.Add(0, "", 0, 0);
@@ -1467,6 +1521,9 @@ namespace Second
                 Draw.LINE = true;
                 СheckedListBoxSpline.SetItemChecked(1, true);
             }
+            /*Записываем данные в таблицы*/
+            ChangeDataGridViewLayers();
+            ChangeDataGridViewMinerals();
         }
         private void СheckedListBoxSpline_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -1514,7 +1571,7 @@ namespace Second
             if (TextBoxStepPartition.TextLength == 0)
             {
                 TextBoxStepPartition.Text = Min.ToString();
-                MessageBox.Show("Минимальный шаг разбиения " + Min);
+                MessageBox.Show("Минимальный шаг разбиения " + Min, "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             /*Обрезаем с нужной точностью*/
@@ -1523,14 +1580,14 @@ namespace Second
             if (Convert.ToDouble(TextBoxStepPartition.Text) < Min)
             {
                 TextBoxStepPartition.Text = Min.ToString();
-                MessageBox.Show("Минимальный шаг разбиения " + Min);
+                MessageBox.Show("Минимальный шаг разбиения " + Min, "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             /*Если больше максимума, то ставим максимум*/
             if (Convert.ToDouble(TextBoxStepPartition.Text) > Draw.XAREASIZE)
             {
                 TextBoxStepPartition.Text = Draw.XAREASIZE.ToString();
-                MessageBox.Show("Максимальный шаг разбиения " + Draw.XAREASIZE);
+                MessageBox.Show("Максимальный шаг разбиения " + Draw.XAREASIZE, "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             /*Убираем чеки*/
@@ -1592,7 +1649,11 @@ namespace Second
                     break;
                 case 2:
                     {
-
+                        if (e.NewValue == CheckState.Checked && TextBoxStepPartition.Text != "")
+                        {
+                            Draw.PARTITION = true;
+                        }
+                        else Draw.PARTITION = false;
                     }
                     break;
             }
@@ -1626,18 +1687,7 @@ namespace Second
             SaveFileDialog Files = new SaveFileDialog();
             if (Files.ShowDialog() == DialogResult.OK)
             {
-                FileStream fs = new FileStream(Files.FileName, FileMode.OpenOrCreate, FileAccess.Write);
-                StreamWriter sw = new StreamWriter(fs);
-                int i;
-                /*Выводим материал слоя*/
-                for (i=0;i<MaterialLayer.Count;i++)
-                    sw.WriteLine((i+1).ToString()+"l " + MaterialLayer[i].NAME +" " + MaterialLayer[i].RESISTANCE.ToString());
-                sw.WriteLine();
-                /*Выводим материалы минерала*/
-                for (i = 0; i < MaterialMineral.Count; i++)
-                    sw.WriteLine((i + 1).ToString() + "m " + MaterialMineral[i].NAME + " " + MaterialMineral[i].RESISTANCE.ToString());
-                sw.Close();
-
+                WFiles.OutputMKE(Files.FileName, Draw, MaterialLayer, MaterialMineral);    
             }
         }
 

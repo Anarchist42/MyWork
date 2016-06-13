@@ -4,6 +4,8 @@ using System.Drawing;
 using Tao.OpenGl;
 using Tao.FreeGlut;
 using Tao.Platform.Windows;
+using System.Linq;
+
 namespace Second
 {
     class Paint
@@ -58,7 +60,6 @@ namespace Second
         /// Нужна ли разметка.
         /// </summary>
         private bool Marking;
-
         private bool SupportPoint;
         /// <summary>
         /// Нужна ли интерполяция линиями.
@@ -73,7 +74,6 @@ namespace Second
         /// Нужна ли интерполяция сплайнами.
         /// </summary>
         private bool CSpline;
-
         /// <summary>
         /// Опорные линии разбиения.
         /// </summary>
@@ -116,7 +116,7 @@ namespace Second
         /// <summary>
         /// Сплайны миниралов.
         /// </summary>
-        private List<Mineral> Minerals = new List<Mineral>();
+        private List<Mineral> Minerals = new List<Mineral>();   
         /// <summary>
         /// Рандом для цвета.
         /// </summary>
@@ -125,6 +125,10 @@ namespace Second
         /// Используемый массив (0 - Points, 1 - BSpline, 2 - CSpline)
         /// </summary>
         private int MassivNumber;
+        /// <summary>
+        /// Конечные элементы.
+        /// </summary>
+        private List<FiniteElement> FiniteElements = new List<FiniteElement>();
         #endregion
         #endregion
 
@@ -188,6 +192,7 @@ namespace Second
                 this.MaxZoom = 0.0;
                 this.Layers.RemoveRange(0, Layers.Count);
                 this.Minerals.RemoveRange(0, Minerals.Count);
+                this.FiniteElements.RemoveRange(0, FiniteElements.Count);
             }
             catch { return false; }
             return true;
@@ -293,7 +298,6 @@ namespace Second
             get { return this.Marking; }
             set { this.Marking = value; }
         }
-
         public bool SUPPORTPOINT
         {
             get { return this.SupportPoint; }
@@ -314,7 +318,6 @@ namespace Second
             get { return this.CSpline; }
             set { this.CSpline = value; if(value == true) MassivNumber = 2; }
         }
-
         public bool LINEPARTITION
         {
             get { return this.LinePartition; }
@@ -600,6 +603,8 @@ namespace Second
                         Layers[FIJ[1]].COLOR = Color;
                     else
                         Minerals[FIJ[1]].COLOR = Color;
+                else
+                    return false;
             }
             catch { return false; }
             return true;
@@ -758,9 +763,9 @@ namespace Second
                     if (Layers.Count > 1 && GetCoordinate(1) < Layers[0].ReturnMaxYX(GetCoordinate(0), MassivNumber)
                    && GetCoordinate(1) > Layers[Layers.Count - 1].ReturnMinYX(GetCoordinate(0), MassivNumber))
                     {
-                        Minerals[Minerals.Count - 1].AddPoint(new PointSpline(GetCoordinate(0), GetCoordinate(1)), out FIJ[2]);
+                        Minerals[FIJ[1]].AddPoint(new PointSpline(GetCoordinate(0), GetCoordinate(1)), out FIJ[2]);
                     }
-                    return false;
+                    else return false;
                 }
             }
             catch { return false; }
@@ -808,7 +813,8 @@ namespace Second
                 for (i = 0; i < Layers.Count; i++)
                     Layers[i].DeletePoint(XAreaSize);
                 for (i = 0; i < Minerals.Count; i++)
-                    Minerals[i].DeletePoint(XAreaSize);
+                    if (!Minerals[i].DeletePoint(XAreaSize))
+                        Minerals.RemoveAt(i--);
             }
             catch { return false; }
             return true;
@@ -957,12 +963,12 @@ namespace Second
                 if (Layers.Count > 1)
                 {
                     if (FIJ[1] == 0)
-                        return Check4LayersIntersectionRude(FIJ[2], Layers[0].ClonePoint(0), Layers[1].ClonePoint(0));
+                        return Check4LayersIntersectionRude(FIJ[2], Layers[0].ClonePoints(0), Layers[1].ClonePoints(0));
                     if (FIJ[1] == Layers.Count - 1)
-                        return Check4LayersIntersectionRude(FIJ[2], Layers[Layers.Count - 1].ClonePoint(0), Layers[Layers.Count - 2].ClonePoint(0));
+                        return Check4LayersIntersectionRude(FIJ[2], Layers[Layers.Count - 1].ClonePoints(0), Layers[Layers.Count - 2].ClonePoints(0));
                     else
-                        return Check4LayersIntersectionRude(FIJ[2], Layers[FIJ[1]].ClonePoint(0), Layers[FIJ[1] + 1].ClonePoint(0)) ||
-                            Check4LayersIntersectionRude(FIJ[2], Layers[FIJ[1]].ClonePoint(0), Layers[FIJ[1] - 1].ClonePoint(0));
+                        return Check4LayersIntersectionRude(FIJ[2], Layers[FIJ[1]].ClonePoints(0), Layers[FIJ[1] + 1].ClonePoints(0)) ||
+                            Check4LayersIntersectionRude(FIJ[2], Layers[FIJ[1]].ClonePoints(0), Layers[FIJ[1] - 1].ClonePoints(0));
                 }
             }
             catch { return true; }
@@ -1018,7 +1024,7 @@ namespace Second
                     List<PointSpline> Points;
                     for (i = 0; i < Layers.Count; i++)
                     {
-                        Points = Layers[i].ClonePoint(0);
+                        Points = Layers[i].ClonePoints(0);
                         for (j = 0; j < Points.Count; j++)
                             if (Points[j].X >= X[0] && Points[j].X <= X[1] && Points[j].Y <= Y[0] && Points[j].Y >= Y[1])
                             {
@@ -1030,7 +1036,7 @@ namespace Second
                     }
                     for (i = 0; i < Minerals.Count; i++)
                     {
-                        Points = Minerals[i].ClonePoint(0);
+                        Points = Minerals[i].ClonePoints(0);
                         for (j = 0; j < Points.Count; j++)
                             if (Points[j].X >= X[0] && Points[j].X <= X[1] && Points[j].Y <= Y[0] && Points[j].Y >= Y[1])
                             {
@@ -1143,15 +1149,119 @@ namespace Second
         #endregion
 
         #region Построение КЭ
+        /// <summary>
+        /// Разбиение.
+        /// </summary>
+        /// <returns> Выполнил или нет. </returns>
         public bool MakePartition()
         {
             try
             {
                 int i;
                 for (i = 0; i < Layers.Count; i++)
-                    Layers[i].MakePartition(PARTITIONX, MassivNumber);
+                    Layers[i].MakePartition(PARTITIONX, MassivNumber, i);
                 for (i = 0; i < Minerals.Count; i++)
-                    Minerals[i].MakePartition(PARTITIONX, MassivNumber);
+                    Minerals[i].MakePartition(PARTITIONX, MassivNumber, i);
+                MakeFinit();
+            }
+            catch { return false; }
+            return true;
+        }
+        /// <summary>
+        /// Составление конечных элементов.
+        /// </summary>
+        /// <returns> Выполнил или нет. </returns>
+        private bool MakeFinit()
+        {
+            try
+            {
+                int i, j, k, m;
+                bool flagMineral;
+                /*Создаем массив для группировки точек по Х*/
+                int N = (XAreaSize % PartitionX != 0)
+                    ? Convert.ToInt32(Math.Floor(XAreaSize / PartitionX)) + 2
+                    : Convert.ToInt32(Math.Floor(XAreaSize / PartitionX)) + 1;
+                List<PointMKE>[] FullMassive = new List<PointMKE>[N];
+                for (i = 0; i < FullMassive.Length; i++)
+                    FullMassive[i] = new List<PointMKE>();
+                /*Записываем значения*/
+                for (i = 0; i < Layers.Count; i++)
+                {
+                    List<PointMKE> a = Layers[i].ClonePartition();
+                    for (j = 0; j < a.Count; j++)
+                    {
+                        int Number = (a[j].POINT.X % PartitionX != 0)
+                            ? Convert.ToInt32(Math.Floor(a[j].POINT.X / PartitionX)) + 1
+                            : Convert.ToInt32(a[j].POINT.X / PartitionX);
+                        FullMassive[Number].Add(a[j]);
+                    }
+                }
+                for (i = 0; i < Minerals.Count; i++)
+                {
+                    List<PointMKE> a = Minerals[i].ClonePartition();
+                    for (j = 0; j < a.Count; j++)
+                    {
+                        int Number = (a[j].POINT.X % PartitionX != 0)
+                            ? Convert.ToInt32(a[j].POINT.X / PartitionX) + 1
+                            : Convert.ToInt32(a[j].POINT.X / PartitionX);
+                        FullMassive[Number].Add(a[j]);
+                    }
+                }
+                /*Сортируем по убыванию*/
+                for (i = 0; i < FullMassive.Length; i++)
+                    FullMassive[i].Sort(delegate (PointMKE x, PointMKE y)
+                    {
+                        return y.POINT.Y.CompareTo(x.POINT.Y);
+                    });
+                /*Очищаем масив конечных элементов*/
+                FiniteElements.Clear();
+                for (i = 0; i < FullMassive.Length - 1; i++)
+                {
+                    /*Копируем левую и правую границы что бы изменять их, если надо, а не основной массив данных*/
+                    List<PointMKE> Left = new List<PointMKE>();
+                    for (j = 0; j < FullMassive[i].Count; j++)
+                        Left.Add(new PointMKE(new PointSpline(FullMassive[i][j].POINT.X, FullMassive[i][j].POINT.Y), FullMassive[i][j].NUMBERSPLINE, FullMassive[i][j].ITSLAYER));
+                    List<PointMKE> Right = new List<PointMKE>();
+                    for (j = 0; j < FullMassive[i + 1].Count; j++)
+                        Right.Add(new PointMKE(new PointSpline(FullMassive[i + 1][j].POINT.X, FullMassive[i + 1][j].POINT.Y), FullMassive[i + 1][j].NUMBERSPLINE, FullMassive[i + 1][j].ITSLAYER));
+                    flagMineral = false;
+                    m = 0;
+                    /*j - счетчик по левой границе, k - по правой границе*/
+                    for (j = 0, k = 0; j < Left.Count - 1 && k < Right.Count - 1; j++, k++)
+                    {
+                        FiniteElement AddElement = new FiniteElement();
+                        /*Верхние две точки*/
+                        AddElement.POINTS[0] = Left[j].POINT;
+                        AddElement.POINTS[1] = Right[k].POINT;
+                        /*Нижние две точки*/
+                        if (Left[j + 1].POINT.Y > Right[k + 1].POINT.Y)
+                            Right.Insert(k + 1, new PointMKE(new PointSpline(Right[k + 1].POINT.X, Left[j + 1].POINT.Y), Left[j + 1].NUMBERSPLINE, Left[j + 1].ITSLAYER));                           
+                        else
+                            Left.Insert(j + 1, new PointMKE(new PointSpline(Left[j + 1].POINT.X, Right[k + 1].POINT.Y), Right[k + 1].NUMBERSPLINE, Right[k + 1].ITSLAYER));
+                        AddElement.POINTS[2] = Left[j + 1].POINT;
+                        AddElement.POINTS[3] = Right[k + 1].POINT;
+                        /*Добавление материала*/
+                        /*Если сейчас идет минерал*/
+                        if(flagMineral == true)
+                        {
+                            AddElement.MATERIAL[0] = Layers[m].MATERIAL;
+                            AddElement.MATERIAL[1] = Minerals[Left[j].NUMBERSPLINE].MATERIAL;
+                        }
+                        /*Если нет минерала*/
+                        else
+                            AddElement.MATERIAL[0] = Layers[Left[j].NUMBERSPLINE].MATERIAL;
+                        ///*Если снизу начинается минерал, то сохраняем подкладку и включаем двойной материал*/
+                        //if (Left[j + 1].ITSLAYER == false || Right[k + 1].ITSLAYER == false)
+                        //{
+                        //    flagMineral = true;
+                        //    m = Left[j].NUMBERSPLINE;
+                        //}
+                        //else
+                        //    if (flagMineral == true) flagMineral = false;
+                        /*Добавляем конечный элемент в массив*/
+                        FiniteElements.Add(AddElement);
+                    }
+                }
             }
             catch { return false; }
             return true;
@@ -1323,22 +1433,22 @@ namespace Second
             for (i = 0; i < Layers.Count; i++)
             {
                 Color color = Layers[i].COLOR;
-                DrawingSpline(Layers[i].ClonePoint(MassivNumber), color);
+                DrawingSpline(Layers[i].ClonePoints(MassivNumber), color);
                 if (SupportPoint)
-                    DrawingSupportPoint(Layers[i].ClonePoint(0), color);
+                    DrawingSupportPoint(Layers[i].ClonePoints(0), color);
                 else
                     if(i!=Layers.Count-1)
-                    DrawingFilingLayers(Layers[i].ClonePoint(MassivNumber), Layers[i + 1].ClonePoint(MassivNumber), Layers[i].COLOR);
+                    DrawingFilingLayers(Layers[i].ClonePoints(MassivNumber), Layers[i + 1].ClonePoints(MassivNumber), Layers[i].COLOR);
             }
             /*Рисуем минералы*/
             for (i = 0; i < Minerals.Count; i++)
             {
                 Color color = Minerals[i].COLOR;
-                DrawingSpline(Minerals[i].ClonePoint(MassivNumber), color);
+                DrawingSpline(Minerals[i].ClonePoints(MassivNumber), color);
                 if (SupportPoint)
-                        DrawingSupportPoint(Minerals[i].ClonePoint(0), color);
+                        DrawingSupportPoint(Minerals[i].ClonePoints(0), color);
                 else
-                    DrawingFilingMinerals(Minerals[i].ClonePoint(MassivNumber), Minerals[i].COLOR);
+                    DrawingFilingMinerals(Minerals[i].ClonePoints(MassivNumber), Minerals[i].COLOR);
             }
             Gl.glPopMatrix();
         }
@@ -1525,6 +1635,31 @@ namespace Second
             Gl.glEnd();
             Gl.glPopMatrix();
         }
+        /// <summary>
+        /// Вывод разбиения.
+        /// </summary>
+        private void DrawingPartition()
+        {
+            int i, j;
+            Gl.glColor3d(ColorPartition.R / 255.0, ColorPartition.G / 255.0, ColorPartition.B / 255);           
+            Gl.glLineWidth(2);            
+            for (i = 0; i < FiniteElements.Count; i++)
+            {
+                Gl.glPushMatrix();
+                Gl.glBegin(Gl.GL_LINES);
+                FiniteElement KE = FiniteElements[i].Finit(1);
+                Gl.glVertex2d((KE.POINTS[0].X - XAreaSize / 2) * Zoom + XOffset - 1, (YAreaSize / 2 - EarthSize + KE.POINTS[0].Y) * Zoom + YOffset - 1);
+                Gl.glVertex2d((KE.POINTS[1].X - XAreaSize / 2) * Zoom + XOffset - 1, (YAreaSize / 2 - EarthSize + KE.POINTS[1].Y) * Zoom + YOffset - 1);
+                Gl.glVertex2d((KE.POINTS[1].X - XAreaSize / 2) * Zoom + XOffset - 1, (YAreaSize / 2 - EarthSize + KE.POINTS[1].Y) * Zoom + YOffset - 1);
+                Gl.glVertex2d((KE.POINTS[3].X - XAreaSize / 2) * Zoom + XOffset - 1, (YAreaSize / 2 - EarthSize + KE.POINTS[3].Y) * Zoom + YOffset - 1);
+                Gl.glVertex2d((KE.POINTS[3].X - XAreaSize / 2) * Zoom + XOffset - 1, (YAreaSize / 2 - EarthSize + KE.POINTS[3].Y) * Zoom + YOffset - 1);
+                Gl.glVertex2d((KE.POINTS[2].X - XAreaSize / 2) * Zoom + XOffset - 1, (YAreaSize / 2 - EarthSize + KE.POINTS[2].Y) * Zoom + YOffset - 1);
+                Gl.glVertex2d((KE.POINTS[2].X - XAreaSize / 2) * Zoom + XOffset - 1, (YAreaSize / 2 - EarthSize + KE.POINTS[2].Y) * Zoom + YOffset - 1);
+                Gl.glVertex2d((KE.POINTS[0].X - XAreaSize / 2) * Zoom + XOffset - 1, (YAreaSize / 2 - EarthSize + KE.POINTS[0].Y) * Zoom + YOffset - 1);
+                Gl.glEnd();
+                Gl.glPopMatrix();
+            }                      
+        }
         #endregion
 
         #region Работа с файлами
@@ -1593,16 +1728,99 @@ namespace Second
                 /*Разбиваем материал на фрагменты*/
                 Str = MaterialSpline.Split(' ');
                 /*Сохраняем материал*/
-                Material _Material = new Material(Str[0], Str[1]);
+                string Name = "";
+                for (i = 0; i < Str.Length - 2; i++)
+                    Name += Str[i] + " ";
+                Name = Name.TrimEnd(' ');
+                Material _Material = new Material(Name, Str[i]);
                 /*Разбиваем массив точек на фрагменты*/
                 Str = PointsSpline.Split(' ');
                 List<PointSpline> _Points = new List<PointSpline>();
-                for (i = 0; i < Str.Length - 1; i += 2)
+                for (i = 0; i < Str.Length - 3; i += 2)
                     _Points.Add(new PointSpline(Str[i], Str[i + 1]));
                 if (Number == 1)
                     Layers.Add(new Layer(_Color, _Material, _Points));
                 if(Number == 2)
                     Minerals.Add(new Mineral(_Color, _Material, _Points));
+            }
+            catch { return false; }
+            return true;
+        }
+        /// <summary>
+        /// Вывод значений Y.
+        /// </summary>
+        /// <param name="PointY"> Массив значнеий Y. </param>
+        /// <returns></returns>
+        public bool OutputKEY(out List<double> PointY)
+        {        
+            try
+            {
+                int i;
+                List<double> Point1 = new List<double>();
+                for (i = 0; i < FiniteElements.Count; i++)
+                {
+                    Point1.Add(FiniteElements[i].Finit(1).POINTS[0].Y);
+                    Point1.Add(FiniteElements[i].Finit(1).POINTS[2].Y);
+                }
+                Point1.Sort(delegate (double x, double y)
+                {
+                    return y.CompareTo(x);
+                });
+                PointY = new List<double>(Point1.Distinct());
+            }
+            catch { PointY = new List<double>(); return false; }
+            return true;
+        }
+        /// <summary>
+        /// Вывод значений X.
+        /// </summary>
+        /// <param name="PointX"> Массив значнеий X. </param>
+        /// <returns></returns>
+        public bool OutputKEX(out List<double> PointX)
+        {
+            try
+            {
+                int i;
+                List<double> Point1 = new List<double>();
+                for (i = 0; i < FiniteElements.Count; i++)
+                {
+                    Point1.Add(FiniteElements[i].Finit(1).POINTS[0].X);
+                    Point1.Add(FiniteElements[i].Finit(1).POINTS[1].X);
+                }
+                Point1.Sort(delegate (double x, double y)
+                {
+                    return x.CompareTo(y);
+                });
+                PointX = new List<double>(Point1.Distinct());
+            }
+            catch { PointX = new List<double>(); return false; }
+            return true;
+        }
+
+        public bool OutputKE(List<Material> ML, List<Material> MM, List<double> PointX, List<double> PointY, out List<string> KE)
+        {
+            KE = new List<string>();
+            try
+            {
+                int i,j;
+                for(i=0;i<FiniteElements.Count;i++)
+                {
+                    string Add="";
+                    for(j=0;j<FiniteElements[i].POINTS.Length;j++)
+                    {
+                        FiniteElement FE = FiniteElements[i].Finit(1);
+                        Add += " " + PointX.BinarySearch(FE.POINTS[j].X);
+                        Add += " " + PointY.IndexOf(FE.POINTS[j].Y);
+                    }
+                    for(j=0;j<ML.Count;j++)
+                        if(ML[j] == FiniteElements[i].MATERIAL[0])
+                            Add += " " + j;
+                    if (FiniteElements[i].MATERIAL[1] != null)
+                        for (j = 0; j < ML.Count; j++)
+                            if (MM[j] == FiniteElements[i].MATERIAL[0])
+                                Add += " " + j + ML.Count;
+                    KE.Add(Add);
+                }
             }
             catch { return false; }
             return true;
@@ -1630,6 +1848,9 @@ namespace Second
             /*Рисуем точки разбиения*/
             if (PointPartition)
                 DrawingPointPartition();
+            /*Рисуем разбиение*/
+            if (Partition)
+                DrawingPartition();
             /*Рисуем разметку*/
             if (Marking)
                 DrawingMarking();          
