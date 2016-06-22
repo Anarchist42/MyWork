@@ -1250,14 +1250,14 @@ namespace Second
                         /*Если нет минерала*/
                         else
                             AddElement.MATERIAL[0] = Layers[Left[j].NUMBERSPLINE].MATERIAL;
-                        ///*Если снизу начинается минерал, то сохраняем подкладку и включаем двойной материал*/
-                        //if (Left[j + 1].ITSLAYER == false || Right[k + 1].ITSLAYER == false)
-                        //{
-                        //    flagMineral = true;
-                        //    m = Left[j].NUMBERSPLINE;
-                        //}
-                        //else
-                        //    if (flagMineral == true) flagMineral = false;
+                        /*Если снизу начинается минерал, то сохраняем подкладку и включаем двойной материал*/
+                        if (Left[j + 1].ITSLAYER == false || Right[k + 1].ITSLAYER == false)
+                        {
+                            flagMineral = true;
+                            m = Left[j].NUMBERSPLINE;
+                        }
+                        else
+                            if (flagMineral == true) flagMineral = false;
                         /*Добавляем конечный элемент в массив*/
                         FiniteElements.Add(AddElement);
                     }
@@ -1796,10 +1796,19 @@ namespace Second
             catch { PointX = new List<double>(); return false; }
             return true;
         }
-
+        /// <summary>
+        /// Вывод конечных элементов.
+        /// </summary>
+        /// <param name="ML"> Массив материалов слоя. </param>
+        /// <param name="MM"> Массив материалов минерала. </param>
+        /// <param name="PointX"> Массив точек Х. </param>
+        /// <param name="PointY"> Массив точек Y. </param>
+        /// <param name="KE"> Массив конечных элементов. </param>
+        /// <returns> Выполнил или нет. </returns>
         public bool OutputKE(List<Material> ML, List<Material> MM, List<double> PointX, List<double> PointY, out List<string> KE)
         {
             KE = new List<string>();
+            KE.Clear();
             try
             {
                 int i,j;
@@ -1817,8 +1826,8 @@ namespace Second
                             Add += " " + j;
                     if (FiniteElements[i].MATERIAL[1] != null)
                         for (j = 0; j < ML.Count; j++)
-                            if (MM[j] == FiniteElements[i].MATERIAL[0])
-                                Add += " " + j + ML.Count;
+                            if (MM[j] == FiniteElements[i].MATERIAL[1])
+                                Add += " " + (j + ML.Count);
                     KE.Add(Add);
                 }
             }

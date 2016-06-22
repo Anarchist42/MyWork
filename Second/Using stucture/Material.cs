@@ -65,6 +65,8 @@ namespace Second
         {
             if ((object)A == null)
                 return false;
+            if ((object)B == null)
+                return true;
             return A.Name != B.Name || A.Resistance != B.Resistance;
         }
         #endregion

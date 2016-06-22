@@ -475,7 +475,8 @@ namespace Second
                     }
                 }
             }
-            catch { return false; }
+            catch { Point.RemoveAt(Point.Count - 1); return false; }
+            Point.RemoveAt(Point.Count - 1);
             return true;
         }
         #endregion

@@ -84,7 +84,7 @@ namespace Second
                 Draw.OutputScene(1, out Color, out Material, out Points);
                 /*Выводим слои*/
                 for (i = 0; i < Color.Count; i++)
-                    SWriter.WriteLine("L " + Color[i] + " " + Material[i] + " " + Points[i]);
+                    SWriter.WriteLine("L " + Color[i] + " " + Material[i] + " P " + Points[i]);
                 /*Получаем данные по минералам*/
                 Draw.OutputScene(2, out Color, out Material, out Points);
                 /*Выводим данные по минералам*/
@@ -193,7 +193,7 @@ namespace Second
                 /*Выводим материал слоя*/
                 sw.WriteLine("Material");
                 for (i = 0; i < MaterialLayer.Count; i++)
-                    sw.WriteLine((i + 1).ToString() + " " + MaterialLayer[i].NAME + " " + MaterialLayer[i].RESISTANCE.ToString());
+                    sw.WriteLine(i.ToString() + " " + MaterialLayer[i].NAME + " " + MaterialLayer[i].RESISTANCE.ToString());
                 sw.WriteLine();
                 /*Выводим материалы минерала*/
                 for (i = 0; i < MaterialMineral.Count; i++)
@@ -222,6 +222,7 @@ namespace Second
                 for (i = 0; i < KE.Count; i++)
                     sw.WriteLine("KE " + KE[i]);
                 sw.Close();
+                fs.Close();
             }
             catch { return false; }
             return true;

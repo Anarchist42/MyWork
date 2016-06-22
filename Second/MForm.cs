@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
-using System.IO;
 
 using Tao.OpenGl;           // для работы с библиотекой OpenGL 
 using Tao.FreeGlut;         // для работы с библиотекой FreeGLUT 
@@ -120,7 +119,8 @@ namespace Second
         }
         private void AboutProgrammToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            AboutProgram AboutProgram = new AboutProgram();
+            AboutProgram.Show();
         }
         #endregion
 
@@ -1382,7 +1382,10 @@ namespace Second
                 ContextMenuDataGridView.Show(Cursor.Position);
             }
         }      
-
+        private void DataGridViewLayers_Leave(object sender, EventArgs e)
+        {
+            DataGridViewLayers.ClearSelection();
+        }
         #endregion
 
         #region Минералы
@@ -1453,7 +1456,10 @@ namespace Second
                 ContextMenuDataGridView.Show(Cursor.Position);
             }
         }
-
+        private void DataGridViewMinerals_Leave(object sender, EventArgs e)
+        {
+            DataGridViewMinerals.ClearSelection();
+        }
         #endregion
 
         private void СheckedListBoxSpline_ItemCheck(object sender, ItemCheckEventArgs e)
@@ -1691,8 +1697,11 @@ namespace Second
             }
         }
 
+
         #endregion
 
         #endregion
+
+       
     }
 }
